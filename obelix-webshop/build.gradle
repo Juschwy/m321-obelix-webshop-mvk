@@ -1,0 +1,16 @@
+plugins {
+	id 'java-library'
+	id 'org.springframework.boot'
+}
+
+dependencies {
+	implementation project(':obelix-common')
+	implementation project(':obelix-quarry-api')
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+
+	testImplementation testFixtures(project(':obelix-common'))
+}
+
+tasks.named('bootRun') {
+	// mainClass = 'ch.bbw.m321.quarry.QuarryApplication'
+}

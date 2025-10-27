@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: webshop
+  profiles:
+    active: common
+server:
+  port: 8080

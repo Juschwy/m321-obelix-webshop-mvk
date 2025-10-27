@@ -1,0 +1,18 @@
+plugins {
+	id 'java-library'
+	id 'java-test-fixtures'
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	api 'org.springframework.boot:spring-boot-starter-data-jpa'
+	api 'org.springframework.boot:spring-boot-starter-validation'
+	api 'org.springframework.boot:spring-boot-starter-web'
+
+	runtimeOnly 'com.h2database:h2' // for now...
+
+	testFixturesApi 'org.springframework.boot:spring-boot-starter-test'
+	testFixturesApi 'org.springframework.boot:spring-boot-starter-webflux'
+	testFixturesApi 'org.assertj:assertj-core'
+	testFixturesRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}

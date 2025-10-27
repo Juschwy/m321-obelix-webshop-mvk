@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: quarry
+  profiles:
+    active: common
+server:
+  port: 8081

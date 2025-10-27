@@ -1,0 +1,8 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:obelixdb
+logging:
+  pattern:
+    level: "%5p [%X{traceId:-},%X{spanId:-}]"
+  level:
+    org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
