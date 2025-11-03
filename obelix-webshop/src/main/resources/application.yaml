@@ -5,3 +5,4 @@ spring:
     active: common
 server:
   port: 8080
+quarry-server-url: "http://localhost:8081"

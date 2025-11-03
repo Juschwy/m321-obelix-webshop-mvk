@@ -1,0 +1,69 @@
+package ch.bbw.obelix.webshop.service;
+
+import ch.bbw.obelix.quarry.api.QuarryApi;
+import ch.bbw.obelix.quarry.api.dto.BasketDto;
+import ch.bbw.obelix.quarry.api.dto.DecorativenessDto;
+import ch.bbw.obelix.webshop.exception.BadRequestException;
+import jakarta.annotation.PostConstruct;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+/**
+ * @author schules
+ * @version 03.11.2025
+ */
+
+@Transactional
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class BasketService {
+    private final QuarryApi quarryClientService;
+
+    private BasketDto basket;
+
+    static <T> List<T> append(List<T> immutableList, T element) {
+        var tmpList = new ArrayList<>(immutableList);
+        tmpList.add(element);
+        return Collections.unmodifiableList(tmpList);
+    }
+
+    public BasketDto offer(@NonNull BasketDto.BasketItem basketItem) {
+        basket.items()
+                .add(basketItem);
+        return basket;
+    }
+
+    @PostConstruct
+    public void leave() {
+        basket = BasketDto.empty();
+    }
+
+    public boolean isGoodOffer(DecorativenessDto decorativeness) {
+        var stoneWorth = decorativeness.ordinal();
+        var basketWorth = basket.items()
+                .stream().map(x -> switch (x.name().toLowerCase(Locale.ROOT)) {
+                    case "boar" -> 5; // oh boy, oh boy!
+                    case "honey" -> 2;
+                    case "magic potion" -> 0; // not allowed to drink this!
+                    default -> 1; // everything is worth something
+                } * x.count()).reduce(0, Integer::sum);
+        log.info("basket worth {} vs menhir worth {} ({})", basketWorth, decorativeness, stoneWorth);
+        return basketWorth >= stoneWorth;
+    }
+
+    public void exchange(UUID menhirId) {
+        var menhir = quarryClientService.getMenhirById(menhirId);
+        var decorativeness = menhir.decorativeness();
+        if (!isGoodOffer(decorativeness)) {
+            throw new BadRequestException("Bad Offer: That won't even feed Idefix!");
+        }
+        quarryClientService.deleteById(menhirId);
+        leave();
+    }
+}
