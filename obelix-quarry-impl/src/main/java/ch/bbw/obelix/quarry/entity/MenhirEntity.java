@@ -1,20 +1,13 @@
-package ch.bbw.obelix.webshop.entity;
+package ch.bbw.obelix.quarry.entity;
 
-import java.util.UUID;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-import ch.bbw.obelix.webshop.dto.DecorativenessDto;
-import ch.bbw.obelix.webshop.dto.MenhirDto;
+import ch.bbw.obelix.quarry.api.dto.DecorativenessDto;
+import ch.bbw.obelix.quarry.api.dto.MenhirDto;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.util.UUID;
 
 /**
  * A standing stone proudly created in Obelix's quarry.
