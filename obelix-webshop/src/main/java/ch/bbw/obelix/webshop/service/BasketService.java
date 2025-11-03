@@ -1,9 +1,9 @@
 package ch.bbw.obelix.webshop.service;
 
+import ch.bbw.obelix.common.exception.BadRequestException;
 import ch.bbw.obelix.quarry.api.QuarryApi;
 import ch.bbw.obelix.quarry.api.dto.BasketDto;
 import ch.bbw.obelix.quarry.api.dto.DecorativenessDto;
-import ch.bbw.obelix.webshop.exception.BadRequestException;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;

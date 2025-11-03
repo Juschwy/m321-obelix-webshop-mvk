@@ -1,4 +1,4 @@
-package ch.bbw.obelix.webshop.exception;
+package ch.bbw.obelix.common.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;

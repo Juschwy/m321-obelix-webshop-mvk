@@ -1,4 +1,4 @@
-package ch.bbw.obelix.webshop.exception;
+package ch.bbw.obelix.common.exception;
 
 import lombok.experimental.StandardException;
 import org.springframework.http.HttpStatus;

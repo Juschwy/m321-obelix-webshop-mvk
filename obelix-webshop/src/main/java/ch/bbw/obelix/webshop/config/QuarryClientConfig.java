@@ -1,7 +1,6 @@
 package ch.bbw.obelix.webshop.config;
 
-import ch.bbw.obelix.quarry.api.QuarryApi;
-import ch.bbw.obelix.webshop.exception.BadRequestException;
+import ch.bbw.obelix.common.exception.BadRequestException;
 import ch.bbw.obelix.webshop.service.QuarryClientService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

@@ -1,16 +1,12 @@
 package ch.bbw.obelix.quarry.service;
 
+import ch.bbw.obelix.common.exception.BadRequestException;
 import ch.bbw.obelix.quarry.api.dto.MenhirDto;
-import ch.bbw.obelix.quarry.controller.QuarryController;
 import ch.bbw.obelix.quarry.entity.MenhirEntity;
 import ch.bbw.obelix.quarry.repository.MenhirRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.StandardException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.util.List;
 import java.util.UUID;
@@ -37,7 +33,7 @@ public class QuarryService {
     public MenhirDto getMenhirById(UUID menhirId) {
         return menhirRepository.findById(menhirId)
                 .map(MenhirEntity::toDto)
-                .orElseThrow(() -> new QuarryController.UnknownMenhirException("unknwon menhir with id " + menhirId));
+                .orElseThrow(() -> new BadRequestException("unknwon menhir with id " + menhirId));
     }
 
     @PostConstruct
@@ -73,10 +69,5 @@ public class QuarryService {
         touristTrap.setDescription("Budget-friendly option! Made from 'liberated' Roman materials. " +
                 "Perfect for beginners or those who just want to annoy Caesar. Asterix approved!");
         menhirRepository.save(touristTrap);
-    }
-
-    @StandardException
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public static class BadOfferException extends RuntimeException {
     }
 }
