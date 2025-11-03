@@ -1,5 +1,6 @@
-package ch.bbw.obelix.webshop.dto;
+package ch.bbw.obelix.quarry.api.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import lombok.With;
@@ -8,10 +9,10 @@ import lombok.With;
  * A basket is an offer of various items in exchange for a standing stone.
  */
 @With
-public record BasketDto(List<BasketItem> items) {
+public record BasketDto(ArrayList<BasketItem> items) {
 
 	public static BasketDto empty() {
-		return new BasketDto(List.of());
+		return new BasketDto(new ArrayList<>());
 	}
 
 	public record BasketItem(String name, int count) {
