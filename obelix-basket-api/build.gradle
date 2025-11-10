@@ -1,0 +1,8 @@
+plugins {
+    id 'java-library'
+}
+
+dependencies {
+    implementation project(':obelix-common')
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
+}

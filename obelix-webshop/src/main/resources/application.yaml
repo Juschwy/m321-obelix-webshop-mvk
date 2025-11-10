@@ -5,4 +5,5 @@ spring:
     active: common
 server:
   port: 8080
-quarry-server-url: "http://localhost:8081"
+basket-server-url: http://localhost:8082
+quarry-server-url: http://localhost:8081

@@ -1,7 +1,7 @@
 package ch.bbw.obelix.webshop;
 
+import ch.bbw.obelix.basket.api.dto.BasketItem;
 import ch.bbw.obelix.quarry.api.dto.MenhirDto;
-import ch.bbw.obelix.quarry.api.dto.BasketDto;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -13,22 +13,22 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class ObelixWebshopApplicationTests {
 
-	@Autowired
-	private WebTestClient webTestClient;
+    @Autowired
+    private WebTestClient webTestClient;
 
-	@Test
-	void buyMenhir() {
-		var anyId = webTestClient.get()
-				.uri("/api/menhirs")
-				.exchange()
-				.expectBodyList(MenhirDto.class)
-				.returnResult()
-				.getResponseBody()
-				.getFirst()
-				.id();
-		webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isBadRequest();
-		webTestClient.put().uri("/api/basket/offer").bodyValue(new BasketDto.BasketItem("boar", 2)).exchange().expectStatus().isOk();
-		webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isOk();
-		webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isBadRequest();
-	}
+    @Test
+    void buyMenhir() {
+        var anyId = webTestClient.get()
+                .uri("/api/menhirs")
+                .exchange()
+                .expectBodyList(MenhirDto.class)
+                .returnResult()
+                .getResponseBody()
+                .getFirst()
+                .id();
+        webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isBadRequest();
+        webTestClient.put().uri("/api/basket/offer").bodyValue(new BasketItem("boar", 2)).exchange().expectStatus().isOk();
+        webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isOk();
+        webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isBadRequest();
+    }
 }

@@ -1,7 +1,7 @@
-package ch.bbw.obelix.webshop.config;
+package ch.bbw.obelix.quarry.api.config;
 
 import ch.bbw.obelix.common.exception.BadRequestException;
-import ch.bbw.obelix.webshop.service.QuarryClientService;
+import ch.bbw.obelix.quarry.api.service.QuarryClientService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,7 +19,7 @@ import reactor.core.publisher.Mono;
 @Configuration
 public class QuarryClientConfig {
     @Bean
-    public QuarryClientService getQuarryApiService(@Value("${quarry-server-url}") String quarryServerUrl) {
+    public QuarryClientService getQuarryApiService(@Value("${quarry-server-url:http://localhost:8081}") String quarryServerUrl) {
         var webClient = WebClient.builder()
                 .baseUrl(quarryServerUrl)
                 .defaultStatusHandler(HttpStatusCode::isError, (req) -> Mono.error(BadRequestException::new))

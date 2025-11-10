@@ -1,9 +1,10 @@
-package ch.bbw.obelix.webshop.service;
+package ch.bbw.obelix.basket.impl.service;
 
+import ch.bbw.obelix.basket.api.dto.BasketDto;
+import ch.bbw.obelix.basket.api.dto.BasketItem;
 import ch.bbw.obelix.common.exception.BadRequestException;
-import ch.bbw.obelix.quarry.api.QuarryApi;
-import ch.bbw.obelix.quarry.api.dto.BasketDto;
 import ch.bbw.obelix.quarry.api.dto.DecorativenessDto;
+import ch.bbw.obelix.quarry.api.service.QuarryClientService;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -15,7 +16,7 @@ import java.util.*;
 
 /**
  * @author schules
- * @version 03.11.2025
+ * @version 10.11.2025
  */
 
 @Transactional
@@ -23,17 +24,11 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 public class BasketService {
-    private final QuarryApi quarryClientService;
+    private final QuarryClientService quarryClientService;
 
     private BasketDto basket;
 
-    static <T> List<T> append(List<T> immutableList, T element) {
-        var tmpList = new ArrayList<>(immutableList);
-        tmpList.add(element);
-        return Collections.unmodifiableList(tmpList);
-    }
-
-    public BasketDto offer(@NonNull BasketDto.BasketItem basketItem) {
+    public BasketDto offer(@NonNull BasketItem basketItem) {
         basket.items()
                 .add(basketItem);
         return basket;

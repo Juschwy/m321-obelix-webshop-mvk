@@ -1,0 +1,10 @@
+plugins {
+    id 'java-library'
+    id 'org.springframework.boot'
+}
+
+dependencies {
+    implementation project(':obelix-common')
+    implementation project(':obelix-basket-api')
+    implementation project(':obelix-quarry-api')
+}

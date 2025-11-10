@@ -1,7 +1,6 @@
 package ch.bbw.obelix.quarry.api;
 
 import ch.bbw.obelix.quarry.api.dto.MenhirDto;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.service.annotation.DeleteExchange;
 import org.springframework.web.service.annotation.GetExchange;

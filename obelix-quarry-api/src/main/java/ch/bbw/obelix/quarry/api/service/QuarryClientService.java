@@ -1,7 +1,6 @@
-package ch.bbw.obelix.webshop.service;
+package ch.bbw.obelix.quarry.api.service;
 
 import ch.bbw.obelix.quarry.api.QuarryApi;
-import org.springframework.stereotype.Service;
 
 /**
  * @author schules
