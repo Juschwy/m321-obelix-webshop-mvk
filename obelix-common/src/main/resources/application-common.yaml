@@ -6,3 +6,12 @@ logging:
     level: "%5p [%X{traceId:-},%X{spanId:-}]"
   level:
     org.springframework.web.filter.CommonsRequestLoggingFilter: DEBUG
+management:
+  tracing:
+    sampling:
+      probability: 1
+  zipkin:
+    tracing:
+      export:
+        enabled: true
+      endpoint: http://localhost:9411/api/v2/spans
