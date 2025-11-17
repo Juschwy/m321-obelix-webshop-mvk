@@ -5,4 +5,6 @@ spring:
     active: common
 server:
   port: 8082
-quarry-server-url: http://localhost:8081
+obelix:
+  quarry:
+    url: http://localhost:8081

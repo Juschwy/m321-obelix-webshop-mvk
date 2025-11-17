@@ -22,7 +22,7 @@ import reactor.core.publisher.Mono;
 public class QuarryClientConfig {
     private final WebClient.Builder webClientBuilder;
 
-    @Value("${quarry-server-url:http://localhost:8081}")
+    @Value("${obelix.quarry.url}")
     private String quarryServerUrl;
 
     @Bean

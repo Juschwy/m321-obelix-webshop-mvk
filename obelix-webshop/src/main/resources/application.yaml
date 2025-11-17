@@ -5,5 +5,8 @@ spring:
     active: common
 server:
   port: 8080
-basket-server-url: http://localhost:8082
-quarry-server-url: http://localhost:8081
+obelix:
+  quarry:
+    url: http://localhost:8082
+  basket:
+    url: http://localhost:8081

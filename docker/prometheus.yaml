@@ -1,0 +1,25 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: 'prometheus'
+    # Override the global default and scrape targets from this job every 5 seconds.
+    scrape_interval: 5s
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'webshop'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - 'obelix-webshop:8080'
+  - job_name: 'quarry'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - 'obelix-quarry:8081'
+  - job_name: 'basket'
+    metrics_path: /actuator/prometheus
+    static_configs:
+      - targets:
+          - 'obelix-basket:8082'
