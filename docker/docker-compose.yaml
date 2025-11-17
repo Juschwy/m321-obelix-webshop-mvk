@@ -1,0 +1,56 @@
+name: obelix
+services:
+  # build two spring images using: ./gradlew bootBuildImage
+  zipkin:
+    image: openzipkin/zipkin:3
+    ports:
+       - "9411:9411"
+  obelix-quarry:
+    image: obelix-quarry-impl:0.0.1-SNAPSHOT
+    ports:
+      - "8081:8081"
+    environment:
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+  obelix-basket:
+    image: obelix-basket-impl:0.0.1-SNAPSHOT
+    ports:
+      - "8082:8082"
+    environment:
+      OBELIX_QUARRY_URL: http://obelix-quarry:8081
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+  obelix-webshop:
+    image: obelix-webshop:0.0.1-SNAPSHOT
+    ports:
+      - "8080:8080"
+    environment:
+      OBELIX_QUARRY_URL: http://obelix-quarry:8081
+      OBELIX_BASKET_URL: http://obelix-basket:8082
+      MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
+    depends_on:
+      - zipkin
+  prometheus:
+    image: prom/prometheus:v3.7.3
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yaml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command: --config.file=/etc/prometheus/prometheus.yml
+  grafana:
+    image: grafana/grafana:12.0.4
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - prometheus
+volumes:
+  prometheus-data:
+  grafana-data:
