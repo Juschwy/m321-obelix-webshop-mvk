@@ -15,3 +15,10 @@ management:
       export:
         enabled: true
       endpoint: http://localhost:9411/api/v2/spans
+  metrics:
+    tags:
+      application: "${spring.application.name}"
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus"
