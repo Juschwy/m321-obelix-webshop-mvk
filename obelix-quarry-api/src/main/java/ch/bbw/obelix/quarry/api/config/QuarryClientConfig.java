@@ -4,6 +4,7 @@ import ch.bbw.obelix.common.exception.BadRequestException;
 import ch.bbw.obelix.quarry.api.service.QuarryClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatusCode;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Mono;
  */
 
 @Configuration
+@ConditionalOnProperty(name = "obelix.quarry.url")
 @RequiredArgsConstructor
 public class QuarryClientConfig {
     private final WebClient.Builder webClientBuilder;

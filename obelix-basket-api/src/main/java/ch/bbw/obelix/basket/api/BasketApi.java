@@ -5,6 +5,7 @@ import ch.bbw.obelix.basket.api.dto.BasketItem;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.service.annotation.DeleteExchange;
+import org.springframework.web.service.annotation.HttpExchange;
 import org.springframework.web.service.annotation.PostExchange;
 import org.springframework.web.service.annotation.PutExchange;
 
@@ -15,13 +16,14 @@ import java.util.UUID;
  * @version 03.11.2025
  */
 
+@HttpExchange("/api/basket")
 public interface BasketApi {
-    @PutExchange("/api/basket/offer")
+    @PutExchange("/offer")
     BasketDto offer(@RequestBody BasketItem basketItem);
 
-    @DeleteExchange("/api/basket")
+    @DeleteExchange("/")
     void leave();
 
-    @PostExchange("/api/basket/buy/{menhirId}")
+    @PostExchange("/buy/{menhirId}")
     void exchangeFor(@PathVariable UUID menhirId);
 }
