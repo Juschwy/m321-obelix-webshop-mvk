@@ -5,6 +5,7 @@ import ch.bbw.obelix.basket.api.dto.BasketDto;
 import ch.bbw.obelix.basket.api.dto.BasketItem;
 import ch.bbw.obelix.basket.impl.service.BasketService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -19,17 +20,17 @@ import java.util.UUID;
 public class BasketController implements BasketApi {
     private final BasketService basketService;
 
-    @PutMapping("/api/basket/offer")
+    @Override
     public BasketDto offer(@RequestBody BasketItem basketItem) {
         return basketService.offer(basketItem);
     }
 
-    @DeleteMapping("/api/basket")
+    @Override
     public void leave() {
         basketService.leave();
     }
 
-    @PostMapping("/api/basket/buy/{menhirId}")
+    @Override
     public void exchangeFor(@PathVariable UUID menhirId) {
         basketService.exchange(menhirId);
     }

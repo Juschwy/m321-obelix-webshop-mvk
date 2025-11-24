@@ -26,9 +26,27 @@ class ObelixWebshopApplicationTests {
                 .getResponseBody()
                 .getFirst()
                 .id();
-        webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isBadRequest();
-        webTestClient.put().uri("/api/basket/offer").bodyValue(new BasketItem("boar", 2)).exchange().expectStatus().isOk();
-        webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isOk();
-        webTestClient.post().uri("/api/basket/buy/{id}", anyId).exchange().expectStatus().isBadRequest();
+        System.out.println("asdf" + anyId);
+        webTestClient.post()
+                .uri("/api/basket/buy/{id}", anyId)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
+        webTestClient.put()
+                .uri("/api/basket/offer")
+                .bodyValue(new BasketItem("boar", 2))
+                .exchange()
+                .expectStatus()
+                .isOk();
+        webTestClient.post()
+                .uri("/api/basket/buy/{id}", anyId)
+                .exchange()
+                .expectStatus()
+                .isOk();
+        webTestClient.post()
+                .uri("/api/basket/buy/{id}", anyId)
+                .exchange()
+                .expectStatus()
+                .isBadRequest();
     }
 }
