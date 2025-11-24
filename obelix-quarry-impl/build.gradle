@@ -7,3 +7,7 @@ dependencies {
 	implementation project(':obelix-common')
 	implementation project(':obelix-quarry-api')
 }
+
+tasks.named("bootBuildImage") {
+	imageName = "obelix/quarry"
+}

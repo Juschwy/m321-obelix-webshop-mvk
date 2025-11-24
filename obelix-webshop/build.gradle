@@ -11,6 +11,6 @@ dependencies {
 	testImplementation testFixtures(project(':obelix-common'))
 }
 
-tasks.named('bootRun') {
-	// mainClass = 'ch.bbw.m321.quarry.QuarryApplication'
+tasks.named("bootBuildImage") {
+	imageName = "obelix/webshop"
 }
