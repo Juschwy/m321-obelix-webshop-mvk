@@ -1,0 +1,24 @@
+@BASE_URL=http://localhost:8080/api
+
+### Get random menhir
+GET {{BASE_URL}}/menhirs
+
+> {%
+    client.global.set("anyId", response.body[0].id)
+%}
+
+### Try to exchange menhir (will not work on first try, run the next one first)
+POST {{BASE_URL}}/basket/buy/{{ anyId }}
+
+### Put an exchange object into the basket (run the above after this one to get a 200 there)
+PUT {{BASE_URL}}/basket/offer
+Content-Type: application/json
+
+{
+  "name": "boar",
+  "count": 2
+}
+
+
+
+
