@@ -3,9 +3,8 @@ package ch.bbw.obelix.webshop.controller;
 import ch.bbw.obelix.quarry.api.dto.MenhirDto;
 import ch.bbw.obelix.quarry.api.service.QuarryClientService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.List;
 import java.util.UUID;
@@ -28,5 +27,10 @@ public class MenhirController {
     @GetMapping("/api/menhirs/{menhirId}")
     public MenhirDto getMenhirById(@PathVariable UUID menhirId) {
         return quarryClientService.getMenhirById(menhirId);
+    }
+
+    @PostMapping("/api/menhir")
+    public void addMenhir(@RequestBody MenhirDto menhirDto) {
+        quarryClientService.createMenhir(menhirDto);
     }
 }
