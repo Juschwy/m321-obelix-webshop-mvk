@@ -4,24 +4,31 @@ permissions:
   packages: write
 
 on:
-  push: { }
-  pull_request: { }
+  push:
+    branches:
+      - master
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches:
+      - master
+    paths:
+      - 'backend/**'
+  workflow_dispatch:
+    inputs: { }
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java-version: [17]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK ${{ matrix.java-version }}
+      - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: ${{ matrix.java-version }}
+          java-version: 17
 
       - name: Cache Gradle
         uses: actions/cache@v4
@@ -29,39 +36,27 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ matrix.java-version }}-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          key: ${{ runner.os }}-gradle-17-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-gradle-${{ matrix.java-version }}-
+            ${{ runner.os }}-gradle-17-
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run backend unit tests
-        run: ./gradlew --no-daemon clean test
-        env:
-          GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
-
-      - name: Assemble backend artifact
-        run: ./gradlew --no-daemon assemble
+      - name: Run tests
+        run: ./gradlew --no-daemon test
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
 
       - name: Upload test results (artifact)
-        if: always()
+        if: ${{ always() }}
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-results
-          path: build/test-results
-
-      - name: Upload backend artifact
-        if: success()
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-artifact
-          path: build/libs
+          path: build/test-results/**
 
       - name: Publish test report to Checks
-        if: always()
+        if: ${{ always() }}
         uses: dorny/test-reporter@v1
         with:
           name: backend-tests
@@ -95,28 +90,24 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Assemble backend artifact (ensure Docker context has artifact)
+      - name: Build backend artifact
         run: ./gradlew --no-daemon assemble
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Log in to GHCR
-        uses: docker/login-action@v2
+      - name: Docker login to GHCR
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image to GHCR
-        uses: docker/build-push-action@v4
+      - name: Build and push image with Buildpacks
+        uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
           push: true
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
             ghcr.io/${{ github.repository }}:latest
+          builder: paketobuildpacks/builder:base
