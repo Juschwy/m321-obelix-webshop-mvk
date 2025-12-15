@@ -37,8 +37,8 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Run tests & build
-        run: ./gradlew --no-daemon clean test assemble
+      - name: Run tests
+        run: ./gradlew --no-daemon test
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
 
@@ -48,13 +48,6 @@ jobs:
         with:
           name: backend-test-results
           path: build/test-results/**
-
-      - name: Upload backend artifact
-        if: ${{ success() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: backend-artifact
-          path: build/libs/**
 
       - name: Publish test report to Checks
         if: ${{ always() }}
@@ -103,7 +96,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push image with Buildpacks
         uses: docker/build-push-action@v5
         with:
           context: .
@@ -111,3 +104,4 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}:${{ github.sha }}
             ghcr.io/${{ github.repository }}:latest
+          builder: paketobuildpacks/builder:base
