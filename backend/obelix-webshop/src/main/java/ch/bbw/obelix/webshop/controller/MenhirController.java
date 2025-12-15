@@ -33,4 +33,9 @@ public class MenhirController {
     public void addMenhir(@RequestBody MenhirDto menhirDto) {
         quarryClientService.createMenhir(menhirDto);
     }
+
+    @PutMapping("/apu/{menhirId}")
+    public void updateMenhir(@RequestBody MenhirDto menhirDto, @PathVariable UUID menhirId) {
+        quarryClientService.updateMenhir(menhirDto, menhirId);
+    }
 }
