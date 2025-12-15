@@ -100,12 +100,14 @@ jobs:
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
 
-      - name: Jib push image (sha tag)
-        run: ./gradlew --no-daemon jib -Djib.to.image=ghcr.io/${{ github.repository }}:${{ github.sha }} -Djib.to.auth.username=${{ github.actor }} -Djib.to.auth.password=${{ secrets.GITHUB_TOKEN }}
-        env:
-          GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
+      - name: Docker login to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
-      - name: Jib push image (latest tag)
-        run: ./gradlew --no-daemon jib -Djib.to.image=ghcr.io/${{ github.repository }}:latest -Djib.to.auth.username=${{ github.actor }} -Djib.to.auth.password=${{ secrets.GITHUB_TOKEN }}
-        env:
-          GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
+      - name: Build Docker image
+        run: docker build -t ghcr.io/${{ github.repository }}:${{ github.sha }} -t ghcr.io/${{ github.repository }}:latest .
+
+      - name: Push Docker image (sha tag)
+        run: docker push ghcr.io/${{ github.repository }}:${{ github.sha }}
+
+      - name: Push Docker image (latest tag)
+        run: docker push ghcr.io/${{ github.repository }}:latest
