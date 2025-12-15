@@ -5,6 +5,8 @@ permissions:
 
 on:
   push:
+    branches:
+      - master
     paths:
       - 'backend/**'
   pull_request:
