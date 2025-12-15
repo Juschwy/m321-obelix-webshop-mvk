@@ -10,8 +10,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * @author schules
- * @version 03.11.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 15.12.2025
  */
 
 @RestController
@@ -22,6 +22,11 @@ public class BasketController {
     @PutMapping("/api/basket/offer")
     public BasketDto offer(@RequestBody BasketItem basketItem) {
         return basketClientService.offer(basketItem);
+    }
+
+    @PutMapping("/api/basket/offerMultible")
+    public List<BasketDto> offerMultible(@RequestBody List<BasketItem> basketItems) {
+        return basketClientService.offerMultible(basketItems);
     }
 
     @DeleteMapping("/api/basket")

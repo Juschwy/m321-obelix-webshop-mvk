@@ -23,6 +23,9 @@ public interface BasketApi {
     @PutExchange("/offer")
     BasketDto offer(@RequestBody BasketItem basketItem);
 
+    @PutExchange("/offerMultible")
+    List<BasketDto> offerMultible(@RequestBody List<BasketItem> basketItems);
+
     @DeleteExchange("/")
     void leave();
 
