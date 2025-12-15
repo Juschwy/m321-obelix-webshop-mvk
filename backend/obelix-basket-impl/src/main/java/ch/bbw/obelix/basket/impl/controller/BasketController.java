@@ -43,6 +43,6 @@ public class BasketController implements BasketApi {
 
     @Override
     public void exchangeForMultible(@RequestBody List<UUID> uuids) {
-
+        basketService.exchangeMultible(uuids);
     }
 }
