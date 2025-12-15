@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.*;
 
 /**
- * @author schules
- * @version 10.11.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 15.12.2025
  */
 
 @Transactional
@@ -32,6 +32,14 @@ public class BasketService {
         basket.items()
                 .add(basketItem);
         return basket;
+    }
+
+    public List<BasketDto> offerMultible(@NonNull List<BasketItem> basketItems) {
+        var list = new ArrayList<BasketDto>();
+        for (BasketItem basketItem : basketItems) {
+            list.add(offer(basketItem));
+        }
+        return list;
     }
 
     @PostConstruct

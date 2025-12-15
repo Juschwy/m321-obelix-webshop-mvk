@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * @author schules
- * @version 10.11.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 15.12.2025
  */
 
 @RestController
@@ -24,6 +24,11 @@ public class BasketController implements BasketApi {
     @Override
     public BasketDto offer(@RequestBody BasketItem basketItem) {
         return basketService.offer(basketItem);
+    }
+
+    @Override
+    public List<BasketDto> offerMultible(@RequestBody List<BasketItem> basketItems) {
+        return basketService.offerMultible(basketItems);
     }
 
     @Override
