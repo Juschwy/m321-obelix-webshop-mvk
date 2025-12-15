@@ -8,6 +8,7 @@ import ch.bbw.obelix.quarry.repository.MenhirRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.UUID;
@@ -21,6 +22,10 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class QuarryService {
     private final MenhirRepository menhirRepository;
+
+    public void updateMenhir(MenhirDto menhirDto, UUID menhirId) {
+        menhirRepository.updateMenhir(menhirDto, menhirId);
+    }
 
     public void createMenhir(MenhirDto menhirDto) {
         var menhir = new MenhirEntity();

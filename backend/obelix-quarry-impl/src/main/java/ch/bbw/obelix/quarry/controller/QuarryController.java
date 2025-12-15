@@ -40,4 +40,9 @@ public class QuarryController implements QuarryApi {
     public void createMenhir(@RequestBody MenhirDto menhirDto) {
         quarryService.createMenhir(menhirDto);
     }
+
+    @Override
+    public void updateMenhir(@RequestBody MenhirDto menhirDto, @PathVariable UUID menhirId) {
+        quarryService.updateMenhir(menhirDto, menhirId);
+    }
 }
