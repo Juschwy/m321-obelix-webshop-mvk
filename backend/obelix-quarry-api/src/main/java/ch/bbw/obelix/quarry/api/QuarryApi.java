@@ -5,9 +5,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.service.annotation.DeleteExchange;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
+import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.List;
 import java.util.UUID;
+
+/**
+ * @author Tim Leo Laurin Leuenberger
+ * @version 15.12.2025
+ */
 
 @HttpExchange("/api/quarry")
 public interface QuarryApi {
@@ -19,4 +25,7 @@ public interface QuarryApi {
 
     @DeleteExchange("/{menhirId}")
     void deleteById(@PathVariable UUID menhirId);
+
+    @PostExchange("/")
+    void createMenhir(MenhirDto menhirDto);
 }
