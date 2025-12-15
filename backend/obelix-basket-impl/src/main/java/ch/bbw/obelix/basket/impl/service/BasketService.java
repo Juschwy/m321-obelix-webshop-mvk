@@ -61,4 +61,8 @@ public class BasketService {
         quarryClientService.deleteById(menhirId);
         leave();
     }
+
+    public void exchangeMultible(List<UUID> uuids) {
+        uuids.forEach(this::exchange);
+    }
 }

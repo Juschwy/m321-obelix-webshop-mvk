@@ -6,6 +6,7 @@ import ch.bbw.obelix.basket.api.service.BasketClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,5 +32,10 @@ public class BasketController {
     @PostMapping("/api/basket/buy/{menhirId}")
     public void exchangeFor(@PathVariable UUID menhirId) {
         basketClientService.exchangeFor(menhirId);
+    }
+
+    @PostMapping("/api/basket/buyMultible")
+    public void exchangeForMutible(@RequestBody List<UUID> menhirIds) {
+        basketClientService.exchangeForMultible(menhirIds);
     }
 }
