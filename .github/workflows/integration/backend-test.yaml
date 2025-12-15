@@ -5,11 +5,17 @@ permissions:
 
 on:
   push:
+    branches:
+      - master
     paths:
       - 'backend/**'
   pull_request:
+    branches:
+      - master
     paths:
       - 'backend/**'
+  workflow_dispatch:
+    inputs: { }
 
 jobs:
   test:
