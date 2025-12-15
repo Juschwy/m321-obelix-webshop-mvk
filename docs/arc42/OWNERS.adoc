@@ -1,0 +1,12 @@
+Chapter 1 – Introduction & Goals       – MGMT
+Chapter 2 – Constraints                 – CI/CD
+Chapter 3 – Context                     – FE + BE + MGMT
+Chapter 4 – Solution Strategy           – MGMT
+Chapter 5 – Building Block View         – FE + BE + MGMT + CI/CD
+Chapter 6 – Runtime View                – FE + BE + MGMT + CI/CD
+Chapter 7 – Deployment View             – CI/CD
+Chapter 8 – Cross-cutting Concepts      – FE + BE + MGMT + CI/CD
+Chapter 9 – Architecture Decisions      – FE + BE + MGMT + CI/CD
+Chapter 10 – Quality Requirements       – MGMT + CI/CD
+Chapter 11 – Risks                      – CI/CD + BE
+Chapter 12 – Glossary                   – FE + BE + MGMT + CI/CD
