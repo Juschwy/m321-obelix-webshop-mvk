@@ -70,6 +70,7 @@ public class BasketService {
         leave();
     }
 
+    @Transactional
     public void exchangeMultible(List<UUID> uuids) {
         uuids.forEach(this::exchange);
     }
