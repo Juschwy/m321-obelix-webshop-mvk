@@ -1,0 +1,50 @@
+<div class="menhir-card">
+  <div class="menhir-image">
+    <img *ngIf="menhir.imageUrl" [src]="menhir.imageUrl" [alt]="menhir.stoneType" />
+    <div *ngIf="!menhir.imageUrl" class="image-placeholder">
+      <svg viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="400" height="300" fill="#e8f4ec"/>
+        <rect x="0" y="0" width="400" height="180" fill="#4a90d9"/>
+        <path d="M180 280L185 200L200 120L215 200L220 280Z" fill="#8b7355"/>
+        <ellipse cx="200" cy="280" rx="60" ry="15" fill="#c4a574"/>
+        <ellipse cx="140" cy="270" rx="30" ry="10" fill="#9a8a6a"/>
+        <ellipse cx="260" cy="270" rx="25" ry="8" fill="#9a8a6a"/>
+      </svg>
+    </div>
+  </div>
+  
+  <div class="menhir-content">
+    <h3 class="menhir-title">{{ menhir.stoneType }} Menhir</h3>
+    <p class="menhir-description">
+      {{ menhir.description || 'A timeless vertical stone monument. Perfect for marking sacred spaces or property boundaries.' }}
+    </p>
+    
+    <div class="menhir-specs">
+      <div class="spec">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4 4L4 20M4 20H20M8 16V12M12 16V8M16 16V10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <span>{{ getHeight() }}m</span>
+      </div>
+      <div class="spec">
+        <svg class="spec-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3V7M12 17V21M3 12H7M17 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <circle cx="12" cy="12" r="5" stroke="currentColor" stroke-width="2"/>
+        </svg>
+        <span>{{ getWeightInKg() }}kg</span>
+      </div>
+    </div>
+    
+    <div class="menhir-footer">
+      <div class="menhir-price">{{ getFormattedPrice() }}</div>
+      <button class="btn-add-to-cart" (click)="onAddToCart()">
+        <svg class="cart-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M9 22C9.55228 22 10 21.5523 10 21C10 20.4477 9.55228 20 9 20C8.44772 20 8 20.4477 8 21C8 21.5523 8.44772 22 9 22Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M20 22C20.5523 22 21 21.5523 21 21C21 20.4477 20.5523 20 20 20C19.4477 20 19 20.4477 19 21C19 21.5523 19.4477 22 20 22Z" stroke="currentColor" stroke-width="2"/>
+          <path d="M1 1H5L7.68 14.39C7.77 14.85 8.02 15.26 8.39 15.56C8.75 15.85 9.21 16.01 9.68 16H19.4C19.87 16.01 20.33 15.85 20.69 15.56C21.06 15.26 21.31 14.85 21.4 14.39L23 6H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Add to Cart
+      </button>
+    </div>
+  </div>
+</div>

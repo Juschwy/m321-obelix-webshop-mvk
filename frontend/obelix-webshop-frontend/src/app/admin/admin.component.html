@@ -1,0 +1,113 @@
+<div class="admin-container">
+  <div class="admin-content">
+    <div class="admin-header">
+      <h1>Create Menhir</h1>
+      <a routerLink="/admin" class="btn-back">← Back to Admin</a>
+    </div>
+
+    <!-- Success Message -->
+    <div *ngIf="successMessage" class="message message-success">
+      <p>{{ successMessage }}</p>
+      <div *ngIf="createdMenhir" class="created-menhir-info">
+        <h3>Created Menhir Details:</h3>
+        <ul>
+          <li><strong>ID:</strong> {{ createdMenhir.id }}</li>
+          <li><strong>Weight:</strong> {{ createdMenhir.weight }} tons</li>
+          <li><strong>Stone Type:</strong> {{ createdMenhir.stoneType }}</li>
+          <li><strong>Decorativeness:</strong> {{ createdMenhir.decorativeness }}</li>
+          <li *ngIf="createdMenhir.description"><strong>Description:</strong> {{ createdMenhir.description }}</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="message message-error">
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="menhirForm" (ngSubmit)="onSubmit()" class="menhir-form">
+      <!-- Weight Field -->
+      <div class="form-group">
+        <label for="weight">Weight (tons) <span class="required">*</span></label>
+        <input
+          type="number"
+          id="weight"
+          formControlName="weight"
+          step="0.1"
+          min="0.1"
+          [class.invalid]="isFieldInvalid('weight')"
+          placeholder="e.g., 2.5"
+        />
+        <span *ngIf="isFieldInvalid('weight')" class="error-message">
+          {{ getErrorMessage('weight') }}
+        </span>
+      </div>
+
+      <!-- Stone Type Field -->
+      <div class="form-group">
+        <label for="stoneType">Stone Type <span class="required">*</span></label>
+        <input
+          type="text"
+          id="stoneType"
+          formControlName="stoneType"
+          [class.invalid]="isFieldInvalid('stoneType')"
+          placeholder="e.g., Granite, Marble"
+        />
+        <span *ngIf="isFieldInvalid('stoneType')" class="error-message">
+          {{ getErrorMessage('stoneType') }}
+        </span>
+      </div>
+
+      <!-- Decorativeness Field -->
+      <div class="form-group">
+        <label for="decorativeness">Decorativeness <span class="required">*</span></label>
+        <select
+          id="decorativeness"
+          formControlName="decorativeness"
+          [class.invalid]="isFieldInvalid('decorativeness')"
+        >
+          <option value="">Select decorativeness</option>
+          <option *ngFor="let option of decorativenessOptions" [value]="option">
+            {{ option }}
+          </option>
+        </select>
+        <span *ngIf="isFieldInvalid('decorativeness')" class="error-message">
+          {{ getErrorMessage('decorativeness') }}
+        </span>
+      </div>
+
+      <!-- Description Field -->
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          rows="4"
+          placeholder="Optional description of the menhir"
+        ></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-actions">
+        <button
+          type="submit"
+          [disabled]="isSubmitting"
+          class="btn btn-primary"
+        >
+          <span *ngIf="!isSubmitting">Create Menhir</span>
+          <span *ngIf="isSubmitting">Creating...</span>
+        </button>
+        <button
+          type="button"
+          (click)="menhirForm.reset()"
+          [disabled]="isSubmitting"
+          class="btn btn-secondary"
+        >
+          Reset
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
