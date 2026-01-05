@@ -8,11 +8,12 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
- * @author schules
- * @version 10.11.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 15.12.2025
  */
 
 @RestController
@@ -26,6 +27,11 @@ public class BasketController implements BasketApi {
     }
 
     @Override
+    public List<BasketDto> offerMultible(@RequestBody List<BasketItem> basketItems) {
+        return basketService.offerMultible(basketItems);
+    }
+
+    @Override
     public void leave() {
         basketService.leave();
     }
@@ -33,5 +39,10 @@ public class BasketController implements BasketApi {
     @Override
     public void exchangeFor(@PathVariable UUID menhirId) {
         basketService.exchange(menhirId);
+    }
+
+    @Override
+    public void exchangeForMultible(@RequestBody List<UUID> uuids) {
+        basketService.exchangeMultible(uuids);
     }
 }

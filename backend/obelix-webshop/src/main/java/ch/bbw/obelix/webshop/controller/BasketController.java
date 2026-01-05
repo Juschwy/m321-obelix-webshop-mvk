@@ -6,11 +6,12 @@ import ch.bbw.obelix.basket.api.service.BasketClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 /**
- * @author schules
- * @version 03.11.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 15.12.2025
  */
 
 @RestController
@@ -23,6 +24,11 @@ public class BasketController {
         return basketClientService.offer(basketItem);
     }
 
+    @PutMapping("/api/basket/offerMultible")
+    public List<BasketDto> offerMultible(@RequestBody List<BasketItem> basketItems) {
+        return basketClientService.offerMultible(basketItems);
+    }
+
     @DeleteMapping("/api/basket")
     public void leave() {
         basketClientService.leave();
@@ -31,5 +37,10 @@ public class BasketController {
     @PostMapping("/api/basket/buy/{menhirId}")
     public void exchangeFor(@PathVariable UUID menhirId) {
         basketClientService.exchangeFor(menhirId);
+    }
+
+    @PostMapping("/api/basket/buyMultible")
+    public void exchangeForMutible(@RequestBody List<UUID> menhirIds) {
+        basketClientService.exchangeForMultible(menhirIds);
     }
 }
