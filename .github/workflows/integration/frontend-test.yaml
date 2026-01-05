@@ -5,12 +5,12 @@ on:
     branches:
       - master
     paths:
-      - '../../../frontend/obelix-webshop-frontend/**'
+      - '../../../frontend/obelix-webshop-frontend'
   pull_request:
     branches:
       - master
     paths:
-      - '../../../frontend/obelix-webshop-frontend/**'
+      - '../../../frontend/obelix-webshop-frontend'
 
 jobs:
   test:
