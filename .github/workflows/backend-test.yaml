@@ -10,8 +10,8 @@ on:
     paths:
       - 'backend/**'
   pull_request:
-    branches:
-      - master
+    types:
+      [opened, synchronize, reopened]
     paths:
       - 'backend/**'
   workflow_dispatch:
@@ -42,9 +42,11 @@ jobs:
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+        working-directory: ./backend
 
       - name: Run tests
         run: ./gradlew --no-daemon test
+        working-directory: ./backend
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
 
@@ -53,18 +55,18 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-results
-          path: build/test-results/**
+          path: backend/build/test-results/**
 
       - name: Publish test report to Checks
         if: ${{ always() }}
         uses: dorny/test-reporter@v1
         with:
           name: backend-tests
-          path: build/test-results
-          reporter: junit
+          path: backend/build/test-results/**/*.xml
+          reporter: java-junit
 
   build-and-push:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
     needs: test
     runs-on: ubuntu-latest
     steps:
@@ -89,9 +91,11 @@ jobs:
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
+        working-directory: ./backend
 
       - name: Build backend artifact
         run: ./gradlew --no-daemon assemble
+        working-directory: ./backend
         env:
           GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
 
@@ -105,9 +109,9 @@ jobs:
       - name: Build and push image with Buildpacks
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: ./backend
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}:${{ github.sha }}
-            ghcr.io/${{ github.repository }}:latest
+            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/backend:latest
           builder: paketobuildpacks/builder:base
