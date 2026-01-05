@@ -16,6 +16,8 @@ import java.util.UUID;
  * @version 15.12.2025
  */
 
+// Comment requested by Julian Aschwanden, 05.01.2026
+
 @RestController
 @RequiredArgsConstructor
 public class QuarryController implements QuarryApi {
