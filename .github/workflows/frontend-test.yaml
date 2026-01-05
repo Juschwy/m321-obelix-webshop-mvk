@@ -8,8 +8,6 @@ on:
       - 'frontend/**'
   pull_request:
     types: [ opened, synchronize, reopened ]
-    branches:
-      - master
     paths:
       - 'frontend/**'
   workflow_dispatch:
@@ -29,7 +27,7 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./frontend/obelix-webshop-frontend
 
       - name: Run frontend tests
