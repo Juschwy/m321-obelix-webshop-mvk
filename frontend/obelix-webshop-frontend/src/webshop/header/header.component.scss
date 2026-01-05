@@ -1,21 +1,24 @@
-.header{
-  background-color: #000000;
+.header {
+  background-color: var(--color-primary);
   display: flex;
-  padding: 10px;
+  padding: 0.75rem;
   align-items: center;
-  @media screen and (min-width: 768px) {
-    padding: 20px   20px;
 
+  @media screen and (min-width: 768px) {
+    padding: 1.25rem;
   }
 }
-.header__title{
+
+.header__title {
   color: white;
-  margin: 0 0 0 20px;
+  margin-left: 1.25rem;
+  margin-bottom: 0;
 }
-.header__logo{
-  width:15%;
+
+.header__logo {
+  width: 15%;
   height: auto;
   @media screen and (min-width: 768px) {
-    width:5%;
+    width: 5%;
   }
 }
