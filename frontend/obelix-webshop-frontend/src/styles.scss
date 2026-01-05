@@ -1,1 +1,53 @@
-/* You can add global styles to this file, and also import other style files */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap");
+
+:root {
+  --color-primary: #000000;
+  --color-text: #707070;
+  --color-accent: #df9444;
+  --font-base: "Inter", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-base), sans-serif;
+  color: var(--color-text);
+  background-color: #ffffff;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: var(--color-primary);
+  font-weight: 600;
+  margin: 0 0 0.5em;
+  line-height: 1.2;
+}
+
+a {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+a:hover,
+a:focus {
+  text-decoration: underline;
+}
+
+p {
+  color: var(--color-text);
+  margin: 0 0 1em;
+}
+
+p.accent {
+  color: var(--color-accent);
+}
