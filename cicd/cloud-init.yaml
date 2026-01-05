@@ -4,13 +4,13 @@ groups:
   - docker
 users:
   - default
-  - name: admin
+  - name: majestix
     sudo: "ALL=(ALL) NOPASSWD:ALL"
     groups: [docker]
     shell: /bin/bash
     ssh_authorized_keys:
       - "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMvk1zlVGgeMISSefXnJ1180XP4vlw8T5PJmm12o5roF jul.fehlmann@gmail.com"
-  - name: user
+  - name: obelix
     groups: [docker]
     shell: /bin/bash
     ssh_authorized_keys:
@@ -124,3 +124,4 @@ write_files:
 # language=bash
 runcmd:
 #  - docker compose up
+  - echo "hello world"
