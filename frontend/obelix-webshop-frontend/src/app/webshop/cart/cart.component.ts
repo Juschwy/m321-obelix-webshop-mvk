@@ -19,7 +19,7 @@ interface CartItem {
 export class CartComponent {
   private readonly currencyFormatter = new Intl.NumberFormat('de-DE');
 
-  readonly isOpen = signal(false);
+  readonly isOpen$$ = signal(false);
 
   readonly items = signal<CartItem[]>([
     {
@@ -78,11 +78,11 @@ export class CartComponent {
   }
 
   close(): void {
-    this.isOpen.set(false);
+    this.isOpen$$.set(false);
   }
 
   open(): void {
-    this.isOpen.set(true);
+    this.isOpen$$.set(true);
   }
 
   private updateItem(

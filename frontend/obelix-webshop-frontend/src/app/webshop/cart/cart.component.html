@@ -1,10 +1,10 @@
-@if (!isOpen()) {
+@if (!isOpen$$()) {
   <button type="button" class="cart-open-button" (click)="open()">
     Open Cart
   </button>
 }
 
-<div class="cart-wrapper" [class.cart-wrapper--open]="isOpen()">
+<div class="cart-wrapper" [class.cart-wrapper--open]="isOpen$$()">
   <div class="cart-backdrop" (click)="close()" aria-hidden="true"></div>
   <aside
     class="cart-panel"
