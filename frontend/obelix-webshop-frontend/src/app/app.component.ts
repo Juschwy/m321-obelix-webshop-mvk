@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
+import { CartComponent } from './webshop/cart/cart.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  templateUrl: './app.component.html',
+  imports: [CartComponent],
+    templateUrl: './app.component.html',
 })
-export class AppComponent {
-}
+export class AppComponent {}
