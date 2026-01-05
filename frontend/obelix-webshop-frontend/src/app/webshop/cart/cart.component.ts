@@ -21,7 +21,7 @@ export class CartComponent {
 
   readonly isOpen$$ = signal(false);
 
-  readonly items = signal<CartItem[]>([
+  readonly items$$ = signal<CartItem[]>([
     {
       id: 'ancient-monument-stone',
       name: 'Ancient Monument Stone',
@@ -49,7 +49,7 @@ export class CartComponent {
   ]);
 
   readonly total = computed(() =>
-    this.items().reduce(
+    this.items$$().reduce(
       (runningTotal, item) => runningTotal + item.price * item.quantity,
       0,
     ),
@@ -74,7 +74,7 @@ export class CartComponent {
   }
 
   removeItem(id: string): void {
-    this.items.update((current) => current.filter((item) => item.id !== id));
+    this.items$$.update((current) => current.filter((item) => item.id !== id));
   }
 
   close(): void {
@@ -89,7 +89,7 @@ export class CartComponent {
     id: string,
     updater: (item: CartItem) => CartItem,
   ): void {
-    this.items.update((current) =>
+    this.items$$.update((current) =>
       current.map((item) => (item.id === id ? updater(item) : item)),
     );
   }
