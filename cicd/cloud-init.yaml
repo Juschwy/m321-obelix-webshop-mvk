@@ -46,7 +46,7 @@ write_files:
           ports:
             - "9411:9411"
         obelix-quarry:
-          image: obelix/quarry:latest
+          image: ghcr.io/juschwy/obelix-quarry:latest
           ports:
             - "8081:8081"
           environment:
@@ -54,7 +54,7 @@ write_files:
           depends_on:
             - zipkin
         obelix-basket:
-          image: obelix/basket:latest
+          image: ghcr.io/juschwy/obelix-basket:latest
           ports:
             - "8082:8082"
           environment:
@@ -63,7 +63,7 @@ write_files:
           depends_on:
             - zipkin
         obelix-webshop:
-          image: obelix/webshop:latest
+          image: ghcr.io/juschwy/obelix-webshop:latest
           ports:
             - "8080:8080"
           environment:
