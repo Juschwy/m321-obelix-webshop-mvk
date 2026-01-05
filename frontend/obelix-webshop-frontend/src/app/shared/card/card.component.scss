@@ -3,7 +3,7 @@ $product-radius: 22px;
 .product-card {
   width: 340px;
   border-radius: $product-radius;
-  background: #fff;
+  background: #ffffff;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   display: flex;
@@ -32,14 +32,14 @@ $product-radius: 22px;
   font-size: 22px;
   line-height: 1.2;
   font-weight: 700;
-  color: #151515;
+  color: var(--color-primary);
 }
 
 .desc {
   margin: 0 0 14px;
   font-size: 14.5px;
   line-height: 1.45;
-  color: #6a6a6a;
+  color: var(--color-text);
 }
 
 .meta {
@@ -52,7 +52,7 @@ $product-radius: 22px;
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    color: #7a7a7a;
+    color: var(--color-text);
     font-size: 16px;
     font-weight: 500;
   }
@@ -61,7 +61,7 @@ $product-radius: 22px;
 .icon {
   width: 18px;
   height: 18px;
-  fill: #8b8b8b;
+  fill: var(--color-text);
   flex: 0 0 auto;
 }
 
@@ -75,14 +75,14 @@ $product-radius: 22px;
 .price {
   font-size: 26px;
   font-weight: 800;
-  color: #cf6a3b; // warm orange like the screenshot
+  color: var(--color-accent);
   letter-spacing: 0.2px;
 }
 
 .btn {
   border: 0;
   cursor: pointer;
-  background: #151515;
+  background: var(--color-primary);
   color: #fff;
   padding: 12px 16px;
   border-radius: 14px;
