@@ -7,8 +7,6 @@ import {HeaderComponent} from "../webshop/header/header.component";
   standalone: true,
   imports: [HeaderComponent],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  title = 'obelix-webshop-frontend';
 }
