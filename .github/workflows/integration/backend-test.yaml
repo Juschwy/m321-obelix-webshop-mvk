@@ -10,8 +10,8 @@ on:
     paths:
       - 'backend/**'
   pull_request:
-    branches:
-      - master
+    types:
+      [opened, synchronize, reopened]
     paths:
       - 'backend/**'
   workflow_dispatch:
@@ -64,7 +64,7 @@ jobs:
           reporter: junit
 
   build-and-push:
-    if: ${{ github.ref == 'refs/heads/main' && github.event_name == 'push' }}
+    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
     needs: test
     runs-on: ubuntu-latest
     steps:
