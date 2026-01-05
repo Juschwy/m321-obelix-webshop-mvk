@@ -4,14 +4,13 @@ import ch.bbw.obelix.quarry.api.dto.MenhirDto;
 import ch.bbw.obelix.quarry.api.service.QuarryClientService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.service.annotation.PostExchange;
 
 import java.util.List;
 import java.util.UUID;
 
 /**
- * @author schules
- * @version 03.11.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 05.01.2026
  */
 
 @RestController
@@ -34,7 +33,7 @@ public class MenhirController {
         quarryClientService.createMenhir(menhirDto);
     }
 
-    @PutMapping("/apu/{menhirId}")
+    @PutMapping("/api/{menhirId}")
     public void updateMenhir(@RequestBody MenhirDto menhirDto, @PathVariable UUID menhirId) {
         quarryClientService.updateMenhir(menhirDto, menhirId);
     }
