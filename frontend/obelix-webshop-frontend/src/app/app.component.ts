@@ -6,6 +6,8 @@ import {CardComponent} from "./shared/card/card.component";
   standalone: true,
   imports: [CardComponent],
   templateUrl: './app.component.html',
+  // TODO remove if card-call is moved to individual components
+  styleUrl: './app.component.scss'
 })
 export class AppComponent {
 }

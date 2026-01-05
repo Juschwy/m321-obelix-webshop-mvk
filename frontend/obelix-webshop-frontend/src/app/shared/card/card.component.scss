@@ -1,8 +1,10 @@
 $product-radius: 22px;
 
 .product-card {
-  width: 340px;
+  width: 100%;
+  max-width: 340px;
   border-radius: $product-radius;
+  margin: 0 auto;
   background: #ffffff;
   overflow: hidden;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
