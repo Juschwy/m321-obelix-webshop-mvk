@@ -10,6 +10,6 @@ export class CardComponent {
   @Input() title = '';
   @Input() description = '';
   @Input() weight: number | null = null;
-  @Input() size = '';
+  @Input() size: number | null = null;
   @Input() prize: number | null = null;
 }
