@@ -9,7 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
-@ActiveProfiles("test")
+@ActiveProfiles("integration")
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 class ObelixWebshopApplicationTests {
 

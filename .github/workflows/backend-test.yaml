@@ -79,26 +79,6 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-17-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-17-
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-        working-directory: ./backend
-
-      - name: Build backend artifact
-        run: ./gradlew --no-daemon assemble
-        working-directory: ./backend
-        env:
-          GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
-
       - name: Docker login to GHCR
         uses: docker/login-action@v3
         with:
@@ -106,12 +86,8 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image with Buildpacks
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          push: true
-          tags: |
-            ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
-            ghcr.io/${{ github.repository }}/backend:latest
-          builder: paketobuildpacks/builder:base
+      - name: Build and push image with Gradle
+        run: ./gradlew bootBuildImage --imageName ghcr.io/${{ github.repository }}/backend
+        working-directory: ./backend
+        env:
+          GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
