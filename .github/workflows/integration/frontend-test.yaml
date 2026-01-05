@@ -5,12 +5,14 @@ on:
     branches:
       - master
     paths:
-      - '../../../frontend/obelix-webshop-frontend'
+      - 'frontend/obelix-webshop-frontend/**'
   pull_request:
+    types: [opened, synchronize, reopened]
     branches:
       - master
     paths:
-      - '../../../frontend/obelix-webshop-frontend'
+      - 'frontend/obelix-webshop-frontend/**'
+  workflow_dispatch: {}
 
 jobs:
   test:
