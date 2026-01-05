@@ -12,6 +12,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
 	implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-api:2.7.0'
 
 	runtimeOnly 'com.h2database:h2' // for now...
 
