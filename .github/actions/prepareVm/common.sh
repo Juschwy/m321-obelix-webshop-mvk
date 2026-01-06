@@ -3,7 +3,11 @@
 # Common constants
 LABEL="obelix-vm"
 MAAS_URL="https://maas.bbw-it.ch/maas-user.php"
-COOKIES_FILE="cookies.txt"
+COOKIES_FILE="$(mktemp -t maas_cookies.XXXXXX)" || {
+  echo "Failed to create temporary cookies file" >&2
+  exit 1
+}
+trap 'rm -f "$COOKIES_FILE"' EXIT
 
 # Login function
 login() {
