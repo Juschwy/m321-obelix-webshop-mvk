@@ -1,0 +1,43 @@
+name: prepareVm
+author: liun
+outputs:
+    vm_ip:
+        description: 'The IP address of the prepared VM'
+        value: ${{ steps.check_vm.outputs.ip_address }}
+    vm_id:
+        description: 'The ID of the prepared VM'
+        value: ${{ steps.check_vm.outputs.system_id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      id: install_deps
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+    - name: Login to BBW Maas
+      id: login
+      env:
+        MAAS_USER: ${{ secrets.MAAS_USER }}
+        MAAS_PASSWORD: ${{ secrets.MAAS_PASSWORD }}
+      shell: bash
+      run: .github/actions/prepareVm/login.sh
+
+    - name: Check VM Exists
+      id: check_vm
+      shell: bash
+      run: .github/actions/prepareVm/check_vm_exists.sh
+
+    - name: Create VM if not exists
+      id: create_vm
+      if: steps.check_vm.outputs.vm_exists == 'false'
+      shell: bash
+      run: .github/actions/prepareVm/create_vm.sh
+
+    - name: Ensure VM is Available
+      id: ensure_vm_available
+      shell: bash
+      run: .github/actions/prepareVm/ensure_vm_available.sh
