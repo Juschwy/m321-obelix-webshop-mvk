@@ -1,0 +1,23 @@
+name: prepare_vm_test.yml
+on:
+  workflow_dispatch:
+
+jobs:
+    test_prepare_vm_action:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout repository
+          uses: actions/checkout@v4
+
+        - name: Prepare VM
+          id: prepare_vm
+          uses: ./.github/actions/prepareVm
+          with:
+            maas_user: ${{ secrets.MAAS_USER }}
+            maas_password: ${{ secrets.MAAS_PASSWORD }}
+
+        - name: Output VM Details
+          run: |
+            echo "VM IP Address: ${{ steps.prepare_vm.outputs.vm_ip }}"
+            echo "VM ID: ${{ steps.prepare_vm.outputs.vm_id }}"
+
