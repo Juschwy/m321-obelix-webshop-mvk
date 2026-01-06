@@ -12,6 +12,9 @@ jobs:
         - name: Prepare VM
           id: prepare_vm
           uses: ./.github/actions/prepareVm
+          with:
+            maas_user: ${{ secrets.MAAS_USER }}
+            maas_password: ${{ secrets.MAAS_PASSWORD }}
 
         - name: Output VM Details
           run: |

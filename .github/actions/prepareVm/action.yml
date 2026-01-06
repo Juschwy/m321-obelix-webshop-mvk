@@ -1,13 +1,20 @@
 name: prepareVm
 description: Prepare a VM in MAAS and expose its IP and ID
 author: liun
+
+inputs:
+  maas_user:
+    required: true
+  maas_password:
+    required: true
+
 outputs:
     vm_ip:
         description: 'The IP address of the prepared VM'
-        value: ${{ fromJSON(steps.check_vm.outputs.vm_details).ip_address }}
+        value: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address }}
     vm_id:
         description: 'The ID of the prepared VM'
-        value: ${{ fromJSON(steps.check_vm.outputs.vm_details).system_id }}
+        value: ${{ fromJSON(steps.vm_details.outputs.vm_details).system_id }}
 
 runs:
   using: composite
@@ -22,8 +29,8 @@ runs:
     - name: Login to BBW Maas
       id: login
       env:
-        MAAS_USER: ${{ secrets.MAAS_USER }}
-        MAAS_PASSWORD: ${{ secrets.MAAS_PASSWORD }}
+        MAAS_USER: ${{ inputs.maas_user }}
+        MAAS_PASSWORD: ${{ inputs.maas_password }}
       shell: bash
       run: .github/actions/prepareVm/login.sh
 
@@ -42,3 +49,14 @@ runs:
       id: ensure_vm_available
       shell: bash
       run: .github/actions/prepareVm/ensure_vm_available.sh
+
+    - name: Get VM Details
+      id: vm_details
+      shell: bash
+      run: .github/actions/prepareVm/check_vm_exists.sh
+
+    - name: Output VM Details
+      shell: bash
+      run: |
+        echo "VM IP Address: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address }}"
+        echo "VM ID: ${{ fromJSON(steps.vm_details.outputs.vm_details).system_id }}"

@@ -21,17 +21,6 @@ if [[ -n "$VM" ]]; then
     fi
     # TODO additionally check for ssh connectivity here (wireguard)
   done
-  echo "VM is ready."
-
-  IP_ADDRESS=$(echo "$VM" | jq -r '.ip_address // empty')
-  SYSTEM_ID=$(echo "$VM" | jq -r '.system_id // empty')
-
-  if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
-    {
-      echo "ip_address=$IP_ADDRESS"
-      echo "system_id=$SYSTEM_ID"
-    } >> "$GITHUB_OUTPUT"
-  fi
 else
   echo "No VM found with label: $LABEL"
   exit 1
