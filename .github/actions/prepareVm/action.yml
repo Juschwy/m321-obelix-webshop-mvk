@@ -1,4 +1,5 @@
 name: prepareVm
+description: Prepare a VM in MAAS and expose its IP and ID
 author: liun
 outputs:
     vm_ip:
