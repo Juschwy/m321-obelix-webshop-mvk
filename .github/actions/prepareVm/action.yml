@@ -4,10 +4,10 @@ author: liun
 outputs:
     vm_ip:
         description: 'The IP address of the prepared VM'
-        value: ${{ steps.check_vm.outputs.ip_address }}
+        value: ${{ fromJSON(steps.check_vm.outputs.vm_details).ip_address }}
     vm_id:
         description: 'The ID of the prepared VM'
-        value: ${{ steps.check_vm.outputs.system_id }}
+        value: ${{ fromJSON(steps.check_vm.outputs.vm_details).system_id }}
 
 runs:
   using: composite
