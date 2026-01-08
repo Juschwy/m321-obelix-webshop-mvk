@@ -1,0 +1,52 @@
+<div class="cart-container">
+  <div class="cart-content">
+    <div class="cart-header">
+      <h1>Your Cart</h1>
+    </div>
+
+    <div *ngIf="cartItems.length === 0" class="empty-cart">
+      <p>Your cart is empty.</p>
+      <a routerLink="/admin" class="btn-back-to-shop">Continue Shopping</a>
+    </div>
+
+    <div *ngIf="cartItems.length > 0" class="cart-items">
+      <div *ngFor="let item of cartItems" class="cart-item">
+        <div class="item-image">
+          <img *ngIf="item.menhir.imageUrl" [src]="item.menhir.imageUrl" [alt]="item.menhir.stoneType" />
+          <div *ngIf="!item.menhir.imageUrl" class="image-placeholder">
+            <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="100" height="100" fill="#f0f0f0"/>
+              <path d="M50 30L55 60L60 45L65 75L70 40L50 130L30 40L35 75L40 45L45 60L50 30Z" fill="#8b7355" opacity="0.6"/>
+              <rect x="35" y="40" width="30" height="90" fill="#6b5d4f"/>
+            </svg>
+          </div>
+        </div>
+        
+        <div class="item-details">
+          <h3 class="item-name">{{ item.menhir.stoneType }}</h3>
+          <p class="item-price">{{ getFormattedPrice(getItemPrice(item.menhir)) }}</p>
+        </div>
+
+        <div class="item-quantity">
+          <button class="quantity-btn" (click)="decreaseQuantity(item)">−</button>
+          <span class="quantity-value">{{ item.quantity }}</span>
+          <button class="quantity-btn" (click)="increaseQuantity(item)">+</button>
+        </div>
+
+        <button class="item-delete" (click)="removeItem(item.menhir.id)" aria-label="Remove item">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M3 6H5H21M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div *ngIf="cartItems.length > 0" class="cart-footer">
+      <div class="cart-total">
+        <span class="total-label">Total:</span>
+        <span class="total-value">{{ getTotalFormatted() }}</span>
+      </div>
+      <button class="btn-checkout">Proceed to Checkout</button>
+    </div>
+  </div>
+</div>

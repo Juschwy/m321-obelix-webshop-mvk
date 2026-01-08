@@ -1,0 +1,42 @@
+<div class="admin-list-container">
+  <div class="admin-list-content">
+    <div class="admin-header">
+      <h1>Admin - Menhir Management</h1>
+      <button (click)="openCreateModal()" class="btn-create">
+        <svg class="plus-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Create Menhir
+      </button>
+    </div>
+    
+    <!-- Error Message -->
+    <div *ngIf="errorMessage" class="message message-error">
+      <p>{{ errorMessage }}</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="isLoading" class="loading">
+      <p>Loading menhirs...</p>
+    </div>
+
+    <!-- Menhir List -->
+    <div *ngIf="!isLoading && !errorMessage" class="admin-list">
+      <div *ngIf="menhirs.length === 0" class="empty-state">
+        <p>No menhirs found. Create your first menhir!</p>
+      </div>
+      
+      <div *ngIf="menhirs.length > 0" class="menhirs-grid">
+        <app-menhir-card *ngFor="let menhir of menhirs" [menhir]="menhir"></app-menhir-card>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Create Modal -->
+<app-create-menhir-modal
+  *ngIf="showCreateModal"
+  (close)="closeCreateModal()"
+  (created)="onMenhirCreated($event)"
+></app-create-menhir-modal>
+
