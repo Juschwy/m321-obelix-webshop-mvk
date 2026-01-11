@@ -13,23 +13,20 @@ login() {
     echo "Failed to create temporary cookies file" >&2
     exit 1
   }
-  #trap 'rm -f "$COOKIES_FILE"' EXIT
   echo "COOKIES_FILE=$COOKIES_FILE" >> "$GITHUB_ENV"
 
   curl -k -c "$COOKIES_FILE" -X POST "$MAAS_URL" \
     --data-raw "login=$user&passwd=$password"
-#  while IFS= read -r line; do
-#    echo "::add-mask::$line"
-#  done < "$COOKIES_FILE"
+  while IFS= read -r line; do
+    echo "::add-mask::$line"
+  done < "$COOKIES_FILE"
 }
 
 # Fetch VM function
 fetch_vm() {
   local label="$1"
   local json
-  echo "test5" >&2
   json=$(curl -sk -b "$COOKIES_FILE" "$MAAS_URL?list")
-  echo "json=$json" >&2
   echo "$json" | jq -c --arg label "$label" '.[] | select(.label == $label)'
 }
 

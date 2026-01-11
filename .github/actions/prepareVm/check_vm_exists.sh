@@ -3,8 +3,6 @@ set -e
 
 source "$(dirname "$0")/common.sh"
 
-cat $COOKIES_FILE
-
 VM=$(fetch_vm "$LABEL")
 
 if [[ -n "$VM" ]]; then
