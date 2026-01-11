@@ -73,8 +73,8 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v5
 
-      - name: Set image name (lowercase)
-        run: echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY,,}/backend" >> "$GITHUB_ENV"
+      - name: Set image registry (lowercase)
+        run: echo "IMAGE_REGISTRY=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
 
       - name: Docker login to GHCR
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
@@ -84,12 +84,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build image with Gradle (PRs)
+      - name: Build images with Gradle (PRs)
         if: github.event_name == 'pull_request'
-        run: ./gradlew bootBuildImage --imageName "$IMAGE_NAME"
+        run: ./gradlew :obelix-quarry-impl:bootBuildImage :obelix-basket-impl:bootBuildImage :obelix-webshop:bootBuildImage
         working-directory: ./backend
 
-      - name: Build and push image with Gradle (push)
+      - name: Build and push images with Gradle (push)
         if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
-        run: ./gradlew bootBuildImage --imageName "$IMAGE_NAME" --publishImage
+        run: ./gradlew :obelix-quarry-impl:bootBuildImage --imageName "$IMAGE_REGISTRY/obelix-quarry" --publishImage :obelix-basket-impl:bootBuildImage --imageName "$IMAGE_REGISTRY/obelix-basket" --publishImage :obelix-webshop:bootBuildImage --imageName "$IMAGE_REGISTRY/obelix-webshop" --publishImage
         working-directory: ./backend
