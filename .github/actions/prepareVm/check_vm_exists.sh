@@ -1,9 +1,13 @@
 #!/usr/bin/env bash
 set -e
 
+echo "test2"
+
 source "$(dirname "$0")/common.sh"
 
 VM=$(fetch_vm "$LABEL")
+
+echo "test3"
 
 if [[ -n "$VM" ]]; then
   echo "VM found: $VM"
