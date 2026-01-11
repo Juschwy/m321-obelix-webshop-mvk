@@ -5,6 +5,8 @@ echo "test2"
 
 source "$(dirname "$0")/common.sh"
 
+echo "test3"
+
 VM=$(fetch_vm "$LABEL")
 
 echo "test3"
