@@ -56,7 +56,7 @@ jobs:
           reporter: java-junit
 
   build-and-push:
-    if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
+    if: github.event_name == 'pull_request' || (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master'))
     runs-on: ubuntu-latest
     env:
       GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
@@ -74,12 +74,19 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Docker login to GHCR
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push image with Gradle
+      - name: Build image with Gradle (PRs)
+        if: github.event_name == 'pull_request'
+        run: ./gradlew bootBuildImage --imageName ghcr.io/${{ github.repository }}/backend
+        working-directory: ./backend
+
+      - name: Build and push image with Gradle (push)
+        if: github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')
         run: ./gradlew bootBuildImage --imageName ghcr.io/${{ github.repository }}/backend --publishImage
         working-directory: ./backend
