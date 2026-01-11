@@ -78,7 +78,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Set image registry
-        run: echo "IMAGE_REGISTRY=ghcr.io/oener/repo" >> "$GITHUB_ENV"
+        run: echo "IMAGE_REGISTRY=ghcr.io/juschwy/m321-obelix-webshop-mvk" >> "$GITHUB_ENV"
 
       - name: Docker login to GHCR
         if: (github.event_name == 'push' && (github.ref_name == 'main' || github.ref_name == 'master')) || (github.event_name == 'workflow_dispatch' && inputs.publish_images == true)
