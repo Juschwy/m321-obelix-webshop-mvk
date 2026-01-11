@@ -18,7 +18,7 @@ login() {
 
   curl -k -c "$COOKIES_FILE" -X POST "$MAAS_URL" \
     --data-raw "login=$user&passwd=$password"
-  echo "$COOKIES_FILE" # TODO: remove
+  cat $COOKIES_FILE
 #  while IFS= read -r line; do
 #    echo "::add-mask::$line"
 #  done < "$COOKIES_FILE"
@@ -28,6 +28,7 @@ login() {
 fetch_vm() {
   local label="$1"
   local json
+  echo "test1"
   json=$(curl -sk -b -v "$COOKIES_FILE" "$MAAS_URL?list")
   echo "json=$json"
   echo "$json" | jq -c --arg label "$label" '.[] | select(.label == $label)'
