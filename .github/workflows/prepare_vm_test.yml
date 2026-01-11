@@ -1,6 +1,7 @@
 name: prepare_vm_test.yml
 on:
   workflow_dispatch:
+  push: # TODO: remove before merge
 
 jobs:
     test_prepare_vm_action:
