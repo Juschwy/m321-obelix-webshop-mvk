@@ -12,7 +12,8 @@ dependencies {
 }
 
 tasks.named("bootBuildImage") {
-	imageName = "obelix/webshop"
+	def registry = System.getenv("IMAGE_REGISTRY")
+	imageName = registry ? "${registry}/obelix-webshop" : "obelix/webshop"
 }
 
 test {

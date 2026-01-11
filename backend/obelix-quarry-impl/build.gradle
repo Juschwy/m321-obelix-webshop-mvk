@@ -12,5 +12,6 @@ dependencies {
 }
 
 tasks.named("bootBuildImage") {
-	imageName = "obelix/quarry"
+	def registry = System.getenv("IMAGE_REGISTRY")
+	imageName = registry ? "${registry}/obelix-quarry" : "obelix/quarry"
 }
