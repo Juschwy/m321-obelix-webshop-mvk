@@ -9,7 +9,7 @@ echo "test3"
 
 VM=$(fetch_vm "$LABEL")
 
-echo "test3"
+echo "test4"
 
 if [[ -n "$VM" ]]; then
   echo "VM found: $VM"

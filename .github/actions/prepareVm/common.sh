@@ -27,6 +27,7 @@ login() {
 fetch_vm() {
   local label="$1"
   local json
+  echo "test5"
   cat $COOKIES_FILE
   echo "test1"
   json=$(curl -sk -b -v "$COOKIES_FILE" "$MAAS_URL?list")
