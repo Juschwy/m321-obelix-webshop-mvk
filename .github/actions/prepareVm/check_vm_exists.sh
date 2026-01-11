@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-echo "test2"
-
 source "$(dirname "$0")/common.sh"
 
-echo "test3"
+cat $COOKIES_FILE
 
 VM=$(fetch_vm "$LABEL")
-
-echo "test4"
 
 if [[ -n "$VM" ]]; then
   echo "VM found: $VM"
