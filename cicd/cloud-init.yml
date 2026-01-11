@@ -35,7 +35,7 @@ packages:
   - docker-compose-plugin
 
 write_files:
-  - path: /home/user/docker-compose.yaml
+  - path: /home/obelix/docker-compose.yaml
     # language=yaml
     content: |
       name: obelix
@@ -94,7 +94,7 @@ write_files:
       volumes:
         prometheus-data:
         grafana-data:
-  - path: /home/user/prometheus.yaml
+  - path: /home/obelix/prometheus.yaml
     # language=yaml
     content: |
       global:
@@ -123,5 +123,4 @@ write_files:
 
 # language=bash
 runcmd:
-  #  - docker compose up
-  - echo "hello world"
+  - docker compose up
