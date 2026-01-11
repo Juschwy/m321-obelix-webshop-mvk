@@ -18,7 +18,7 @@ login() {
   curl -k -c "$COOKIES_FILE" -X POST "$MAAS_URL" \
     --data-raw "login=$user&passwd=$password"
   while IFS= read -r line; do
-    echo "::add-mask::$line"
+    [[ -n "$line" ]] && echo "::add-mask::$line"
   done < "$COOKIES_FILE"
 }
 
