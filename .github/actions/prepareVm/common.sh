@@ -28,7 +28,7 @@ fetch_vm() {
   local label="$1"
   local json
   echo "test5" >&2
-  json=$(curl -sk -b -v "$COOKIES_FILE" "$MAAS_URL?list")
+  json=$(curl -sk -b "$COOKIES_FILE" "$MAAS_URL?list")
   echo "json=$json" >&2
   echo "$json" | jq -c --arg label "$label" '.[] | select(.label == $label)'
 }
