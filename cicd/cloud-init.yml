@@ -123,4 +123,4 @@ write_files:
 
 # language=bash
 runcmd:
-  - docker compose up
+  - docker compose up -d
