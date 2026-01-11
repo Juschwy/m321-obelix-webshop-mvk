@@ -13,7 +13,7 @@ login() {
     echo "Failed to create temporary cookies file" >&2
     exit 1
   }
-  trap 'rm -f "$COOKIES_FILE"' EXIT
+  #trap 'rm -f "$COOKIES_FILE"' EXIT
   echo "COOKIES_FILE=$COOKIES_FILE" >> "$GITHUB_ENV"
 
   curl -k -c "$COOKIES_FILE" -X POST "$MAAS_URL" \
