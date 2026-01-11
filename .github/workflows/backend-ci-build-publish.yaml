@@ -21,7 +21,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
+      GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -59,7 +59,7 @@ jobs:
     needs: test
     runs-on: ubuntu-latest
     env:
-      GRADLE_USER_HOME: ${{ runner.temp }}/.gradle
+      GRADLE_USER_HOME: ${{ github.workspace }}/.gradle
     steps:
       - name: Checkout
         uses: actions/checkout@v4
