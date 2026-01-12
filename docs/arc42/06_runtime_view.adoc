@@ -3,51 +3,155 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-runtime-view]]
 == Runtime View
 
+This chapter describes **runtime behavior and interactions** between the building blocks.
+It focuses on **architecturally relevant scenarios** and is intentionally limited
+to a small, representative set.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-The runtime view describes concrete behavior and interactions of the system’s building blocks in form of scenarios from the following areas:
+Each scenario should explain *how* building blocks collaborate at runtime.
 
-* important use cases or features: how do building blocks execute them?
-* interactions at critical external interfaces: how do building blocks cooperate with users and neighboring systems?
-* operation and administration: launch, start-up, stop
-* error and exception scenarios
+=== How to use this chapter
 
-Remark: The main criterion for the choice of possible scenarios (sequences, workflows) is their *architectural relevance*. It is *not* important to describe a large number of scenarios. You should rather document a representative selection.
+* Add **only relevant scenarios** (important, risky, or representative).
+* Prefer **clarity over completeness**.
+* Each scenario should be understandable **without reading the source code**.
+* Use **PlantUML** for diagrams where possible.
 
-.Motivation
-You should understand how (instances of) building blocks of your system perform their job and communicate at runtime.
-You will mainly capture scenarios in your documentation to communicate your architecture to stakeholders that are less willing or able to read and understand the static models (building block view, deployment view).
+---
 
-.Form
-There are many notations for describing scenarios, e.g.
+=== <Runtime Scenario Name>
 
-* numbered list of steps (in natural language)
-* activity diagrams or flow charts
-* sequence diagrams
-* BPMN or EPCs (event process chains)
-* state machines
-* ...
+==== Purpose
 
+TODO:  
+Briefly explain **why this scenario is documented**.
 
-.Further Information
+Examples:
+* Core business use case
+* Critical interaction between services
+* Operational or failure scenario
 
-See https://docs.arc42.org/section-6/[Runtime View] in the arc42 documentation.
+==== Trigger
 
-****
-endif::arc42help[]
+TODO:  
+Describe what **starts** this scenario.
 
-=== <Runtime Scenario 1>
+Examples:
+* User action
+* External system request
+* System startup
 
+==== Involved Building Blocks
 
-* _<insert runtime diagram or textual description of the scenario>_
-* _<insert description of the notable aspects of the interactions between the
-building block instances depicted in this diagram.>_
+TODO:  
+List all participating building blocks.
 
-=== <Runtime Scenario 2>
+Example:
+* <Client / UI>
+* <Service A>
+* <Service B>
+* <External System>
 
-=== ...
+==== Runtime Diagram
 
-=== <Runtime Scenario n>
+[plantuml, <scenario-id>, svg]
+----
+@startuml
+actor "<Actor / Trigger>" as Actor
+
+participant "<Building Block 1>" as BB1
+participant "<Building Block 2>" as BB2
+participant "<Building Block n>" as BBn
+
+Actor -> BB1 : <Action / Request>
+BB1 -> BB2 : <Call / Message>
+BB2 -> BBn : <Call / Message>
+BBn --> BB2 : <Response>
+BB2 --> BB1 : <Response>
+BB1 --> Actor : <Result>
+@enduml
+----
+
+NOTE:  
+Only show **relevant interactions**.  
+Avoid technical noise (e.g. frameworks, libraries).
+
+==== Steps (Optional)
+
+TODO (optional):  
+Describe the interaction as a **numbered list**, if it improves understanding.
+
+. Step 1: <Description>
+. Step 2: <Description>
+. Step n: <Description>
+
+==== Notable Aspects
+
+TODO:  
+Highlight **architecturally relevant aspects**, for example:
+
+* Cross-service communication
+* Error handling
+* Performance implications
+* Synchronous vs. asynchronous behavior
+* Monitoring / tracing relevance
+
+---
+
+=== <Runtime Scenario Name>
+
+(copy the template above)
+
+---
+
+=== <Runtime Scenario Name>
+
+(copy the template above)
+
+---
+
+=== Operational Scenarios (Optional)
+
+Use this section for **non-functional** runtime behavior.
+
+Examples:
+* Application startup
+* Service shutdown
+* Deployment
+* Health checks
+
+==== <Operational Scenario Name>
+
+(copy the scenario template above)
+
+---
+
+=== Error and Exception Scenarios (Optional)
+
+Document **important failure scenarios** that impact architecture decisions.
+
+==== <Error Scenario Name>
+
+==== Purpose
+
+TODO:  
+Explain why this error scenario is relevant.
+
+==== Runtime Diagram
+
+[plantuml, <error-scenario-id>, svg]
+----
+@startuml
+participant "<Building Block 1>" as BB1
+participant "<Building Block 2>" as BB2
+
+BB1 -> BB2 : <Request>
+BB2 --> BB1 : <Error / Exception>
+@enduml
+----
+
+==== Notable Aspects
+
+TODO:
+* Error propagation
+* Fallback behavior
+* Observability (logs, metrics, traces)

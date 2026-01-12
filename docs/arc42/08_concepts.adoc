@@ -3,63 +3,83 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-concepts]]
 == Cross-cutting Concepts
 
+This section describes **cross-cutting concepts** that affect multiple building blocks.
+Concepts may include practices, patterns, regulations, or solution ideas.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content
-This section describes crosscutting concepts (practices, patterns, regulations or solution ideas).
-Such concepts are often related to multiple building blocks. 
-They may include many different topics, such as the topics shown in the following diagram:
+Use this template to guide the documentation, without filling in actual details yet.
 
-image::08-concepts-EN.drawio.png["Possible topics for crosscutting concepts"]
+---
 
-.Motivation
-Concepts form the basis for _conceptual integrity_ (consistency, homogeneity) of the architecture. 
-Thus, they are an important contribution to achieve inner qualities of your system.
+=== <Concept 1 – Name / Title>
 
-This is the place in the template that we provided for a cohesive specification of such concepts.
+==== Purpose / Motivation
 
-Many of these concepts relate to or influence several of your building blocks. 
+TODO:  
+Explain **why this concept is relevant** for the system.
 
-.Form
-The form can be varied:
+Examples:
+* Security
+* Logging
+* Monitoring / Tracing
+* Error handling
+* Configuration management
+* LLM / AI usage guidelines
 
-* concept papers with any kind of structure
-* example implementations,especially for technical concepts
-* cross-cutting model excerpts or scenarios using notations of the architecture views
+==== Affected Building Blocks
 
-.Structure
-Pick **only** the most-needed topics for your system and assign each a level-2 heading in this section (e.g. 8.1, 8.2 etc).
+TODO:  
+List all building blocks impacted by this concept.
 
-DO NOT ATTEMPT to cover all of the topics of the aforementioned diagram.
+Example:
+* <Service A>
+* <Service B>
+* <Frontend / UI>
 
+==== Description
 
-.Further Information
+TODO:  
+Provide a textual explanation of the concept.
 
-Some topics within systems often concern multiple building blocks, hardware elements or development processes.
-It might be easier to communicate or document such _cross-cutting_ topics at a central location, instead of repeating them in the description of the concerned building blocks, hardware elements or development processes.
+* What problem does it address?
+* How does it influence the architecture?
+* Any high-level rules or patterns?
 
-Certain concepts might concern **all** elements of a system, others might only be relevant for a few.
-In the diagram above, logging concerns all three components, whereas security is relevant only for two components.
+==== Example / Diagram (Optional)
 
+[plantuml, concept1, svg]
+----
+@startuml
+' Optional diagram showing how the concept applies
+rectangle "<Building Block 1>" as BB1
+rectangle "<Building Block 2>" as BB2
 
-See https://docs.arc42.org/section-8/[Concepts] in the arc42 documentation.
-****
-endif::arc42help[]
+BB1 --> BB2 : <Interaction / Constraint / Shared Behavior>
+@enduml
+----
 
-=== _<Concept 1>_
+==== Notes / Guidelines (Optional)
 
-_<explanation>_
+TODO:
+* Implementation hints
+* Restrictions or rules
+* Monitoring / observability
+* Performance considerations
+* Risks or open questions
 
+---
 
+=== <Concept 2 – Name / Title>
 
-=== _<Concept 2>_
+(copy the template above)
 
-_<explanation>_
+---
 
-...
+=== <Concept 3 – Name / Title>
 
-=== _<Concept n>_
+(copy the template above)
 
-_<explanation>_
+---
+
+=== <Concept n – Name / Title>
+
+(copy the template above)
