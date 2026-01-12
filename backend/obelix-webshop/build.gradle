@@ -18,5 +18,4 @@ tasks.named("bootBuildImage") {
 
 test {
 	useJUnitPlatform()
-	systemProperty 'spring.profiles.include', '!integration'
 }
