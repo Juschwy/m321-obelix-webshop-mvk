@@ -1,100 +1,124 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-deployment-view]]
-
-
 == Deployment View
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content
-The deployment view describes:
+This chapter describes the **technical infrastructure** required to run the system and
+how software building blocks are mapped onto that infrastructure.
 
- 1. technical infrastructure used to execute your system, with infrastructure elements like geographical locations, environments, computers, processors, channels and net topologies as well as other infrastructure elements and
+Focus on **architecturally relevant deployment aspects** and keep the descriptions abstract
+so teams can fill in details later.
 
-2. mapping of (software) building blocks to that infrastructure elements.
+---
 
-Often systems are executed in different environments, e.g. development environment, test environment, production environment. In such cases you should document all relevant environments.
+=== Infrastructure Level 1 – Overview
 
-Especially document a deployment view if your software is executed as distributed system with more than one computer, processor, server or container or when you design and construct your own hardware processors and chips.
+==== Overview Diagram
 
-From a software perspective it is sufficient to capture only those elements of an infrastructure that are needed to show a deployment of your building blocks. Hardware architects can go beyond that and describe an infrastructure to any level of detail they need to capture.
+[plantuml, deployment-level1, svg]
+----
+@startuml
+node "<Environment / Location 1>" {
+  node "<Server / VM / Container 1>"
+  node "<Server / VM / Container 2>"
+}
 
-.Motivation
-Software does not run without hardware.
-This underlying infrastructure can and will influence a system and/or some
-cross-cutting concepts. Therefore, there is a need to know the infrastructure.
+node "<Environment / Location 2>" {
+  node "<Server / VM / Container 3>"
+}
 
-.Form
+"<Server / VM / Container 1>" --> "<Server / VM / Container 2>" : <Connection / Protocol>
+"<Server / VM / Container 1>" --> "<Server / VM / Container 3>" : <Connection / Protocol>
+@enduml
+----
 
-Maybe a highest level deployment diagram is already contained in section 3.2. as
-technical context with your own infrastructure as ONE black box. In this section one can
-zoom into this black box using additional deployment diagrams:
+==== Motivation
 
-* UML offers deployment diagrams to express that view. Use it, probably with nested diagrams,
-when your infrastructure is more complex.
-* When your (hardware) stakeholders prefer other kinds of diagrams rather than a deployment diagram, let them use any kind that is able to show nodes and channels of the infrastructure.
+TODO:  
+Explain **why this deployment structure is used**, e.g.:
 
+* Scalability
+* Fault tolerance
+* Geographical distribution
+* Separation of environments (dev/test/prod)
 
-.Further Information
+==== Quality and/or Performance Features
 
-See https://docs.arc42.org/section-7/[Deployment View] in the arc42 documentation.
+TODO:  
+Document any relevant **non-functional aspects**, e.g.:
 
-****
-endif::arc42help[]
+* Availability
+* Throughput / latency
+* Redundancy / failover
+* Resource requirements (CPU, memory, storage)
 
-=== Infrastructure Level 1
+==== Mapping of Building Blocks to Infrastructure
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Describe (usually in a combination of diagrams, tables, and text):
+[cols="1,2",options="header"]
+|===
+|Building Block |Infrastructure Element / Node
 
-* distribution of a system to multiple locations, environments, computers, processors, .., as well as physical connections between them
-* important justifications or motivations for this deployment structure
-* quality and/or performance features of this infrastructure
-* mapping of software artifacts to elements of this infrastructure
+|<Building Block 1>
+|<Server / VM / Container / Node>
 
-For multiple environments or alternative deployments please copy and adapt this section of arc42 for all relevant environments.
-****
-endif::arc42help[]
+|<Building Block 2>
+|<Server / VM / Container / Node>
 
-_**<Overview Diagram>**_
+|<Building Block n>
+|<Server / VM / Container / Node>
+|===
 
-Motivation::
+---
 
-_<explanation in text form>_
+=== Infrastructure Level 2 – Internal Structure
 
-Quality and/or Performance Features::
+Level 2 zooms into **selected infrastructure elements** from Level 1.  
+Document **complex or critical elements** only.
 
-_<explanation in text form>_
+==== <Infrastructure Element 1>
 
-Mapping of Building Blocks to Infrastructure::
-_<description of the mapping>_
+==== Diagram
 
+[plantuml, infra-element1, svg]
+----
+@startuml
+node "<Infrastructure Element 1>" {
+  node "<Internal Component 1>"
+  node "<Internal Component 2>"
+}
 
-=== Infrastructure Level 2
+"<Internal Component 1>" --> "<Internal Component 2>" : <Connection / Protocol>
+@enduml
+----
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Here you can include the internal structure of (some) infrastructure elements from level 1.
+==== Motivation
 
-Please copy the structure from level 1 for each selected element.
-****
-endif::arc42help[]
+TODO:  
+Explain why this element is **relevant to document**, e.g.:
 
-==== _<Infrastructure Element 1>_
+* Complex topology
+* Multiple services deployed
+* Performance-critical paths
 
-_<diagram + explanation>_
+==== Mapping of Building Blocks to Internal Components
 
-==== _<Infrastructure Element 2>_
+[cols="1,2",options="header"]
+|===
+|Building Block |Mapped Component
 
-_<diagram + explanation>_
+|<Building Block A>
+|<Internal Component 1>
+
+|<Building Block B>
+|<Internal Component 2>
+|===
+
+==== <Infrastructure Element 2>
+
+(copy template above)
 
 ...
 
-==== _<Infrastructure Element n>_
+==== <Infrastructure Element n>
 
-_<diagram + explanation>_
+(copy template above)

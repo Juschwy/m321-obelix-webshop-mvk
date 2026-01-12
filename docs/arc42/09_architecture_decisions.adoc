@@ -3,35 +3,76 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-design-decisions]]
 == Architecture Decisions
 
+This section documents **important architectural decisions** and their rationale.
+Use this template to capture each decision clearly and consistently.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-Important, expensive, large scale or risky architecture decisions including rationales.
-With "decisions" we mean selecting one alternative based on given criteria.
+---
 
-Please use your judgement to decide whether an architectural decision should be documented
-here in this central section or whether you better document it locally
-(e.g. within the white box template of one building block).
+=== <Decision 1 – Short Title>
 
-Avoid redundancy. 
-Refer to section 4, where you already captured the most important decisions of your architecture.
+==== Context
 
-.Motivation
-Stakeholders of your system should be able to comprehend and retrace your decisions.
+TODO:  
+Describe the situation, requirements, or problem that prompted this decision.
 
-.Form
-Various options:
+* Which constraints apply?  
+* Which stakeholders are affected?  
+* What prior decisions are relevant?
 
-* ADR (https://cognitect.com/blog/2011/11/15/documenting-architecture-decisions[Documenting Architecture Decisions]) for every important decision
-* List or table, ordered by importance and consequences or:
-* more detailed in form of separate sections per decision
+==== Decision
 
-.Further Information
+TODO:  
+Clearly state the **chosen alternative**.
 
-See https://docs.arc42.org/section-9/[Architecture Decisions] in the arc42 documentation.
-There you will find links and examples about ADR.
+* What solution / approach was selected?  
+* Why was this alternative chosen over others?
 
-****
-endif::arc42help[]
+#### Alternatives Considered
+
+TODO:  
+List other reasonable options and briefly explain why they were **not chosen**.
+
+* Alternative 1: <description>  
+* Alternative 2: <description>  
+* Alternative n: <description>
+
+==== Rationale
+
+TODO:  
+Explain **why this decision is correct**, e.g.:
+
+* Benefits
+* Trade-offs
+* Impact on system quality attributes (performance, scalability, security)
+
+==== Implications
+
+TODO:  
+Describe **consequences of the decision**, including:
+
+* Impact on other building blocks  
+* Technical debt or risks  
+* Testing / operational considerations
+
+#### Related Decisions
+
+TODO (optional):  
+Link to related architectural decisions or references to other chapters.
+
+---
+
+=== <Decision 2 – Short Title>
+
+(copy the template above)
+
+---
+
+=== <Decision 3 – Short Title>
+
+(copy the template above)
+
+---
+
+=== <Decision n – Short Title>
+
+(copy the template above)
