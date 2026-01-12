@@ -2,6 +2,7 @@ name: Backend CI - Build & Publish
 permissions:
   contents: read
   packages: write
+  checks: write
 
 on:
   push:
@@ -45,7 +46,7 @@ jobs:
           path: backend/**/build/test-results/**
 
       - name: Publish test report to Checks
-        if: ${{ always() }}
+        if: ${{ always() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false) }}
         uses: dorny/test-reporter@v1
         with:
           name: backend-tests
