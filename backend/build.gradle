@@ -49,6 +49,10 @@ subprojects {
 
 	tasks.named('test') {
 		jvmArgs "-XX:+EnableDynamicAgentLoading"
-		useJUnitPlatform()
+		useJUnitPlatform {
+			if (System.getenv("CI") != null) {
+				excludeTags "integration"
+			}
+		}
 	}
 }

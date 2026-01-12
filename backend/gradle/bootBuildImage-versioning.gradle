@@ -1,0 +1,10 @@
+ext.configureBootBuildImageVersioning = { TaskProvider taskProvider, String serviceImageName, String localFallbackImageName ->
+	taskProvider.configure { task ->
+		def registry = System.getenv("IMAGE_REGISTRY")
+		def baseName = registry ? "${registry}/${serviceImageName}" : localFallbackImageName
+
+		def versionTagValue = System.getenv("IMAGE_TAG_VERSION")
+		def defaultTagValue = System.getenv("IMAGE_TAG_DEFAULT") ?: "dev"
+		imageName = "${baseName}:${versionTagValue ?: defaultTagValue}"
+	}
+}
