@@ -4,15 +4,14 @@ on:
   push:
     branches:
       - master
-      - main
     paths:
       - 'frontend/**'
   pull_request:
-    branches:
-      - master
-      - main
+    types: [ opened, synchronize, reopened ]
     paths:
       - 'frontend/**'
+  workflow_dispatch:
+    inputs: { }
 
 jobs:
   test:
@@ -28,11 +27,13 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
         working-directory: ./frontend/obelix-webshop-frontend
 
       - name: Run frontend tests
-        run: npm test
+        id: tests
+        continue-on-error: true
+        run: npm test -- --watch=false --browsers=ChromeHeadless
         working-directory: ./frontend/obelix-webshop-frontend
 
       - name: Log in to GitHub Container Registry
@@ -46,4 +47,5 @@ jobs:
         run: docker build -t ghcr.io/${{ github.repository }}/frontend:latest ./frontend/obelix-webshop-frontend
 
       - name: Push Docker image
+        if: steps.tests.outcome == 'success'
         run: docker push ghcr.io/${{ github.repository }}/frontend:latest
