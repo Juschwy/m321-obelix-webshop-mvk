@@ -64,7 +64,7 @@ runs:
       env:
         DNS_USER: ${{ inputs.dns_user }}
         DNS_PASSWORD: ${{ inputs.dns_password }}
-        DNS_IP: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address }}
+        DNS_IP: "${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address[0] }}"
       shell: bash
       run: .github/actions/provisionVm/update_ddns.sh
 
