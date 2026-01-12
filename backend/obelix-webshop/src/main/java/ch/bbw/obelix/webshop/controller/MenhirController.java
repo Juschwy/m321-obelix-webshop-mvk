@@ -3,16 +3,14 @@ package ch.bbw.obelix.webshop.controller;
 import ch.bbw.obelix.quarry.api.dto.MenhirDto;
 import ch.bbw.obelix.quarry.api.service.QuarryClientService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
 
 /**
- * @author schules
- * @version 03.11.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 05.01.2026
  */
 
 @RestController
@@ -28,5 +26,15 @@ public class MenhirController {
     @GetMapping("/api/menhirs/{menhirId}")
     public MenhirDto getMenhirById(@PathVariable UUID menhirId) {
         return quarryClientService.getMenhirById(menhirId);
+    }
+
+    @PostMapping("/api/menhir")
+    public void addMenhir(@RequestBody MenhirDto menhirDto) {
+        quarryClientService.createMenhir(menhirDto);
+    }
+
+    @PutMapping("/api/{menhirId}")
+    public void updateMenhir(@RequestBody MenhirDto menhirDto, @PathVariable UUID menhirId) {
+        quarryClientService.updateMenhir(menhirDto, menhirId);
     }
 }

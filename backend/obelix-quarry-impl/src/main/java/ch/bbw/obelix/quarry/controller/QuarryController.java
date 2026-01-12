@@ -5,15 +5,18 @@ import ch.bbw.obelix.quarry.api.dto.MenhirDto;
 import ch.bbw.obelix.quarry.service.QuarryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.UUID;
 
 /**
- * @author schules
- * @version 27.10.2025
+ * @author Tim Leo Laurin Leuenberger
+ * @version 15.12.2025
  */
+
+// Comment requested by Julian Aschwanden, 05.01.2026
 
 @RestController
 @RequiredArgsConstructor
@@ -33,5 +36,15 @@ public class QuarryController implements QuarryApi {
     @Override
     public MenhirDto getMenhirById(@PathVariable UUID menhirId) {
         return quarryService.getMenhirById(menhirId);
+    }
+
+    @Override
+    public void createMenhir(@RequestBody MenhirDto menhirDto) {
+        quarryService.createMenhir(menhirDto);
+    }
+
+    @Override
+    public void updateMenhir(@RequestBody MenhirDto menhirDto, @PathVariable UUID menhirId) {
+        quarryService.updateMenhir(menhirDto, menhirId);
     }
 }
