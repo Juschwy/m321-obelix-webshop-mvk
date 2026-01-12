@@ -6,10 +6,7 @@ permissions:
 
 on:
   push:
-    branches:
-      - master
     paths:
-      - 'frontend/**'
   pull_request:
     types: [ opened, synchronize, reopened ]
     paths:
