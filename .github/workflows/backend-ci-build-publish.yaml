@@ -73,7 +73,26 @@ jobs:
         uses: gradle/actions/setup-gradle@v5
 
       - name: Set image registry
-        run: echo "IMAGE_REGISTRY=ghcr.io/juschwy/m321-obelix-webshop-mvk" >> "$GITHUB_ENV"
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          raw_ref="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          branch_tag="$(printf '%s' "$raw_ref" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          sha_short="$(printf '%s' "${GITHUB_SHA}" | cut -c1-12)"
+          ts_utc="$(date -u +%Y%m%d%H%M%S)"
+          if [[ -z "$branch_tag" ]]; then
+            branch_tag="unknown-${sha_short}"
+          fi
+
+          {
+            echo "IMAGE_REGISTRY=ghcr.io/juschwy/m321-obelix-webshop-mvk"
+            echo "IMAGE_TAG_BRANCH=${branch_tag}"
+            echo "IMAGE_TAG_SHA=${sha_short}"
+            echo "IMAGE_TAG_TIMESTAMP=${ts_utc}"
+          } >> "$GITHUB_ENV"
 
       - name: Docker login to GHCR
         if: github.event_name == 'push' && github.ref_name == 'master'

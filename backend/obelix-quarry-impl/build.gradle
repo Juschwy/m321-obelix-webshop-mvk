@@ -12,10 +12,8 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named("bootBuildImage") {
-	def registry = System.getenv("IMAGE_REGISTRY")
-	imageName = registry ? "${registry}/obelix-quarry" : "obelix/quarry"
-}
+apply from: rootProject.file('gradle/bootBuildImage-versioning.gradle')
+configureBootBuildImageVersioning(tasks.named("bootBuildImage"), "obelix-quarry", "obelix/quarry")
 
 tasks.named("forkedSpringBootRun") {
 	dependsOn ':obelix-common:jar'

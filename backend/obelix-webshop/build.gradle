@@ -12,10 +12,8 @@ dependencies {
 	testImplementation testFixtures(project(':obelix-common'))
 }
 
-tasks.named("bootBuildImage") {
-	def registry = System.getenv("IMAGE_REGISTRY")
-	imageName = registry ? "${registry}/obelix-webshop" : "obelix/webshop"
-}
+apply from: rootProject.file('gradle/bootBuildImage-versioning.gradle')
+configureBootBuildImageVersioning(tasks.named("bootBuildImage"), "obelix-webshop", "obelix/webshop")
 
 test {
 	useJUnitPlatform()
