@@ -122,5 +122,5 @@ write_files:
                 - 'obelix-basket:8082'
 
 # language=bash
-runcmd:
-  - docker compose up -d
+#runcmd:
+#  - docker compose up -d
