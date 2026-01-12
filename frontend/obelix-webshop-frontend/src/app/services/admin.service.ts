@@ -10,7 +10,7 @@ export class AdminService {
   // TODO: Replace with actual backend URL from environment configuration
   private readonly apiUrl = 'http://localhost:8080/api/admin/menhirs';
 
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   /**
    * Gets all Menhirs.
@@ -20,7 +20,7 @@ export class AdminService {
    * Expected backend endpoint: GET /api/menhirs
    * Expected response: MenhirDto[]
    */
-  getAllMenhirs(): Observable<MenhirDto[]> {
+  public getAllMenhirs(): Observable<MenhirDto[]> {
     // MOCK IMPLEMENTATION - Remove when backend is ready
     const defaultMenhirs: MenhirDto[] = [
       {
@@ -78,7 +78,7 @@ export class AdminService {
    * Expected request body: CreateMenhirRequest
    * Expected response: MenhirDto
    */
-  createMenhir(menhir: CreateMenhirRequest): Observable<MenhirDto> {
+  public createMenhir(menhir: CreateMenhirRequest): Observable<MenhirDto> {
     // MOCK IMPLEMENTATION - Remove when backend is ready
     const mockResponse: MenhirDto = {
       id: crypto.randomUUID(),

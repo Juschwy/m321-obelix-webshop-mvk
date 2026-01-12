@@ -6,24 +6,32 @@
     </div>
 
     <!-- Success Message -->
-    <div *ngIf="successMessage" class="message message-success">
-      <p>{{ successMessage }}</p>
-      <div *ngIf="createdMenhir" class="created-menhir-info">
-        <h3>Created Menhir Details:</h3>
-        <ul>
-          <li><strong>ID:</strong> {{ createdMenhir.id }}</li>
-          <li><strong>Weight:</strong> {{ createdMenhir.weight }} tons</li>
-          <li><strong>Stone Type:</strong> {{ createdMenhir.stoneType }}</li>
-          <li><strong>Decorativeness:</strong> {{ createdMenhir.decorativeness }}</li>
-          <li *ngIf="createdMenhir.description"><strong>Description:</strong> {{ createdMenhir.description }}</li>
-        </ul>
+    @if (successMessage$$()) {
+      <div class="message message-success">
+        <p>{{ successMessage$$() }}</p>
+        @if (createdMenhir$$()) {
+          <div class="created-menhir-info">
+            <h3>Created Menhir Details:</h3>
+            <ul>
+              <li><strong>ID:</strong> {{ createdMenhir$$()!.id }}</li>
+              <li><strong>Weight:</strong> {{ createdMenhir$$()!.weight }} tons</li>
+              <li><strong>Stone Type:</strong> {{ createdMenhir$$()!.stoneType }}</li>
+              <li><strong>Decorativeness:</strong> {{ createdMenhir$$()!.decorativeness }}</li>
+              @if (createdMenhir$$()!.description) {
+                <li><strong>Description:</strong> {{ createdMenhir$$()!.description }}</li>
+              }
+            </ul>
+          </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- Error Message -->
-    <div *ngIf="errorMessage" class="message message-error">
-      <p>{{ errorMessage }}</p>
-    </div>
+    @if (errorMessage$$()) {
+      <div class="message message-error">
+        <p>{{ errorMessage$$() }}</p>
+      </div>
+    }
 
     <!-- Form -->
     <form [formGroup]="menhirForm" (ngSubmit)="onSubmit()" class="menhir-form">
@@ -39,9 +47,11 @@
           [class.invalid]="isFieldInvalid('weight')"
           placeholder="e.g., 2.5"
         />
-        <span *ngIf="isFieldInvalid('weight')" class="error-message">
-          {{ getErrorMessage('weight') }}
-        </span>
+        @if (isFieldInvalid('weight')) {
+          <span class="error-message">
+            {{ getErrorMessage('weight') }}
+          </span>
+        }
       </div>
 
       <!-- Stone Type Field -->
@@ -54,9 +64,11 @@
           [class.invalid]="isFieldInvalid('stoneType')"
           placeholder="e.g., Granite, Marble"
         />
-        <span *ngIf="isFieldInvalid('stoneType')" class="error-message">
-          {{ getErrorMessage('stoneType') }}
-        </span>
+        @if (isFieldInvalid('stoneType')) {
+          <span class="error-message">
+            {{ getErrorMessage('stoneType') }}
+          </span>
+        }
       </div>
 
       <!-- Decorativeness Field -->
@@ -68,13 +80,17 @@
           [class.invalid]="isFieldInvalid('decorativeness')"
         >
           <option value="">Select decorativeness</option>
-          <option *ngFor="let option of decorativenessOptions" [value]="option">
-            {{ option }}
-          </option>
+          @for (option of decorativenessOptions; track option) {
+            <option [value]="option">
+              {{ option }}
+            </option>
+          }
         </select>
-        <span *ngIf="isFieldInvalid('decorativeness')" class="error-message">
-          {{ getErrorMessage('decorativeness') }}
-        </span>
+        @if (isFieldInvalid('decorativeness')) {
+          <span class="error-message">
+            {{ getErrorMessage('decorativeness') }}
+          </span>
+        }
       </div>
 
       <!-- Description Field -->
@@ -92,16 +108,20 @@
       <div class="form-actions">
         <button
           type="submit"
-          [disabled]="isSubmitting"
+          [disabled]="isSubmitting$$()"
           class="btn btn-primary"
         >
-          <span *ngIf="!isSubmitting">Create Menhir</span>
-          <span *ngIf="isSubmitting">Creating...</span>
+          @if (!isSubmitting$$()) {
+            <span>Create Menhir</span>
+          }
+          @if (isSubmitting$$()) {
+            <span>Creating...</span>
+          }
         </button>
         <button
           type="button"
           (click)="menhirForm.reset()"
-          [disabled]="isSubmitting"
+          [disabled]="isSubmitting$$()"
           class="btn btn-secondary"
         >
           Reset

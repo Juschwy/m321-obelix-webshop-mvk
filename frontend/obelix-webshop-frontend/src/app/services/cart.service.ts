@@ -25,15 +25,15 @@ export class CartService {
     }
   }
 
-  getCartItems(): Observable<CartItem[]> {
+  public getCartItems(): Observable<CartItem[]> {
     return this.cartItems$.asObservable();
   }
 
-  getCartItemsValue(): CartItem[] {
+  public getCartItemsValue(): CartItem[] {
     return this.cartItems$.value;
   }
 
-  addItem(menhir: MenhirDto): void {
+  public addItem(menhir: MenhirDto): void {
     const currentItems = this.cartItems$.value;
     const existingItem = currentItems.find(item => item.menhir.id === menhir.id);
 
@@ -47,13 +47,13 @@ export class CartService {
     this.saveToLocalStorage();
   }
 
-  removeItem(menhirId: string): void {
+  public removeItem(menhirId: string): void {
     const currentItems = this.cartItems$.value.filter(item => item.menhir.id !== menhirId);
     this.cartItems$.next(currentItems);
     this.saveToLocalStorage();
   }
 
-  updateQuantity(menhirId: string, quantity: number): void {
+  public updateQuantity(menhirId: string, quantity: number): void {
     if (quantity <= 0) {
       this.removeItem(menhirId);
       return;
@@ -68,18 +68,18 @@ export class CartService {
     }
   }
 
-  getTotal(): number {
+  public getTotal(): number {
     return this.cartItems$.value.reduce((total, item) => {
       const price = this.getMenhirPrice(item.menhir);
       return total + (price * item.quantity);
     }, 0);
   }
 
-  getItemCount(): number {
+  public getItemCount(): number {
     return this.cartItems$.value.reduce((count, item) => count + item.quantity, 0);
   }
 
-  clearCart(): void {
+  public clearCart(): void {
     this.cartItems$.next([]);
     this.saveToLocalStorage();
   }

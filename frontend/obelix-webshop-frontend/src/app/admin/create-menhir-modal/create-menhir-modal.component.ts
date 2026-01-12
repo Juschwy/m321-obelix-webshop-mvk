@@ -110,7 +110,7 @@ export class CreateMenhirModalComponent {
     });
   }
 
-  getErrorMessage(fieldName: string): string {
+  protected getErrorMessage(fieldName: string): string {
     const control = this.menhirForm.get(fieldName);
     if (control?.hasError('required')) {
       return `${this.getFieldLabel(fieldName)} is required`;
@@ -135,7 +135,7 @@ export class CreateMenhirModalComponent {
     return labels[fieldName] || fieldName;
   }
 
-  isFieldInvalid(fieldName: string): boolean {
+  protected isFieldInvalid(fieldName: string): boolean {
     const control = this.menhirForm.get(fieldName);
     return !!(control && control.invalid && control.touched);
   }

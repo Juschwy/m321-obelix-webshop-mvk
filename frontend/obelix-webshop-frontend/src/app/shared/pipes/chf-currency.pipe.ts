@@ -5,7 +5,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   standalone: true
 })
 export class ChfCurrencyPipe implements PipeTransform {
-  transform(value: number | null | undefined, fractionDigits: number = 0): string {
+  public transform(value: number | null | undefined, fractionDigits: number = 0): string {
     if (value === null || value === undefined) {
       return '';
     }

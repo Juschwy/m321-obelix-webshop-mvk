@@ -22,7 +22,7 @@ export class AdminListComponent implements OnInit {
   protected readonly errorMessage$$ = signal<string | null>(null);
   protected readonly showCreateModal$$ = signal<boolean>(false);
 
-  ngOnInit(): void {
+  public ngOnInit(): void {
     this.loadMenhirs();
   }
 

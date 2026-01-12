@@ -1,26 +1,26 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
-import { AdminComponent } from './admin.component';
-import { AdminService } from './admin.service';
+import { AdminCreateComponent } from './admin.component';
+import { AdminService } from '../services/admin.service';
 import { of, throwError } from 'rxjs';
 import { DecorativenessDto } from '../models/menhir.dto';
 
-describe('AdminComponent', () => {
-  let component: AdminComponent;
-  let fixture: ComponentFixture<AdminComponent>;
+describe('AdminCreateComponent', () => {
+  let component: AdminCreateComponent;
+  let fixture: ComponentFixture<AdminCreateComponent>;
   let adminService: jasmine.SpyObj<AdminService>;
 
   beforeEach(async () => {
     const adminServiceSpy = jasmine.createSpyObj('AdminService', ['createMenhir']);
 
     await TestBed.configureTestingModule({
-      imports: [AdminComponent, ReactiveFormsModule],
+      imports: [AdminCreateComponent, ReactiveFormsModule],
       providers: [
         { provide: AdminService, useValue: adminServiceSpy }
       ]
     }).compileComponents();
 
-    fixture = TestBed.createComponent(AdminComponent);
+    fixture = TestBed.createComponent(AdminCreateComponent);
     component = fixture.componentInstance;
     adminService = TestBed.inject(AdminService) as jasmine.SpyObj<AdminService>;
     fixture.detectChanges();
@@ -71,8 +71,8 @@ describe('AdminComponent', () => {
     component.onSubmit();
 
     expect(adminService.createMenhir).toHaveBeenCalled();
-    expect(component.createdMenhir).toEqual(mockMenhir);
-    expect(component.successMessage).toBe('Menhir successfully created!');
+    expect(component.createdMenhir$$()).toEqual(mockMenhir);
+    expect(component.successMessage$$()).toBe('Menhir successfully created!');
   });
 
   it('should handle error on submit', () => {
@@ -88,8 +88,8 @@ describe('AdminComponent', () => {
 
     component.onSubmit();
 
-    expect(component.errorMessage).toBe('Test error');
-    expect(component.isSubmitting).toBeFalsy();
+    expect(component.errorMessage$$()).toBe('Test error');
+    expect(component.isSubmitting$$()).toBeFalsy();
   });
 });
 

@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
+import { first } from 'rxjs/operators';
 import { AdminService } from '../services/admin.service';
 import { DecorativenessDto, MenhirDto } from '../models/menhir.dto';
 
@@ -13,18 +14,18 @@ import { DecorativenessDto, MenhirDto } from '../models/menhir.dto';
   styleUrl: './admin.component.scss'
 })
 export class AdminCreateComponent {
-  menhirForm: FormGroup;
-  decorativenessOptions = Object.values(DecorativenessDto);
-  isSubmitting = false;
-  successMessage: string | null = null;
-  errorMessage: string | null = null;
-  createdMenhir: MenhirDto | null = null;
+  private readonly fb = inject(FormBuilder);
+  private readonly adminService = inject(AdminService);
+  private readonly router = inject(Router);
 
-  constructor(
-    private fb: FormBuilder,
-    private adminService: AdminService,
-    private router: Router
-  ) {
+  protected readonly menhirForm: FormGroup;
+  protected readonly decorativenessOptions = Object.values(DecorativenessDto);
+  protected readonly isSubmitting$$ = signal<boolean>(false);
+  protected readonly successMessage$$ = signal<string | null>(null);
+  protected readonly errorMessage$$ = signal<string | null>(null);
+  protected readonly createdMenhir$$ = signal<MenhirDto | null>(null);
+
+  constructor() {
     this.menhirForm = this.fb.group({
       weight: ['', [Validators.required, Validators.min(0.1)]],
       stoneType: ['', [Validators.required, Validators.minLength(2)]],
@@ -33,16 +34,16 @@ export class AdminCreateComponent {
     });
   }
 
-  onSubmit(): void {
+  protected onSubmit(): void {
     if (this.menhirForm.invalid) {
       this.markFormGroupTouched(this.menhirForm);
       return;
     }
 
-    this.isSubmitting = true;
-    this.errorMessage = null;
-    this.successMessage = null;
-    this.createdMenhir = null;
+    this.isSubmitting$$.set(true);
+    this.errorMessage$$.set(null);
+    this.successMessage$$.set(null);
+    this.createdMenhir$$.set(null);
 
     const formValue = this.menhirForm.value;
 
@@ -51,11 +52,11 @@ export class AdminCreateComponent {
       stoneType: formValue.stoneType,
       decorativeness: formValue.decorativeness,
       description: formValue.description || ''
-    }).subscribe({
+    }).pipe(first()).subscribe({
       next: (menhir: MenhirDto) => {
-        this.isSubmitting = false;
-        this.successMessage = 'Menhir successfully created!';
-        this.createdMenhir = menhir;
+        this.isSubmitting$$.set(false);
+        this.successMessage$$.set('Menhir successfully created!');
+        this.createdMenhir$$.set(menhir);
         this.menhirForm.reset();
         // Navigate back to admin list after 2 seconds
         setTimeout(() => {
@@ -63,9 +64,8 @@ export class AdminCreateComponent {
         }, 2000);
       },
       error: (error) => {
-        this.isSubmitting = false;
-        this.errorMessage = error.message || 'An error occurred while creating the menhir.';
-        console.error('Error creating menhir:', error);
+        this.isSubmitting$$.set(false);
+        this.errorMessage$$.set(error.message || 'An error occurred while creating the menhir.');
       }
     });
   }
@@ -81,7 +81,7 @@ export class AdminCreateComponent {
     });
   }
 
-  getErrorMessage(fieldName: string): string {
+  protected getErrorMessage(fieldName: string): string {
     const control = this.menhirForm.get(fieldName);
     if (control?.hasError('required')) {
       return `${this.getFieldLabel(fieldName)} is required`;
@@ -105,7 +105,7 @@ export class AdminCreateComponent {
     return labels[fieldName] || fieldName;
   }
 
-  isFieldInvalid(fieldName: string): boolean {
+  protected isFieldInvalid(fieldName: string): boolean {
     const control = this.menhirForm.get(fieldName);
     return !!(control && control.invalid && control.touched);
   }
