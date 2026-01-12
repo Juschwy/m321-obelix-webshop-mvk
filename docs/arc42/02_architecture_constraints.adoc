@@ -1,29 +1,97 @@
-ifndef::imagesdir[:imagesdir: ../images]
-
-[[section-architecture-constraints]]
 == Architecture Constraints
 
+This section describes **mandatory constraints** for the Obelix application.
+These constraints limit architectural freedom and must be respected by all teams.
+They originate from business decisions, organizational rules, and technical requirements.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-Any requirement that constraints software architects in their freedom of design and implementation decisions or decision about the development process. These constraints sometimes go beyond individual systems and are valid for whole organizations and companies.
+The goal is to make these constraints explicit for new developers, architects, and reviewers.
 
-.Motivation
-Architects should know exactly where they are free in their design decisions and where they must adhere to constraints.
-Constraints must always be dealt with; they may be negotiable, though.
+=== 2.1 Organizational Constraints
 
-.Form
-Simple tables of constraints with explanations.
-If needed you can subdivide them into
-technical constraints, organizational and political constraints and
-conventions (e.g. programming or versioning guidelines, documentation or naming conventions)
+[cols="1,3",options="header"]
+|===
+|Constraint |Description
 
+|Shared Grade
+|The project is graded as a group project. All architectural and implementation decisions must support collaborative development and shared responsibility.
 
-.Further Information
+|Pull Request Workflow
+|All changes must be submitted via Pull Requests. Direct commits to the `main` branch are forbidden.
 
-See https://docs.arc42.org/section-2/[Architecture Constraints] in the arc42 documentation.
+|Mandatory Reviews
+|Each Pull Request requires **at least three approving reviews** before merging.
 
-****
-endif::arc42help[]
+|Code Ownership
+|Responsibilities are defined using a `CODEOWNERS` file. Teams must review changes in their owned areas.
+
+|Standups
+|At least one short standup at the beginning of each lesson is mandatory.
+|===
+
+=== 2.2 Technical Constraints
+
+[cols="1,3",options="header"]
+|===
+|Constraint |Description
+
+|Microservice Architecture
+|The system must consist of **at least three independent microservices**.
+
+|Distributed Tracing
+|Zipkin must be integrated to enable distributed tracing across all services.
+
+|Monitoring
+|Prometheus and Grafana must be used for metrics collection and visualization.
+
+|OpenAPI Specification
+|Each microservice must expose an **OAS 3.x** compliant OpenAPI definition.
+
+|Code-first API Design
+|OpenAPI specifications must be **generated from code**, not handwritten.
+
+|Readable APIs
+|All OpenAPI definitions must contain meaningful descriptions and examples for all properties.
+
+|Generated Clients
+|The frontend must exclusively use a **generated OpenAPI client**. Manual HTTP calls are not allowed.
+
+|No Authentication
+|No authentication or session management is implemented. This is a deliberate simplification.
+|===
+
+=== 2.3 Tooling Constraints
+
+[cols="1,3",options="header"]
+|===
+|Constraint |Description
+
+|Documentation Format
+|All architecture documentation must be written in **AsciiDoc**.
+
+|Architecture Template
+|The arc42 template must be used as the structure for the architecture documentation.
+
+|Diagrams
+|All diagrams must be created using **PlantUML** and embedded in the documentation.
+
+|Code Samples
+|All code examples in the documentation must be **auto-generated** using Spring REST Docs.
+
+|CI Pipeline
+|A CI pipeline must run on every commit and Pull Request, including build and tests.
+
+|Containerization
+|Docker must be used. A `docker-compose` setup is recommended for local development.
+
+|Deployment Target
+|Automated deployment to **BBW MaaS** is required for the `main` branch.
+|===
+
+=== 2.4 Process & Quality Constraints
+
+[cols="1,3",options="header"]
+|===
+|Constraint |Description
+
+|Automated Testing
+|All services
