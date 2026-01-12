@@ -9,7 +9,7 @@ import {Component, input} from '@angular/core';
 export class CardComponent {
   title$$ = input('');
   description$$ = input('');
-  weight$$ = input(null);
+  weight$$ = input<number | null>(null);
   size$$ = input<number | null>(null);
   prize$$ = input<number | null>(null);
 }
