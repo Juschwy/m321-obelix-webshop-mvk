@@ -3,27 +3,69 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-architecture-constraints]]
 == Architecture Constraints
 
+This chapter lists **all constraints** that affect the architecture or development process.
+Constraints may be technical, organizational, or conventional (e.g., naming, versioning, or documentation rules).
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-Any requirement that constraints software architects in their freedom of design and implementation decisions or decision about the development process. These constraints sometimes go beyond individual systems and are valid for whole organizations and companies.
+---
 
-.Motivation
-Architects should know exactly where they are free in their design decisions and where they must adhere to constraints.
-Constraints must always be dealt with; they may be negotiable, though.
+=== Technical Constraints
 
-.Form
-Simple tables of constraints with explanations.
-If needed you can subdivide them into
-technical constraints, organizational and political constraints and
-conventions (e.g. programming or versioning guidelines, documentation or naming conventions)
+[cols="1,2",options="header"]
+|===
+|Constraint |Description / Rationale
 
+|<Technical Constraint 1>
+|<Explanation, e.g., must use certain framework, database, protocol, OS, or hardware>
 
-.Further Information
+|<Technical Constraint 2>
+|<Explanation>
 
-See https://docs.arc42.org/section-2/[Architecture Constraints] in the arc42 documentation.
+|<Technical Constraint n>
+|<Explanation>
+|===
 
-****
-endif::arc42help[]
+---
+
+=== Organizational / Political Constraints
+
+[cols="1,2",options="header"]
+|===
+|Constraint |Description / Rationale
+
+|<Org / Political Constraint 1>
+|<Explanation, e.g., process requirements, approvals, team roles, budget limitations>
+
+|<Org / Political Constraint 2>
+|<Explanation>
+
+|<Org / Political Constraint n>
+|<Explanation>
+|===
+
+---
+
+=== Conventions
+
+[cols="1,2",options="header"]
+|===
+|Constraint / Convention |Description / Rationale
+
+|<Convention 1>
+|<Explanation, e.g., coding standards, versioning rules, documentation style, naming guidelines>
+
+|<Convention 2>
+|<Explanation>
+
+|<Convention n>
+|<Explanation>
+|===
+
+---
+
+=== Notes / Additional Constraints (Optional)
+
+TODO:  
+List any additional constraints not covered above.
+
+* Could include cross-project rules, security policies, or legal requirements.  
+* Mention whether constraint is negotiable or fixed.
