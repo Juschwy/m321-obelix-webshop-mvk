@@ -1,6 +1,7 @@
 plugins {
 	id 'java-library'
 	id 'org.springframework.boot'
+	id 'org.springdoc.openapi-gradle-plugin'
 }
 
 dependencies {
@@ -14,4 +15,17 @@ dependencies {
 tasks.named("bootBuildImage") {
 	def registry = System.getenv("IMAGE_REGISTRY")
 	imageName = registry ? "${registry}/obelix-quarry" : "obelix/quarry"
+}
+
+tasks.named("forkedSpringBootRun") {
+	dependsOn ':obelix-common:jar'
+	dependsOn ':obelix-quarry-api:jar'
+	javaLauncher = javaToolchains.launcherFor {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+openApi {
+	apiDocsUrl.set("http://localhost:8081/v3/api-docs")
+	outputDir.set(file("$buildDir/docs"))
 }
