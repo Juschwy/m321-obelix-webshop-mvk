@@ -1,11 +1,15 @@
-name: prepareVm
-description: Prepare a VM in MAAS and expose its IP and ID
+name: Provision Virtual Machine
+description: Provision a VM in MAAS and expose its IP and ID
 author: liun
 
 inputs:
   maas_user:
     required: true
   maas_password:
+    required: true
+  dns_user:
+    required: true
+  dns_password:
     required: true
 
 outputs:
@@ -32,28 +36,37 @@ runs:
         MAAS_USER: ${{ inputs.maas_user }}
         MAAS_PASSWORD: ${{ inputs.maas_password }}
       shell: bash
-      run: .github/actions/prepareVm/login.sh
+      run: .github/actions/provisionVm/login.sh
 
     - name: Check VM Exists
       id: check_vm
       shell: bash
-      run: .github/actions/prepareVm/check_vm_exists.sh
+      run: .github/actions/provisionVm/check_vm_exists.sh
 
     - name: Create VM if not exists
       id: create_vm
       if: steps.check_vm.outputs.vm_exists == 'false'
       shell: bash
-      run: .github/actions/prepareVm/create_vm.sh
+      run: .github/actions/provisionVm/create_vm.sh
 
     - name: Ensure VM is Available
       id: ensure_vm_available
       shell: bash
-      run: .github/actions/prepareVm/ensure_vm_available.sh
+      run: .github/actions/provisionVm/ensure_vm_available.sh
 
     - name: Get VM Details
       id: vm_details
       shell: bash
-      run: .github/actions/prepareVm/check_vm_exists.sh
+      run: .github/actions/provisionVm/check_vm_exists.sh
+
+    - name: Update Dynamic DNS
+      id: update_ddns
+      env:
+        DNS_USER: ${{ inputs.dns_user }}
+        DNS_PASSWORD: ${{ inputs.dns_password }}
+        DNS_IP: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address }}
+      shell: bash
+      run: .github/actions/provisionVm/update_ddns.sh
 
     - name: Output VM Details
       shell: bash
