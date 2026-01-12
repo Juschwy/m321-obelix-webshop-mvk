@@ -1,4 +1,8 @@
 name: Frontend CI - Build & Publish
+permissions:
+  contents: read
+  packages: write
+  checks: write
 
 on:
   push:
@@ -78,5 +82,4 @@ jobs:
         run: docker build -t "$IMAGE" ./frontend/obelix-webshop-frontend
 
       - name: Push Docker image
-        if: steps.tests.outcome == 'success'
         run: docker push "$IMAGE"
