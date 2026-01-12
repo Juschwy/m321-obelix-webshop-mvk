@@ -3,20 +3,22 @@
 # Common constants
 LABEL="obelix-vm"
 MAAS_URL="https://maas.bbw-it.ch/maas-user.php"
-COOKIES_FILE="$(mktemp -t maas_cookies.XXXXXX)" || {
-  echo "Failed to create temporary cookies file" >&2
-  exit 1
-}
-trap 'rm -f "$COOKIES_FILE"' EXIT
 
 # Login function
 login() {
   local user="$1"
   local password="$2"
+
+  COOKIES_FILE="$(mktemp -t maas_cookies.XXXXXX)" || {
+    echo "Failed to create temporary cookies file" >&2
+    exit 1
+  }
+  echo "COOKIES_FILE=$COOKIES_FILE" >> "$GITHUB_ENV"
+
   curl -k -c "$COOKIES_FILE" -X POST "$MAAS_URL" \
     --data-raw "login=$user&passwd=$password"
   while IFS= read -r line; do
-    echo "::add-mask::$line"
+    [[ -n "$line" ]] && echo "::add-mask::$line"
   done < "$COOKIES_FILE"
 }
 
@@ -35,7 +37,7 @@ create_vm() {
   local script_encoded
   script_encoded=$(jq -sRr @uri < "$script_path")
   curl -k -b "$COOKIES_FILE" "$MAAS_URL?create" \
-    --data "class=5IA22c&teacher=prutschmann&label=${label}&lifetime=3&image=ubuntu%2Fnoble&script=${script_encoded}"
+    --data "class=5IA22c&teacher=mvonkaenel&label=${label}&lifetime=3&image=ubuntu%2Fnoble&script=${script_encoded}"
 }
 
 # Delete VM function

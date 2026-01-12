@@ -11,7 +11,7 @@ inputs:
 outputs:
     vm_ip:
         description: 'The IP address of the prepared VM'
-        value: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address }}
+        value: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address[0] }}
     vm_id:
         description: 'The ID of the prepared VM'
         value: ${{ fromJSON(steps.vm_details.outputs.vm_details).system_id }}
@@ -58,5 +58,5 @@ runs:
     - name: Output VM Details
       shell: bash
       run: |
-        echo "VM IP Address: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address }}"
+        echo "VM IP Address: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address[0] }}"
         echo "VM ID: ${{ fromJSON(steps.vm_details.outputs.vm_details).system_id }}"
