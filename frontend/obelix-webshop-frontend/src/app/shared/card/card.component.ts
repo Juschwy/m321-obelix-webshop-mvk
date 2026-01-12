@@ -1,4 +1,4 @@
-import {Component, Input} from '@angular/core';
+import {Component, input} from '@angular/core';
 
 @Component({
   selector: 'app-card',
@@ -7,9 +7,9 @@ import {Component, Input} from '@angular/core';
   standalone: true
 })
 export class CardComponent {
-  @Input() title = '';
-  @Input() description = '';
-  @Input() weight: number | null = null;
-  @Input() size: number | null = null;
-  @Input() prize: number | null = null;
+  title$$ = input('');
+  description$$ = input('');
+  weight$$ = input(null);
+  size$$ = input<number | null>(null);
+  prize$$ = input<number | null>(null);
 }
