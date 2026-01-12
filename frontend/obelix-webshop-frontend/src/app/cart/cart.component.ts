@@ -1,55 +1,42 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CartService, CartItem } from './cart.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { CartService, CartItem } from '../services/cart.service';
 import { MenhirDto } from '../models/menhir.dto';
+import { ChfCurrencyPipe } from '../shared/pipes/chf-currency.pipe';
 
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, ChfCurrencyPipe],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
-export class CartComponent implements OnInit {
-  cartItems: CartItem[] = [];
-  total: number = 0;
+export class CartComponent {
+  private readonly cartService = inject(CartService);
 
-  constructor(private cartService: CartService) {}
+  protected readonly cartItems$$ = toSignal(this.cartService.getCartItems(), { initialValue: [] as CartItem[] });
 
-  ngOnInit(): void {
-    this.cartService.getCartItems().subscribe(items => {
-      this.cartItems = items;
-      this.total = this.cartService.getTotal();
-    });
-  }
+  protected readonly total$$ = computed(() => {
+    return this.cartItems$$().reduce((sum, item) => {
+      return sum + (this.getMenhirPrice(item.menhir) * item.quantity);
+    }, 0);
+  });
 
-  getItemPrice(menhir: MenhirDto): number {
+  protected getItemPrice(menhir: MenhirDto): number {
     return this.getMenhirPrice(menhir);
   }
 
-  getFormattedPrice(price: number): string {
-    return new Intl.NumberFormat('de-CH', { 
-      style: 'currency', 
-      currency: 'CHF',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  }
-
-  getTotalFormatted(): string {
-    return this.getFormattedPrice(this.total);
-  }
-
-  increaseQuantity(item: CartItem): void {
+  protected increaseQuantity(item: CartItem): void {
     this.cartService.updateQuantity(item.menhir.id, item.quantity + 1);
   }
 
-  decreaseQuantity(item: CartItem): void {
+  protected decreaseQuantity(item: CartItem): void {
     this.cartService.updateQuantity(item.menhir.id, item.quantity - 1);
   }
 
-  removeItem(menhirId: string): void {
+  protected removeItem(menhirId: string): void {
     this.cartService.removeItem(menhirId);
   }
 

@@ -20,7 +20,7 @@ export class CartService {
       try {
         this.cartItems$.next(JSON.parse(savedCart));
       } catch (e) {
-        console.error('Error loading cart from localStorage', e);
+        // Error loading cart from localStorage
       }
     }
   }
@@ -101,8 +101,9 @@ export class CartService {
     try {
       localStorage.setItem('cart', JSON.stringify(this.cartItems$.value));
     } catch (e) {
-      console.error('Error saving cart to localStorage', e);
+      // Error saving cart to localStorage
     }
   }
 }
+
 

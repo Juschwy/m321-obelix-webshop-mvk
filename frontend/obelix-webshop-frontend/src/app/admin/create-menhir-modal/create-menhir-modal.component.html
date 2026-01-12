@@ -10,9 +10,11 @@
     </div>
 
     <!-- Error Message -->
-    <div *ngIf="errorMessage" class="message message-error">
-      <p>{{ errorMessage }}</p>
-    </div>
+    @if (errorMessage$$()) {
+      <div class="message message-error">
+        <p>{{ errorMessage$$() }}</p>
+      </div>
+    }
 
     <!-- Form -->
     <form [formGroup]="menhirForm" (ngSubmit)="onSubmit()" class="menhir-form">
@@ -20,29 +22,33 @@
       <div class="form-group">
         <label for="image">Image</label>
         <div class="image-upload-area">
-          <div *ngIf="!imagePreview" class="upload-placeholder">
-            <input
-              type="file"
-              id="image"
-              accept="image/*"
-              (change)="onFileSelected($event)"
-              class="file-input"
-            />
-            <label for="image" class="upload-label">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <span>Click to upload image</span>
-            </label>
-          </div>
-          <div *ngIf="imagePreview" class="image-preview">
-            <img [src]="imagePreview" alt="Preview" />
-            <button type="button" class="remove-image-btn" (click)="removeImage()" aria-label="Remove image">
-              <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-            </button>
-          </div>
+          @if (!imagePreview$$()) {
+            <div class="upload-placeholder">
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                (change)="onFileSelected($event)"
+                class="file-input"
+              />
+              <label for="image" class="upload-label">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15M17 8L12 3M12 3L7 8M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Click to upload image</span>
+              </label>
+            </div>
+          }
+          @if (imagePreview$$()) {
+            <div class="image-preview">
+              <img [src]="imagePreview$$()" alt="Preview" />
+              <button type="button" class="remove-image-btn" (click)="removeImage()" aria-label="Remove image">
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          }
         </div>
       </div>
 
@@ -58,9 +64,11 @@
           [class.invalid]="isFieldInvalid('weight')"
           placeholder="e.g., 2.5"
         />
-        <span *ngIf="isFieldInvalid('weight')" class="error-message">
-          {{ getErrorMessage('weight') }}
-        </span>
+        @if (isFieldInvalid('weight')) {
+          <span class="error-message">
+            {{ getErrorMessage('weight') }}
+          </span>
+        }
       </div>
 
       <!-- Stone Type Field -->
@@ -73,9 +81,11 @@
           [class.invalid]="isFieldInvalid('stoneType')"
           placeholder="e.g., Granite, Marble"
         />
-        <span *ngIf="isFieldInvalid('stoneType')" class="error-message">
-          {{ getErrorMessage('stoneType') }}
-        </span>
+        @if (isFieldInvalid('stoneType')) {
+          <span class="error-message">
+            {{ getErrorMessage('stoneType') }}
+          </span>
+        }
       </div>
 
       <!-- Decorativeness Field -->
@@ -87,13 +97,17 @@
           [class.invalid]="isFieldInvalid('decorativeness')"
         >
           <option value="">Select decorativeness</option>
-          <option *ngFor="let option of decorativenessOptions" [value]="option">
-            {{ option }}
-          </option>
+          @for (option of decorativenessOptions; track option) {
+            <option [value]="option">
+              {{ option }}
+            </option>
+          }
         </select>
-        <span *ngIf="isFieldInvalid('decorativeness')" class="error-message">
-          {{ getErrorMessage('decorativeness') }}
-        </span>
+        @if (isFieldInvalid('decorativeness')) {
+          <span class="error-message">
+            {{ getErrorMessage('decorativeness') }}
+          </span>
+        }
       </div>
 
       <!-- Description Field -->
@@ -112,21 +126,26 @@
         <button
           type="button"
           (click)="closeModal()"
-          [disabled]="isSubmitting"
+          [disabled]="isSubmitting$$()"
           class="btn btn-secondary"
         >
           Cancel
         </button>
         <button
           type="submit"
-          [disabled]="isSubmitting"
+          [disabled]="isSubmitting$$()"
           class="btn btn-primary"
         >
-          <span *ngIf="!isSubmitting">Create Menhir</span>
-          <span *ngIf="isSubmitting">Creating...</span>
+          @if (!isSubmitting$$()) {
+            <span>Create Menhir</span>
+          }
+          @if (isSubmitting$$()) {
+            <span>Creating...</span>
+          }
         </button>
       </div>
     </form>
   </div>
 </div>
+
 

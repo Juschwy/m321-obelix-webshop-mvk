@@ -54,7 +54,7 @@ export class AdminService {
         storedMenhirs = JSON.parse(stored);
       }
     } catch (e) {
-      console.error('Error loading menhirs from localStorage', e);
+      // Error loading menhirs from localStorage
     }
 
     // Combine defaults with stored (stored take precedence by id, then append new ones)
@@ -107,7 +107,7 @@ export class AdminService {
       menhirs.push(menhir);
       localStorage.setItem('menhirs', JSON.stringify(menhirs));
     } catch (e) {
-      console.error('Error storing menhir in localStorage', e);
+      // Error storing menhir in localStorage
     }
   }
 }

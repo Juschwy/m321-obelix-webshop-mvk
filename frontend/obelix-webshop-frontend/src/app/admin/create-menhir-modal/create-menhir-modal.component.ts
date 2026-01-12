@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { AdminService } from './admin.service';
-import { DecorativenessDto, MenhirDto } from '../models/menhir.dto';
+import { first } from 'rxjs/operators';
+import { AdminService } from '../../services/admin.service';
+import { DecorativenessDto, MenhirDto } from '../../models/menhir.dto';
 
 @Component({
   selector: 'app-create-menhir-modal',
@@ -15,17 +16,17 @@ export class CreateMenhirModalComponent {
   @Output() close = new EventEmitter<void>();
   @Output() created = new EventEmitter<MenhirDto>();
 
-  menhirForm: FormGroup;
-  decorativenessOptions = Object.values(DecorativenessDto);
-  isSubmitting = false;
-  errorMessage: string | null = null;
-  selectedImage: File | null = null;
-  imagePreview: string | null = null;
+  private readonly fb = inject(FormBuilder);
+  private readonly adminService = inject(AdminService);
 
-  constructor(
-    private fb: FormBuilder,
-    private adminService: AdminService
-  ) {
+  protected readonly menhirForm: FormGroup;
+  protected readonly decorativenessOptions = Object.values(DecorativenessDto);
+  protected readonly isSubmitting$$ = signal<boolean>(false);
+  protected readonly errorMessage$$ = signal<string | null>(null);
+  protected readonly selectedImage$$ = signal<File | null>(null);
+  protected readonly imagePreview$$ = signal<string | null>(null);
+
+  constructor() {
     this.menhirForm = this.fb.group({
       weight: ['', [Validators.required, Validators.min(0.1)]],
       stoneType: ['', [Validators.required, Validators.minLength(2)]],
@@ -35,41 +36,41 @@ export class CreateMenhirModalComponent {
     });
   }
 
-  onFileSelected(event: Event): void {
+  protected onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files[0]) {
-      this.selectedImage = input.files[0];
+      this.selectedImage$$.set(input.files[0]);
       
       // Create preview
       const reader = new FileReader();
       reader.onload = (e: any) => {
-        this.imagePreview = e.target.result;
+        this.imagePreview$$.set(e.target.result);
       };
-      reader.readAsDataURL(this.selectedImage);
+      reader.readAsDataURL(this.selectedImage$$()!);
     }
   }
 
-  removeImage(): void {
-    this.selectedImage = null;
-    this.imagePreview = null;
+  protected removeImage(): void {
+    this.selectedImage$$.set(null);
+    this.imagePreview$$.set(null);
     this.menhirForm.patchValue({ image: '' });
   }
 
-  onSubmit(): void {
+  protected onSubmit(): void {
     if (this.menhirForm.invalid) {
       this.markFormGroupTouched(this.menhirForm);
       return;
     }
 
-    this.isSubmitting = true;
-    this.errorMessage = null;
+    this.isSubmitting$$.set(true);
+    this.errorMessage$$.set(null);
 
     const formValue = this.menhirForm.value;
 
     // Convert image to base64 if selected
     let imageUrl: string | undefined = undefined;
-    if (this.selectedImage && this.imagePreview) {
-      imageUrl = this.imagePreview as string; // Already base64 from FileReader
+    if (this.selectedImage$$() && this.imagePreview$$()) {
+      imageUrl = this.imagePreview$$() as string; // Already base64 from FileReader
     }
 
     this.adminService.createMenhir({
@@ -78,24 +79,23 @@ export class CreateMenhirModalComponent {
       decorativeness: formValue.decorativeness,
       description: formValue.description || '',
       imageUrl: imageUrl
-    }).subscribe({
+    }).pipe(first()).subscribe({
       next: (menhir: MenhirDto) => {
-        this.isSubmitting = false;
+        this.isSubmitting$$.set(false);
         this.menhirForm.reset();
-        this.selectedImage = null;
-        this.imagePreview = null;
+        this.selectedImage$$.set(null);
+        this.imagePreview$$.set(null);
         this.created.emit(menhir);
         this.closeModal();
       },
       error: (error) => {
-        this.isSubmitting = false;
-        this.errorMessage = error.message || 'An error occurred while creating the menhir.';
-        console.error('Error creating menhir:', error);
+        this.isSubmitting$$.set(false);
+        this.errorMessage$$.set(error.message || 'An error occurred while creating the menhir.');
       }
     });
   }
 
-  closeModal(): void {
+  protected closeModal(): void {
     this.close.emit();
   }
 

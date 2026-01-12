@@ -1,9 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { CartService } from '../cart/cart.service';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { CartService } from '../services/cart.service';
 import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-navbar',
@@ -13,9 +13,12 @@ import { Observable } from 'rxjs';
   styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
-  private cartService = inject(CartService);
+  private readonly cartService = inject(CartService);
   
-  cartItemCount$: Observable<number> = this.cartService.getCartItems().pipe(
-    map(items => items.reduce((sum, item) => sum + item.quantity, 0))
+  protected readonly cartItemCount$$ = toSignal(
+    this.cartService.getCartItems().pipe(
+      map(items => items.reduce((sum, item) => sum + item.quantity, 0))
+    ),
+    { initialValue: 0 }
   );
 }

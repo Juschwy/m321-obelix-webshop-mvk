@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { RouterModule, Router } from '@angular/router';
-import { AdminService } from './admin.service';
+import { AdminService } from '../services/admin.service';
 import { DecorativenessDto, MenhirDto } from '../models/menhir.dto';
 
 @Component({
