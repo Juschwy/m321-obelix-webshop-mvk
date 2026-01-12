@@ -121,6 +121,7 @@ write_files:
             - targets:
                 - 'obelix-basket:8082'
 
-# language=bash
+#language=bash
 runcmd:
+  - cd /home/obelix
   - docker compose up -d

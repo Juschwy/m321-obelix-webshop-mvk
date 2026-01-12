@@ -41,6 +41,13 @@ public class MenhirEntity {
 		return new MenhirDto(getId(), getWeight(), getStoneType(), getDecorativeness().toDto(), getDescription());
 	}
 
+	public static void applyDto(MenhirEntity menhir, MenhirDto menhirDto) {
+		menhir.setWeight(menhirDto.weight());
+		menhir.setStoneType(menhirDto.stoneType());
+		menhir.setDecorativeness(MenhirEntity.Decorativeness.fromDto(menhirDto.decorativeness()));
+		menhir.setDescription(menhirDto.description());
+	}
+
 	public enum Decorativeness {
 		PLAIN, SIMPLE, DECORATED, ORNATE, MASTERWORK;
 

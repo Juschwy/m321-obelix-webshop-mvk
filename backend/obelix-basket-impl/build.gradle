@@ -13,9 +13,8 @@ dependencies {
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named("bootBuildImage") {
-    imageName = "obelix/basket"
-}
+apply from: rootProject.file('gradle/bootBuildImage-versioning.gradle')
+configureBootBuildImageVersioning(tasks.named("bootBuildImage"), "obelix-basket", "obelix/basket")
 
 tasks.named("forkedSpringBootRun") {
     dependsOn ':obelix-common:jar'
