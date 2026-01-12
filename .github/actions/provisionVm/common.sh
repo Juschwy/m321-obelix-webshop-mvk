@@ -52,3 +52,9 @@ extend_vm_lifetime() {
   curl -k -b "$COOKIES_FILE" "$MAAS_URL?action=extend&systemid=${systemid}"
 }
 
+update_ddns() {
+  local user="$1"
+  local password="$2"
+  local ip="$3"
+  curl --user "$user:$password" "https://infomaniak.com/nic/update?hostname=obelix.liuuner.ch&myip=$ip"
+}
