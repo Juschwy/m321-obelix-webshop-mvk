@@ -1,17 +1,17 @@
 package ch.bbw.obelix.quarry.service;
 
 import ch.bbw.obelix.common.exception.BadRequestException;
-import ch.bbw.obelix.quarry.api.dto.DecorativenessDto;
 import ch.bbw.obelix.quarry.api.dto.MenhirDto;
 import ch.bbw.obelix.quarry.entity.MenhirEntity;
 import ch.bbw.obelix.quarry.repository.MenhirRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 import java.util.UUID;
+
+import static ch.bbw.obelix.quarry.entity.MenhirEntity.applyDto;
 
 /**
  * @author Tim Leo Laurin Leuenberger
@@ -24,15 +24,15 @@ public class QuarryService {
     private final MenhirRepository menhirRepository;
 
     public void updateMenhir(MenhirDto menhirDto, UUID menhirId) {
-        menhirRepository.updateMenhir(menhirDto, menhirId);
+        MenhirEntity menhir = menhirRepository.findById(menhirId)
+                .orElseThrow(() -> new BadRequestException("unknwon menhir with id " + menhirId));
+        applyDto(menhir, menhirDto);
+        menhirRepository.save(menhir);
     }
 
     public void createMenhir(MenhirDto menhirDto) {
         var menhir = new MenhirEntity();
-        menhir.setWeight(menhirDto.weight());
-        menhir.setStoneType(menhirDto.stoneType());
-        menhir.setDecorativeness(MenhirEntity.Decorativeness.fromDto(menhirDto.decorativeness()));
-        menhir.setDescription(menhirDto.description());
+        applyDto(menhir, menhirDto);
         menhirRepository.save(menhir);
     }
 
