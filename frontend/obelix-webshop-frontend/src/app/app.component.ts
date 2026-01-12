@@ -1,14 +1,11 @@
 import { Component } from '@angular/core';
-import {CardComponent} from "./shared/card/card.component";
-import {HeaderComponent} from "../webshop/header/header.component";
-import { CartComponent } from './webshop/cart/cart.component';
+import {HeaderComponent} from "./shared/header/header.component";
+import {WebshopComponent} from "./webshop/webshop.component";
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CardComponent, CartComponent, HeaderComponent],
+  imports: [HeaderComponent, WebshopComponent],
   templateUrl: './app.component.html',
-  // TODO remove if card-call is moved to individual components
-  styleUrl: './app.component.scss'
 })
 export class AppComponent {}
