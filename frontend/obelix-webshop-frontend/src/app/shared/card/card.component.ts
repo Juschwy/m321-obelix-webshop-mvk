@@ -1,4 +1,5 @@
 import {Component, input} from '@angular/core';
+import { MenhirType } from '../model/menhir-type';
 
 @Component({
   selector: 'app-card',
@@ -12,4 +13,5 @@ export class CardComponent {
   weight$$ = input<number | null>(null);
   size$$ = input<number | null>(null);
   prize$$ = input<number | null>(null);
+  menhirType$$ = input<MenhirType>(MenhirType.SIMPLE);
 }

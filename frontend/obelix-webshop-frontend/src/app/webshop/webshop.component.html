@@ -1,3 +1,4 @@
+<app-cart class="cart-floating"></app-cart>
 <section class="products-grid">
   <app-card
     [title$$]="'Example'"
@@ -5,6 +6,7 @@
     [weight$$]="2000"
     [size$$]="1.5"
     [prize$$]="1500"
+    [menhirType$$]="menhirType.SIMPLE"
   ></app-card>
   <app-card
     [title$$]="'Example'"
@@ -12,5 +14,30 @@
     [weight$$]="2000"
     [size$$]="1.5"
     [prize$$]="1500"
+    [menhirType$$]="menhirType.PLAIN"
+  ></app-card>
+  <app-card
+    [title$$]="'Example'"
+    [description$$]="'Example description'"
+    [weight$$]="2000"
+    [size$$]="1.5"
+    [prize$$]="1500"
+    [menhirType$$]="menhirType.ORNATE"
+  ></app-card>
+  <app-card
+    [title$$]="'Example'"
+    [description$$]="'Example description'"
+    [weight$$]="2000"
+    [size$$]="1.5"
+    [prize$$]="1500"
+    [menhirType$$]="menhirType.DECORATED"
+  ></app-card>
+  <app-card
+    [title$$]="'Example'"
+    [description$$]="'Example description'"
+    [weight$$]="2000"
+    [size$$]="1.5"
+    [prize$$]="1500"
+    [menhirType$$]="menhirType.MASTERWORK"
   ></app-card>
 </section>

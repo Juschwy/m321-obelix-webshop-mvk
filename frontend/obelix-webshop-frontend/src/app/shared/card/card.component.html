@@ -2,15 +2,14 @@
   <div class="media">
     <img
       class="media__img"
-      src="assets/menhir.jpg"
-      alt="Classic Standing Menhir"
+      [src]="'assets/images/Menhir_' + menhirType$$() + '.png'"
+      [alt]="'Menhir ' + menhirType$$()"
       loading="lazy"
     />
   </div>
 
   <div class="content">
     <h3 class="title">{{ title$$() }}</h3>
-
     <p class="desc">{{ description$$() }}</p>
 
     <div class="meta">
