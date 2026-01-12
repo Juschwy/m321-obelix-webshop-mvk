@@ -11,7 +11,12 @@ on:
     paths:
       - 'frontend/**'
   workflow_dispatch:
-    inputs: { }
+    inputs: {
+      image_registry:
+        description: 'Override IMAGE_REGISTRY (e.g. ghcr.io/owner/repo)'
+        type: string
+        required: false
+    }
 
 jobs:
   test:
@@ -43,8 +48,31 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set IMAGE variable
-        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/frontend:latest" >> $GITHUB_ENV
+      - name: Set image registry
+        shell: bash
+        env:
+          IMAGE_REGISTRY_INPUT: ${{ inputs.image_registry }}
+        run: |
+          set -euo pipefail
+          
+          raw_ref="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          branch_tag="$(printf '%s' "$raw_ref" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          sha_short="$(printf '%s' "${GITHUB_SHA}" | cut -c1-12)"
+          ts_utc="$(date -u +%Y%m%d%H%M%S)"
+          if [[ -z "$branch_tag" ]]; then
+            branch_tag="unknown-${sha_short}"
+          fi
+          image_tag_version="${branch_tag}_${sha_short}_${ts_utc}"
+          
+          {
+            echo "IMAGE_REGISTRY=${IMAGE_REGISTRY_INPUT:-ghcr.io/juschwy/m321-obelix-webshop-mvk}"
+            echo "IMAGE_TAG_VERSION=${image_tag_version}"
+          } >> "$GITHUB_ENV"
+
+      - name: Set IMAGE env var
+        run: echo "IMAGE=${IMAGE_REGISTRY}/frontend:${IMAGE_TAG_VERSION}" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: docker build -t "$IMAGE" ./frontend/obelix-webshop-frontend
