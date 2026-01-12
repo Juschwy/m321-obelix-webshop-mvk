@@ -6,8 +6,6 @@ permissions:
 
 on:
   push:
-    branches:
-      - master
     paths:
       - 'backend/**'
   pull_request:
@@ -15,6 +13,16 @@ on:
       [opened, synchronize, reopened]
     paths:
       - 'backend/**'
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish images to GHCR'
+        type: boolean
+        default: true
+      image_registry:
+        description: 'Override IMAGE_REGISTRY (e.g. ghcr.io/owner/repo)'
+        type: string
+        required: false
 
 jobs:
   test:
@@ -54,7 +62,7 @@ jobs:
           reporter: java-junit
 
   build-and-push:
-    if: github.event_name == 'pull_request' || (github.event_name == 'push' && github.ref_name == 'master')
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     needs: test
     runs-on: ubuntu-latest
     env:
@@ -74,6 +82,8 @@ jobs:
 
       - name: Set image registry
         shell: bash
+        env:
+          IMAGE_REGISTRY_INPUT: ${{ inputs.image_registry }}
         run: |
           set -euo pipefail
 
@@ -88,14 +98,14 @@ jobs:
           fi
 
           {
-            echo "IMAGE_REGISTRY=ghcr.io/juschwy/m321-obelix-webshop-mvk"
+            echo "IMAGE_REGISTRY=${IMAGE_REGISTRY_INPUT:-ghcr.io/juschwy/m321-obelix-webshop-mvk}"
             echo "IMAGE_TAG_BRANCH=${branch_tag}"
             echo "IMAGE_TAG_SHA=${sha_short}"
             echo "IMAGE_TAG_TIMESTAMP=${ts_utc}"
           } >> "$GITHUB_ENV"
 
       - name: Docker login to GHCR
-        if: github.event_name == 'push' && github.ref_name == 'master'
+        if: github.event_name != 'pull_request' && (github.event_name == 'push' || inputs.publish == true)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
@@ -103,11 +113,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build images with Gradle (no publish)
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.publish != true)
         run: ./gradlew :obelix-quarry-impl:bootBuildImage :obelix-basket-impl:bootBuildImage :obelix-webshop:bootBuildImage
         working-directory: ./backend
 
       - name: Build and push images with Gradle (publish)
-        if: github.event_name == 'push' && github.ref_name == 'master'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true)
         run: ./gradlew :obelix-quarry-impl:bootBuildImage --publishImage :obelix-basket-impl:bootBuildImage --publishImage :obelix-webshop:bootBuildImage --publishImage
         working-directory: ./backend
