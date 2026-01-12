@@ -10,6 +10,9 @@
     "prepare": "husky"
   },
   "private": true,
+  "engines": {
+    "node": ">=20 <23"
+  },
   "dependencies": {
     "@angular/animations": "^21.0.5",
     "@angular/common": "^21.0.5",
