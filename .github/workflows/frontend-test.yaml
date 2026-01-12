@@ -16,8 +16,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      IMAGE: ghcr.io/${GITHUB_REPOSITORY,,}/frontend:latest
 
     steps:
       - name: Checkout repository
@@ -44,6 +42,9 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set IMAGE variable
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/frontend:latest" >> $GITHUB_ENV
 
       - name: Build Docker image
         run: docker build -t "$IMAGE" ./frontend/obelix-webshop-frontend
