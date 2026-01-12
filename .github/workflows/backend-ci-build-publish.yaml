@@ -96,12 +96,11 @@ jobs:
           if [[ -z "$branch_tag" ]]; then
             branch_tag="unknown-${sha_short}"
           fi
+          image_tag_version="${branch_tag}_${sha_short}_${ts_utc}"
 
           {
             echo "IMAGE_REGISTRY=${IMAGE_REGISTRY_INPUT:-ghcr.io/juschwy/m321-obelix-webshop-mvk}"
-            echo "IMAGE_TAG_BRANCH=${branch_tag}"
-            echo "IMAGE_TAG_SHA=${sha_short}"
-            echo "IMAGE_TAG_TIMESTAMP=${ts_utc}"
+            echo "IMAGE_TAG_VERSION=${image_tag_version}"
           } >> "$GITHUB_ENV"
 
       - name: Docker login to GHCR

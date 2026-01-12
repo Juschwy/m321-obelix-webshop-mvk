@@ -3,20 +3,8 @@ ext.configureBootBuildImageVersioning = { TaskProvider taskProvider, String serv
 		def registry = System.getenv("IMAGE_REGISTRY")
 		def baseName = registry ? "${registry}/${serviceImageName}" : localFallbackImageName
 
-		def branchTagValue = System.getenv("IMAGE_TAG_BRANCH")
-		def shaTagValue = System.getenv("IMAGE_TAG_SHA")
-		def timestampTagValue = System.getenv("IMAGE_TAG_TIMESTAMP")
-
+		def versionTagValue = System.getenv("IMAGE_TAG_VERSION")
 		def defaultTagValue = System.getenv("IMAGE_TAG_DEFAULT") ?: "dev"
-		def mainTagValue = shaTagValue ?: defaultTagValue
-
-		imageName = "${baseName}:${mainTagValue}"
-		if (timestampTagValue) {
-			tags.add("${baseName}:${timestampTagValue}")
-		}
-		if (branchTagValue) {
-			tags.add("${baseName}:${branchTagValue}")
-		}
+		imageName = "${baseName}:${versionTagValue ?: defaultTagValue}"
 	}
 }
-
