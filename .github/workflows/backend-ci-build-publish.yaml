@@ -42,14 +42,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-results
-          path: backend/build/test-results/**
+          path: backend/**/build/test-results/**
 
       - name: Publish test report to Checks
         if: ${{ always() }}
         uses: dorny/test-reporter@v1
         with:
           name: backend-tests
-          path: backend/build/test-results/**/*.xml
+          path: backend/**/build/test-results/**/*.xml
           reporter: java-junit
 
   build-and-push:
