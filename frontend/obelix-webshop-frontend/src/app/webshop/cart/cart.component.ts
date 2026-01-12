@@ -1,9 +1,14 @@
+import { Store } from '@ngrx/store';
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, computed, Inject, OnInit, signal } from '@angular/core';
 
-interface CartItem {
+import * as fromCartActions from '../../../store/action/cart.action';
+import * as fromCartSelector from '../../../store/selector/cart.selector';
+
+export interface CartItem {
   readonly id: string;
   readonly name: string;
+  readonly description: string;
   readonly price: number; // stored in dollars without decimals for formatter compatibility
   readonly quantity: number;
   readonly imageUrl: string;
@@ -16,37 +21,21 @@ interface CartItem {
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
 })
-export class CartComponent {
+export class CartComponent implements OnInit {
+  private store$ = Inject(Store);
   private readonly currencyFormatter = new Intl.NumberFormat('de-DE');
 
   readonly isOpen$$ = signal(false);
 
-  readonly items$$ = signal<CartItem[]>([
-    {
-      id: 'ancient-monument-stone',
-      name: 'Ancient Monument Stone',
-      price: 6200,
-      quantity: 2,
-      imageUrl:
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=240&q=80',
-    },
-    {
-      id: 'mystical-monolith',
-      name: 'Mystical Monolith',
-      price: 5700,
-      quantity: 1,
-      imageUrl:
-        'https://images.unsplash.com/photo-1548710840-8be002e7cd05?auto=format&fit=crop&w=240&q=80',
-    },
-    {
-      id: 'premium-granite-monolith',
-      name: 'Premium Granite Monolith',
-      price: 8900,
-      quantity: 1,
-      imageUrl:
-        'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=240&q=80',
-    },
-  ]);
+  readonly items$$ = signal<CartItem[]>([]);
+
+  ngOnInit(): void {
+    this.store$
+      .select(fromCartSelector.getAllMenhirsInCart)
+      .subscribe((menhirs: CartItem[]) => {
+        this.items$$.set(menhirs);
+      });
+  }
 
   readonly total = computed(() =>
     this.items$$().reduce(
@@ -60,17 +49,11 @@ export class CartComponent {
   }
 
   increaseQuantity(id: string): void {
-    this.updateItem(id, (item) => ({
-      ...item,
-      quantity: item.quantity + 1,
-    }));
+    this.updateItem(id, true);
   }
 
   decreaseQuantity(id: string): void {
-    this.updateItem(id, (item) => ({
-      ...item,
-      quantity: Math.max(1, item.quantity - 1),
-    }));
+    this.updateItem(id, false);
   }
 
   removeItem(id: string): void {
@@ -85,12 +68,24 @@ export class CartComponent {
     this.isOpen$$.set(true);
   }
 
-  private updateItem(
-    id: string,
-    updater: (item: CartItem) => CartItem,
-  ): void {
-    this.items$$.update((current) =>
-      current.map((item) => (item.id === id ? updater(item) : item)),
+  private updateItem(id: string, increase: boolean): void {
+    const currentItems = this.items$$();
+    const selectedIndex = currentItems.findIndex((item) => item.id === id);
+
+    if (selectedIndex === -1) return;
+
+    const selectedMenhir = { ...currentItems[selectedIndex] };
+    selectedMenhir.quantity += increase ? 1 : -1;
+
+    if (selectedMenhir.quantity <= 0) {
+      this.store$.dispatch(fromCartActions.removeItemFromCart({ id }));
+      return;
+    }
+
+    this.store$.dispatch(
+      fromCartActions.updateItemFromCart({
+        menhirs: selectedMenhir,
+      }),
     );
   }
 }
