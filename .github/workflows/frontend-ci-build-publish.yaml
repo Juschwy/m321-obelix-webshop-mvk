@@ -1,4 +1,4 @@
-name: Frontend Tests
+name: Frontend CI - Build & Publish
 
 on:
   push:
@@ -43,9 +43,12 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Set IMAGE variable
+        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/frontend:latest" >> $GITHUB_ENV
+
       - name: Build Docker image
-        run: docker build -t ghcr.io/${{ github.repository }}/frontend:latest ./frontend/obelix-webshop-frontend
+        run: docker build -t "$IMAGE" ./frontend/obelix-webshop-frontend
 
       - name: Push Docker image
         if: steps.tests.outcome == 'success'
-        run: docker push ghcr.io/${{ github.repository }}/frontend:latest
+        run: docker push "$IMAGE"
