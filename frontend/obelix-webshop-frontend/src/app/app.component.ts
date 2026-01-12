@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import {CardComponent} from "./shared/card/card.component";
-import { RouterOutlet } from '@angular/router';
 import {HeaderComponent} from "../webshop/header/header.component";
 import { CartComponent } from './webshop/cart/cart.component';
 
