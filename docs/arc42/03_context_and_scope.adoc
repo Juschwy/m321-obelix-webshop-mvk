@@ -19,21 +19,17 @@ related to ordering and managing products.
 |===
 |Communication Partner |Inputs to Obelix |Outputs from Obelix
 
-|Customer
-|Product selection, order requests
-|Product listings, order confirmations
+|<Business Actor 1>
+|<Input data / requests>
+|<Output / responses>
 
-|Administrator
-|CRUD operations on Hinkelsteine
-|Updated product data, management views
+|<Business Actor 2>
+|<Input data / requests>
+|<Output / responses>
 
-|External Developer
-|API requests (REST)
-|API responses (JSON)
-
-|CI/CD Pipeline
-|Source code, configuration
-|Build artifacts, deployment results
+|<Business Actor n>
+|<Input data / requests>
+|<Output / responses>
 |===
 
 ==== Business Context Diagram
@@ -41,29 +37,28 @@ related to ordering and managing products.
 [plantuml, business-context, svg]
 ----
 @startuml
-actor Customer
-actor Administrator
-actor "External Developer" as Dev
+actor <Actor 1>
+actor <Actor 2>
+actor <Actor n>
 
 rectangle "Obelix Application" {
 }
 
-Customer --> "Obelix Application" : browse & order Hinkelsteine
-Administrator --> "Obelix Application" : manage Hinkelsteine (CRUD)
-Dev --> "Obelix Application" : REST API usage
+<Actor 1> --> "Obelix Application" : <interaction description>
+<Actor 2> --> "Obelix Application" : <interaction description>
+<Actor n> --> "Obelix Application" : <interaction description>
 @enduml
 ----
 
 ==== Explanation
 
-* The Obelix application is treated as a **black box** in the business context.
-* No authentication or authorization is applied.
-* External developers interact exclusively via the published API.
+* Describe the system as a **black box** in the business context.
+* Mention any **special rules or assumptions** (e.g., authentication, authorization, access restrictions).
+* Explain any **critical interactions or limitations**.
 
 === Technical Context
 
-The technical context describes **how** communication with the Obelix system is realized,
-including protocols, data formats, and infrastructure components.
+The technical context describes **how communication with the Obelix system is realized**, including protocols, data formats, and infrastructure components.
 
 ==== Technical Context Overview
 
@@ -71,25 +66,17 @@ including protocols, data formats, and infrastructure components.
 |===
 |Communication Partner |Channel / Protocol |Data Format
 
-|Web Browser (Customer UI)
-|HTTPS (REST)
-|JSON
+|<Technical Partner 1>
+|<Channel / transport mechanism>
+|<Data format>
 
-|Web Browser (Admin UI)
-|HTTPS (REST)
-|JSON
+|<Technical Partner 2>
+|<Channel / transport mechanism>
+|<Data format>
 
-|External Systems / Clients
-|HTTPS (REST, OpenAPI)
-|JSON
-
-|Monitoring Stack
-|HTTP
-|Metrics (Prometheus format)
-
-|Tracing System (Zipkin)
-|HTTP
-|Tracing data
+|<Technical Partner n>
+|<Channel / transport mechanism>
+|<Data format>
 |===
 
 ==== Technical Context Diagram
@@ -97,25 +84,24 @@ including protocols, data formats, and infrastructure components.
 [plantuml, technical-context, svg]
 ----
 @startuml
-node "Web Browser" {
-  component "Customer UI"
-  component "Admin UI"
+node "<Technical Partner 1>" {
+  component "<Component 1>"
+  component "<Component 2>"
 }
 
 node "Obelix Backend" {
-  component "Microservice A"
-  component "Microservice B"
-  component "Microservice C"
+  component "<Microservice 1>"
+  component "<Microservice 2>"
+  component "<Microservice 3>"
 }
 
-node "Monitoring & Tracing" {
-  component "Prometheus"
-  component "Grafana"
-  component "Zipkin"
+node "<Technical Partner 2>" {
+  component "<Component 3>"
+  component "<Component 4>"
 }
 
-"Web Browser" --> "Obelix Backend" : HTTPS / REST
-"Obelix Backend" --> "Monitoring & Tracing" : Metrics & Traces
+"<Technical Partner 1>" --> "Obelix Backend" : <protocol / format>
+"Obelix Backend" --> "<Technical Partner 2>" : <protocol / format>
 @enduml
 ----
 
@@ -125,30 +111,21 @@ node "Monitoring & Tracing" {
 |===
 |Business Interaction |Technical Channel |Protocol / Format
 
-|Browse products
-|Customer Web UI → Backend
-|HTTPS / JSON
+|<Interaction 1>
+|<Channel / flow>
+|<Protocol / format>
 
-|Manage Hinkelsteine
-|Admin Web UI → Backend
-|HTTPS / JSON
+|<Interaction 2>
+|<Channel / flow>
+|<Protocol / format>
 
-|API integration
-|External Client → Backend
-|HTTPS / REST (OpenAPI)
-
-|Metrics collection
-|Backend → Prometheus
-|HTTP / Metrics format
-
-|Distributed tracing
-|Backend → Zipkin
-|HTTP / Trace data
+|<Interaction n>
+|<Channel / flow>
+|<Protocol / format>
 |===
 
 ==== Notes
 
-* All external communication uses **HTTP(S)**.
-* REST APIs are documented via **OpenAPI 3.x**.
-* The frontend uses **only generated API clients**.
-* No message queues or asynchronous messaging are used at this stage.
+* Document **assumptions or constraints** about technical communication (e.g., HTTPS only, REST API, OpenAPI 3.x).  
+* Specify whether **frontend uses generated clients** or other integration patterns.  
+* Mention any **asynchronous communication** or message queues if relevant.  
