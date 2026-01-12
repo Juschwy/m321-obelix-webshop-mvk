@@ -3,9 +3,11 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-building-block-view]]
 == Building Block View
 
-This chapter describes the **static structure** of the Obelix application.
-It shows the system decomposition into building blocks and their responsibilities.
-The focus is on **understanding**, not on implementation details.
+This chapter describes the **static decomposition** of the system into building blocks.
+It serves as a **shared template** and is intentionally abstract.
+Concrete building blocks and details must be added by the responsible teams.
+
+The goal is to keep the structure consistent and easy to extend.
 
 === Whitebox Overall System
 
@@ -14,34 +16,141 @@ The focus is on **understanding**, not on implementation details.
 [plantuml, building-block-overview, svg]
 ----
 @startuml
-rectangle "Obelix Application" {
+rectangle "<System Name>" {
 
-  rectangle "Customer Web UI" as FE_Customer
-  rectangle "Admin Web UI" as FE_Admin
+  rectangle "<Frontend / Client 1>"
+  rectangle "<Frontend / Client 2>"
 
-  rectangle "Backend" {
-    rectangle "Product Service"
-    rectangle "Order Service"
-    rectangle "Admin Service"
+  rectangle "<Backend / Services>" {
+    rectangle "<Service A>"
+    rectangle "<Service B>"
+    rectangle "<Service C>"
   }
 }
+@enduml
+----
 
-FE_Customer --> "Product Service"
-FE_Customer --> "Order Service"
+NOTE: Replace placeholders with actual building blocks.  
+Only show **relevant structural elements**, not technical details.
 
-FE_Admin --> "Admin Service"
+==== Motivation
 
-"Admin Service" --> "Product Service"
+TODO:  
+Explain **why** the system is decomposed this way.
+
+* Why are these building blocks needed?
+* Why are they separated?
+* What benefits does this decomposition provide (e.g. scalability, clarity, parallel work)?
+
+Keep this section **short and high-level**.
+
+==== Contained Building Blocks
+
+Use this table for a **compact overview** of all Level-1 building blocks.
+
+[cols="1,2",options="header"]
+|===
+|Name |Responsibility
+
+|<Building Block 1>
+|<Short description of responsibility>
+
+|<Building Block 2>
+|<Short description of responsibility>
+
+|<Building Block n>
+|<Short description of responsibility>
+|===
+
+TIP:  
+Responsibilities should be **business- or domain-oriented**, not technical.
+
+==== Important Interfaces
+
+TODO (optional):  
+List only **interfaces that are critical** for understanding the overall system.
+
+Examples:
+* Public REST APIs
+* Shared data models
+* Cross-cutting technical interfaces (e.g. monitoring, tracing)
+
+Do **not** repeat interfaces that are already well described in the black box sections.
+
+---
+
+=== Level 1 – Black Box Descriptions
+
+For each important building block from the table above,
+create one black box section using the template below.
+
+==== <Name of Building Block>
+
+*Purpose / Responsibility*  
+TODO:  
+Describe **what** this building block does and **why** it exists.
+
+*Interfaces*  
+TODO:
+* Provided interfaces (e.g. REST API)
+* Consumed interfaces (if relevant)
+
+(Optional) *Quality / Performance Characteristics*  
+TODO (optional):
+* Availability
+* Performance
+* Scalability
+* Reliability
+
+(Optional) *Location*  
+TODO (optional):
+* Repository
+* Module
+* Directory
+
+(Optional) *Open Issues / Risks*  
+TODO (optional):
+* Known risks
+* Open questions
+* Planned changes
+
+---
+
+==== <Name of Building Block>
+
+(copy the template above)
+
+---
+
+=== Level 2
+
+Level 2 describes the **internal structure** of selected Level-1 building blocks.
+
+Only document building blocks that are:
+* complex
+* risky
+* central to the system
+* frequently changed
+
+==== White Box <Building Block Name>
+
+==== Overview Diagram
+
+[plantuml, <block-name>-whitebox, svg]
+----
+@startuml
+rectangle "<Building Block Name>" {
+  rectangle "<Internal Component 1>"
+  rectangle "<Internal Component 2>"
+  rectangle "<Internal Component n>"
+}
 @enduml
 ----
 
 ==== Motivation
 
-The system is decomposed into **independent frontend and backend building blocks**
-to support parallel development, clear responsibilities, and scalability.
-
-Backend functionality is split into **multiple microservices** to comply with the
-architectural constraints and to enable independent deployment and monitoring.
+TODO:
+Explain why this internal structure is relevant to document.
 
 ==== Contained Building Blocks
 
@@ -49,149 +158,22 @@ architectural constraints and to enable independent deployment and monitoring.
 |===
 |Name |Responsibility
 
-|Customer Web UI
-|Provides a web-based user interface for customers to browse and order Hinkelsteine.
+|<Internal Component 1>
+|<Responsibility>
 
-|Admin Web UI
-|Provides a web-based user interface for administrators to manage Hinkelsteine (CRUD).
-
-|Product Service
-|Manages Hinkelstein product data and provides read access for customers and admins.
-
-|Order Service
-|Handles order creation and order-related business logic.
-
-|Admin Service
-|Provides administrative operations for managing products.
+|<Internal Component 2>
+|<Responsibility>
 |===
-
-==== Important Interfaces
-
-* REST APIs exposed by backend services (documented via OpenAPI 3.x)
-* Generated OpenAPI clients used by both frontend applications
-* HTTP-based metrics and tracing endpoints (Prometheus, Zipkin)
-
----
-
-=== Level 1 – Black Box Descriptions
-
-==== Customer Web UI
-
-*Purpose / Responsibility*  
-Provides a browser-based interface for customers to view available Hinkelsteine and place orders.
-
-*Interfaces*  
-Consumes REST APIs of Product Service and Order Service via generated OpenAPI client.
-
-*Quality Characteristics*  
-Usability and responsiveness are prioritized.
-
----
-
-==== Admin Web UI
-
-*Purpose / Responsibility*  
-Provides a browser-based interface for administrators to manage Hinkelsteine.
-
-*Interfaces*  
-Consumes REST APIs of the Admin Service via generated OpenAPI client.
-
----
-
-==== Product Service
-
-*Purpose / Responsibility*  
-Stores and provides access to Hinkelstein product data.
-
-*Interfaces*  
-REST API (OpenAPI 3.x) for product queries and administration.
-
----
-
-==== Order Service
-
-*Purpose / Responsibility*  
-Processes customer orders and manages order-related data.
-
-*Interfaces*  
-REST API (OpenAPI 3.x) for order creation and retrieval.
-
----
-
-==== Admin Service
-
-*Purpose / Responsibility*  
-Central service for administrative CRUD operations on products.
-
-*Interfaces*  
-REST API (OpenAPI 3.x) for administrative actions.
-
----
-
-=== Level 2
-
-The following building blocks are considered relevant for deeper inspection
-due to their central role in the system.
-
-==== White Box Product Service
-
-[plantuml, product-service-whitebox, svg]
-----
-@startuml
-rectangle "Product Service" {
-  rectangle "REST Controller"
-  rectangle "Service Layer"
-  rectangle "Persistence Layer"
-}
-
-"REST Controller" --> "Service Layer"
-"Service Layer" --> "Persistence Layer"
-@enduml
-----
-
-*Motivation*  
-The Product Service is a core component used by both customer and admin functionality.
-
-*Contained Building Blocks*
-
-[cols="1,2",options="header"]
-|===
-|Name |Responsibility
-
-|REST Controller
-|Exposes product-related endpoints via HTTP.
-
-|Service Layer
-|Implements business logic for product handling.
-
-|Persistence Layer
-|Handles storage and retrieval of product data.
-|===
-
----
-
-==== White Box Order Service
-
-[plantuml, order-service-whitebox, svg]
-----
-@startuml
-rectangle "Order Service" {
-  rectangle "REST Controller"
-  rectangle "Service Layer"
-  rectangle "Persistence Layer"
-}
-
-"REST Controller" --> "Service Layer"
-"Service Layer" --> "Persistence Layer"
-@enduml
-----
-
-*Motivation*  
-The Order Service encapsulates order-related business logic and data management.
 
 ---
 
 === Level 3
 
-Further decomposition on Level 3 is **not required at this stage**.
-If necessary, deeper levels may be added for complex or risky components.
+Level 3 is **optional** and should only be used if Level 2 is still too coarse.
+
+If not needed, explicitly state this.
+
+Example:
+
+_Level 3 is currently not required.  
+Further decomposition will be added if complexity increases._
