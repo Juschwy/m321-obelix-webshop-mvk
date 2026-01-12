@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 
+import static ch.bbw.obelix.quarry.entity.MenhirEntity.applyDto;
+
 /**
  * @author Tim Leo Laurin Leuenberger
  * @version 15.12.2025
@@ -24,19 +26,13 @@ public class QuarryService {
     public void updateMenhir(MenhirDto menhirDto, UUID menhirId) {
         MenhirEntity menhir = menhirRepository.findById(menhirId)
                 .orElseThrow(() -> new BadRequestException("unknwon menhir with id " + menhirId));
-        menhir.setWeight(menhirDto.weight());
-        menhir.setStoneType(menhirDto.stoneType());
-        menhir.setDecorativeness(MenhirEntity.Decorativeness.fromDto(menhirDto.decorativeness()));
-        menhir.setDescription(menhirDto.description());
+        applyDto(menhir, menhirDto);
         menhirRepository.save(menhir);
     }
 
     public void createMenhir(MenhirDto menhirDto) {
         var menhir = new MenhirEntity();
-        menhir.setWeight(menhirDto.weight());
-        menhir.setStoneType(menhirDto.stoneType());
-        menhir.setDecorativeness(MenhirEntity.Decorativeness.fromDto(menhirDto.decorativeness()));
-        menhir.setDescription(menhirDto.description());
+        applyDto(menhir, menhirDto);
         menhirRepository.save(menhir);
     }
 
