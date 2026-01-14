@@ -15,12 +15,11 @@ on:
     paths:
       - 'frontend/**'
   workflow_dispatch:
-    inputs: {
+    inputs:
       image_registry:
         description: 'Override IMAGE_REGISTRY (e.g. ghcr.io/owner/repo)'
         type: string
         required: false
-    }
 
 jobs:
   test:
