@@ -4,7 +4,8 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng-openapi -c openapi.config.ts && ng build --configuration production",
+    "build": "ng build --configuration production",
+    "build-services": "ng-openapi -c openapi.config.ts && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "prepare": "husky",
