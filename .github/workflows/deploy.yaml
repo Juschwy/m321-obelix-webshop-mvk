@@ -40,16 +40,21 @@ jobs:
         with:
           WG_CONFIG_FILE: ${{ secrets.MAAS_WIREGUARD_CONF }}
 
+      - name: Wait 15 seconds
+        run: sleep 15
+        shell: bash
+
       - name: Deploy to server
         uses: appleboy/ssh-action@v1.2.0
+        env:
+          OBELIX_BE_VERSION: ${{ github.event.inputs.backend_version }}
+          OBELIX_FE_VERSION: ${{ github.event.inputs.frontend_version }}
         with:
           host: obelix.liuuner.ch
           username: obelix
           key: ${{ secrets.ID_ED25519 }}
+          envs: OBELIX_BE_VERSION,OBELIX_FE_VERSION
           script: |
-            export OBELIX_BE_VERSION=${{ github.event.inputs.backend_version }}
-            export OBELIX_FE_VERSION=${{ github.event.inputs.frontend_version }}
-            
             cd /home/obelix
             
             docker compose pull
