@@ -19,7 +19,7 @@ so teams can fill in details later.
 ----
 @startuml
 cloud "BBW-Maas Cluster" {
-  node "Ubuntu 24.04 VM" as vm {
+  node "Ubuntu 24.04 VM (obelix.liuuner.ch)" as vm {
     package "Application Services" {
       [Frontend]
       [Backend]
@@ -53,18 +53,30 @@ The deployment uses a single VM on the BBW-Maas cluster for simplicity, as this 
 
 ==== Mapping of Building Blocks to Infrastructure
 
-[cols="1,2",options="header"]
+[cols="1,2,1",options="header"]
 |===
-|Service Group |Infrastructure Element / Node
+|Service Group |Infrastructure Element / Node |Listening Port
 
 |Frontend
-|Docker container (Nginx) on Ubuntu VM
+|Docker container (Nginx) on Ubuntu VM |80
 
 |Backend
-|Docker containers (obelix-webshop, obelix-basket, obelix-quarry) on Ubuntu VM
+|obelix-webshop (Docker container) on Ubuntu VM |8080
+
+|
+|obelix-quarry (Docker container) on Ubuntu VM |8081
+
+|
+|obelix-basket (Docker container) on Ubuntu VM |8082
 
 |Monitoring & Tracing
-|Docker containers (Prometheus, Grafana, Zipkin) on Ubuntu VM
+|Prometheus (Docker container) on Ubuntu VM |9090
+
+|
+|Grafana (Docker container) on Ubuntu VM |3000
+
+|
+|Zipkin (Docker container) on Ubuntu VM |9411
 |===
 
 ==== CI/CD and Deployment
@@ -74,6 +86,40 @@ The deployment uses a single VM on the BBW-Maas cluster for simplicity, as this 
 * The main branch is protected and requires three mandatory reviews per PR.
 * Deployment to the BBW-Maas VM is automated via GitHub Actions, using docker-compose as required by the assignment.
 * The pipeline can provision the VM via the MAAS API; version updates and redeploys connect via WireGuard + SSH to update images and run `docker compose up -d`.
+* The workflow registers the VM under the public domain `obelix.liuuner.ch`.
+
+==== CI/CD Workflow Stages
+
+[cols="1,2",options="header"]
+|===
+|Stage |Description
+
+|Test (see `.github/workflows/frontend-ci-build-publish.yaml`, job: `test`)
+|Run unit/integration tests on each PR.
+
+|Build & Publish (see `.github/workflows/frontend-ci-build-publish.yaml`, job: `build-and-push`)
+|Build frontend; generate/validate OpenAPI; publish Docker image to GHCR with tags.
+
+|Provision (see `.github/workflows/deploy.yaml`, job: `deploy` – step: `Prepare VM`)
+|Create/register VM via BBW-Maas API.
+
+|Deploy (see `.github/workflows/deploy.yaml`, job: `deploy` – steps: `Setup WireGuard`, `Deploy to server`)
+|Connect via WireGuard + SSH; update compose image tags; `docker compose up -d`.
+
+|Verify (see `.github/workflows/deploy.yaml`, job: `deploy`)
+|Post-deploy checks (logs/health); Prometheus targets UP; Zipkin receiving spans.
+|===
+
+==== Rollback Strategy
+
+Manual rollback via SSH: select previous image tags in compose and re-run `docker compose up -d`. Suitable for dev/test scope.
+
+==== Network & Firewalling
+
+* obelix.liuuner.ch resolves directly to the VM’s IP.
+* BBW-Maas is only reachable inside the school’s private network; CI/CD and operators connect via WireGuard.
+* Firewalling: within the private network, required ports are open; monitoring tools are accessible from the same network.
+* Future consideration: In a hardened setup, restrict external exposure to the frontend and gateway (80/8080) and close direct access to microservices and monitoring.
 
 '''
 
@@ -88,7 +134,7 @@ Level 2 zooms into the Ubuntu 24.04 VM and shows all Docker containers and their
 [plantuml, infra-element1, svg]
 ----
 @startuml
-node "Ubuntu 24.04 VM" {
+node "Ubuntu 24.04 VM (obelix.liuuner.ch)" {
   node "obelix-frontend (Nginx)" as frontend
   node "obelix-webshop (reverse proxy)" as webshop
   node "obelix-basket" as basket
@@ -98,8 +144,9 @@ node "Ubuntu 24.04 VM" {
   node "grafana" as grafana
 }
 ' External access
-user --> frontend : HTTP (port 80)
-user --> grafana : HTTP (port 3000)
+actor "Internet User" as user
+user --> frontend : HTTP (port 80) obelix.liuuner.ch
+user --> grafana : HTTP (port 3000) obelix.liuuner.ch
 
 ' App traffic
 frontend --> webshop : HTTP (port 8080)
@@ -123,28 +170,28 @@ This VM hosts all Docker containers for the project, providing a simple, reprodu
 
 ==== Mapping of Building Blocks to Internal Components
 
-[cols="1,2",options="header"]
+[cols="1,2,1",options="header"]
 |===
-|Building Block |Mapped Component
+|Building Block |Mapped Component |Listening Port
 
 |obelix-webshop-frontend (Angular)
-|obelix-webshop-frontend (Nginx Docker container)
+|obelix-webshop-frontend (Nginx Docker container) |80
 
 |obelix-webshop (reverse proxy)
-|obelix-webshop (Docker container)
+|obelix-webshop (Docker container) |8080
 
 |obelix-basket
-|obelix-basket (Docker container)
+|obelix-basket (Docker container) |8082
 
 |obelix-quarry
-|obelix-quarry (Docker container)
+|obelix-quarry (Docker container) |8081
 
 |zipkin
-|zipkin (Docker container)
+|zipkin (Docker container) |9411
 
 |prometheus
-|prometheus (Docker container)
+|prometheus (Docker container) |9090
 
 |grafana
-|grafana (Docker container)
+|grafana (Docker container) |3000
 |===
