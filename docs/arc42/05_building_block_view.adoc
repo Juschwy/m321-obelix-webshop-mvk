@@ -356,3 +356,64 @@ Central entrypoint; integrates clients to downstream services and cross-cutting 
 === Level 3
 
 _Level 3 is currently not required. Further decomposition will be added if complexity increases._
+
+=== Frontend Building Blocks
+
+==== Component Structure
+
+....
+Frontend Application
+│
+├── AppComponent (Root)
+│ ├── NavbarComponent (Navigation + Cart Counter)
+│ └── Router Outlet
+│ ├── AdminListComponent (Dashboard)
+│ │ ├── MenhirCardComponent (Product Cards)
+│ │ └── CreateMenhirModalComponent (Create Form)
+│ └── CartComponent (Shopping Cart)
+│
+├── Services
+│ ├── AdminService (Menhir CRUD)
+│ └── CartService (Cart State)
+│
+└── Pipes
+ └── ChfCurrencyPipe (Currency Format)
+....
+
+==== Component Descriptions
+
+[cols="1,2",options="header"]
+|===
+|Component |Responsibility
+
+|AppComponent
+|Root component, provides main layout and router outlet
+
+|NavbarComponent
+|Navigation bar with logo and cart counter, uses toSignal for reactive cart count
+
+|MenhirCardComponent
+|Displays single menhir with image, specs and price, uses input() signal and computed signals for price/height/weight
+
+|CartComponent
+|Shopping cart view with item list, quantity controls and total calculation using computed signal
+
+|AdminListComponent
+|Admin dashboard displaying all menhirs in a grid, manages create modal visibility
+
+|CreateMenhirModalComponent
+|Modal form for creating new menhirs with image upload and preview
+|===
+
+==== Service Descriptions
+
+[cols="1,2",options="header"]
+|===
+|Service |Responsibility
+
+|AdminService
+|Handles menhir CRUD operations, stores data in localStorage (mock backend)
+
+|CartService
+|Manages cart state with BehaviorSubject, persists to localStorage, provides methods for add/remove/update
+|===
