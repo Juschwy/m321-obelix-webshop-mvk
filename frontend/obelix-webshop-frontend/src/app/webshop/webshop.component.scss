@@ -1,8 +1,15 @@
-// TODO extract this to webshop.component.scss and admin.component.scss
 :host {
   display: block;
   padding: 32px;
   background: #ffffff;
+  position: relative;
+}
+
+.cart-floating {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  z-index: 10;
 }
 
 .products-grid {

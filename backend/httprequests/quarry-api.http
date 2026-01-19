@@ -19,6 +19,15 @@ Content-Type: application/json
   "count": 2
 }
 
+### Create menhir
+POST {{BASE_URL}}/menhir
+Content-Type: application/json
 
-
+{
+  "id": null,
+  "weight": 1200.5,
+  "stoneType": "GRANITE",
+  "decorativeness": "DECORATED",
+  "description": "Large menhir near the quarry entrance"
+}
 
