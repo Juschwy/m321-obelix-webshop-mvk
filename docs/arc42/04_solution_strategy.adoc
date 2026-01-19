@@ -32,3 +32,59 @@ See https://docs.arc42.org/section-4/[Solution Strategy] in the arc42 documentat
 
 ****
 endif::arc42help[]
+
+=== Technology Decisions
+
+==== Backend
+
+* Spring Boot 3.5.6 with Java 21 (school requirement)
+* Gradle Multi-Project Setup (independent service development)
+* Spring Data JPA for persistence (simplifies database access)
+* Lombok to reduce boilerplate code (auto-generates getters, setters, constructors, equals/hashCode)
+
+==== Frontend
+
+* Angular 21 with TypeScript (chosen due to team experience)
+
+==== Service Communication
+
+* Spring WebClient (reactive) for non-blocking communication (better performance)
+* Spring HTTP Interface for type-safe client definitions (type safety)
+
+==== Observability
+
+* Zipkin for distributed tracing (school requirement)
+* Prometheus + Grafana for metrics (school requirement)
+* Spring Actuator for health checks and metrics endpoints
+
+==== Deployment
+
+* Docker containers with Docker Compose (school requirement)
+* Spring Boot Buildpacks for image creation (simplifies containerization)
+
+==== API Documentation
+
+* OpenAPI 3.x automatically generated from code (SpringDoc) (school requirement)
+* Generated TypeScript clients for frontend (school requirement)
+
+==== Database
+
+* H2 In-Memory (temporary, persistent DB planned for production)
+
+=== Organizational Decisions
+
+==== Development Process
+
+* Pull-Request workflow: `master` branch protected, minimum 3 reviews required (school requirement)
+* Team structure: FE, BE, CICD, MGMT (parallel work)
+* Code-first for OpenAPI (school requirement)
+
+==== Documentation
+
+* arc42 template for architecture documentation (school requirement)
+* AsciiDoc format (school requirement)
+
+==== Testing
+
+* Automated tests on every PR (school requirement)
+* Test fixtures in common module for reusable utilities
