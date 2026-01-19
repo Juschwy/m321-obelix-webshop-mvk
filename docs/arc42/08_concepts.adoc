@@ -100,6 +100,96 @@ Maintain quality and collaboration across a large team.
 
 ---
 
+=== Frontend Concepts 
+
+==== Angular Signals 
+
+Signals provide reactive state management in the frontend. 
+
+Usage: 
+
+* signal() for mutable component state 
+* computed() for derived values 
+* input() for component inputs 
+* toSignal() for converting Observables 
+
+Naming Convention: 
+* Signals end with $$ suffix (e.g., items$$, isLoading$$) 
+
+Example: 
+[source,typescript]---- 
+// Mutable state 
+protected readonly items$$ = signal<CartItem[]>([]); 
+
+// Derived value 
+protected readonly total$$ = computed(() =>  
+  this.items$$().reduce((sum, item) => sum + item.price, 0) 
+); 
+
+// Component input 
+readonly menhir = input.required<MenhirDto>();
+
+---- 
+
+Standalone Components 
+
+All frontend components are standalone (no NgModules).
+
+Benefits: 
+
+* Simpler architecture 
+* Better tree-shaking 
+* Each component declares its own imports 
+
+Example: 
+
+----
+    @Component({ 
+    selector: 'app-cart', 
+    standalone: true, 
+    imports: [CommonModule, RouterModule, ChfCurrencyPipe], 
+    templateUrl: './cart.component.html' 
+    }) 
+    export class CartComponent { } 
+----
+
+Modern Control Flow Syntax 
+
+Templates use Angular 17+ control flow syntax. 
+
+Syntax: 
+
+* @if instead of *ngIf 
+* @for with track instead of *ngFor 
+* @empty for empty list state 
+
+Example: 
+
+[source,html]
+---- 
+@if (isLoading$$()) { 
+  <p>Loading...</p> 
+} 
+
+@for (item of items$$(); track item.id) { 
+  <div>{{ item.name }}</div> 
+} @empty { 
+  <p>No items found.</p> 
+}
+
+ChfCurrencyPipe 
+
+Custom pipe for formatting prices in Swiss Francs.
+
+Usage: 
+[source,html]
+---- 
+{{ price | chfCurrency }} 
+<!-- Output: CHF 1'500 --> 
+---- 
+
+Implementation uses Intl.NumberFormat with de-CH locale. 
+'''
 === Backend Internal Contracts (Shared Java Interfaces)
 
 ==== Purpose / Motivation

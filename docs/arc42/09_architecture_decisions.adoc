@@ -311,3 +311,83 @@ Quality attributes impacted:
 * Decision 2 (document trace headers in OpenAPI where relevant)
 
 '''
+
+---
+=== Frontend Architecture Decisions
+==== ADR-FE-01: Use Angular Signals for State Management
+
+Context:
+
+Frontend needs reactive state management that is simple and performant.
+
+Decision:
+Use Angular Signals instead of RxJS BehaviorSubjects or NgRx for component
+state.
+
+Alternatives Considered:
+
+* RxJS Observables: More boilerplate, manual subscription management
+* NgRx Store: Too complex for current application size
+
+Rationale:
+
+* Automatic change detection optimization
+* Simpler syntax than RxJS
+* Fine-grained reactivity
+* Built into Angular
+
+Implications:
+
+* All component state uses signals
+* Services can use RxJS internally and expose via toSignal()
+* Templates access signals with () syntax
+
+==== ADR-FE-02: Use Standalone Components
+Context:
+Angular supports both NgModules and Standalone Components.
+
+Decision:
+Use only Standalone Components, no NgModules.
+
+Alternatives Considered:
+
+* Traditional NgModules: More boilerplate, harder to tree-shake
+* Hybrid approach: Inconsistent codebase
+
+Rationale:
+
+* Less boilerplate code
+* Better tree-shaking for smaller bundles
+* Simpler component organization
+* Aligns with Angular future direction
+
+Implications:
+
+* All components marked as standalone: true
+* Each component declares its own imports
+* No shared modules needed
+
+==== ADR-FE-03: Use Modern Control Flow Syntax
+Context:
+Angular 17+ offers new control flow syntax (@if, @for, @empty).
+
+Decision:
+Use new control flow syntax exclusively, no structural directives.
+
+Alternatives Considered:
+
+* Keep *ngIf/*ngFor: Legacy syntax, worse performance
+* Mix both: Inconsistent codebase
+
+Rationale:
+
+* Better performance through built-in optimizations
+* Improved type checking
+* More readable template syntax
+* Smaller bundle size
+
+Implications:
+
+* All templates use @if, @for, @empty
+* No imports needed for CommonModule directives
+* Track expression required for @for loops

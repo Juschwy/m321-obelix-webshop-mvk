@@ -6,6 +6,7 @@ import ch.bbw.obelix.basket.api.service.BasketClientService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -26,6 +27,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @WebMvcTest(ch.bbw.obelix.webshop.controller.BasketController.class)
 @ActiveProfiles("test")
+@AutoConfigureRestDocs
 class BasketControllerTest {
 
     @Autowired
@@ -44,7 +46,7 @@ class BasketControllerTest {
         ArrayList<BasketItem> items = new ArrayList<>();
         items.add(item);
         BasketDto basketDto = new BasketDto(items);
-        
+
         when(basketClientService.offer(any(BasketItem.class))).thenReturn(basketDto);
 
         // When & Then
@@ -55,6 +57,20 @@ class BasketControllerTest {
                 .andExpect(jsonPath("$.items").isArray())
                 .andExpect(jsonPath("$.items[0].name").value("boar"))
                 .andExpect(jsonPath("$.items[0].count").value(2));
+                /*.andDo(document("basket/offer",
+                        preprocessRequest(prettyPrint()),
+                        preprocessResponse(prettyPrint()),
+                        requestFields(
+                                fieldWithPath("name").description("Item name"),
+                                fieldWithPath("count").description("Number of items")
+                        ),
+                        responseFields(
+                                fieldWithPath("items").description("Items currently in the basket"),
+                                fieldWithPath("items[].name").description("Item name"),
+                                fieldWithPath("items[].count").description("Number of items")
+                        )
+                ));*/
+
 
         verify(basketClientService).offer(any(BasketItem.class));
     }

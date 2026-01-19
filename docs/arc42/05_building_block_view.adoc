@@ -89,16 +89,34 @@ The system is split into a single-page frontend and multiple backend microservic
 
 === Level 1 – Black Box Descriptions
 
+==== Building Block View
+[plantuml, puml, svg]
+----
+@startuml
+title Level 1:
+
+actor User
+component obelix_webshop_frontend
+component obelix_webshop_backend
+interface obelix_backend_api
+
+User --> obelix_webshop_frontend
+obelix_webshop_backend -- obelix_backend_api
+obelix_webshop_frontend ..> obelix_backend_api : requires
+
+@enduml
+----
+
 ==== Frontend (Angular + Nginx)
 
-*Purpose / Responsibility*  
+*Purpose / Responsibility*
 Customer UI; uses generated OpenAPI client to call reverse proxy.
 
-*Interfaces*  
+*Interfaces*
 Provided: Web UI (HTTP).
 Consumed: obelix-webshop REST API.
 
-(Optional) *Quality / Performance Characteristics*  
+(Optional) *Quality / Performance Characteristics*
 Static content served via Nginx; relies on backend for data.
 
 (Optional) *Location*
@@ -130,7 +148,7 @@ Provided: REST API; /actuator/prometheus.
 Consumed: Zipkin ingestion API.
 Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
-(Optional) *Location*  
+(Optional) *Location*
 backend/obelix-quarry-impl
 
 ==== obelix-basket
@@ -175,25 +193,72 @@ Consumed: spans from backend services.
 
 ==== Frontend (Angular + Nginx)
 
-(copy the template above)
+*Purpose / Responsibility*
+Provides the customer-facing user interface for browsing and purchasing Hinkelsteine. Uses a generated OpenAPI client to communicate with the backend.
+
+*Interfaces*
+Provided: Web UI (HTTP/HTTPS via Nginx).
+Consumed: obelix-webshop REST API.
+
+*Quality / Performance Characteristics*
+Static content is served via Nginx; all dynamic data is fetched from the backend. Single-page application with reactive state management (NgRx).
+
+*Location*
+frontend/obelix-webshop-frontend
 
 '''
 
 ==== obelix-webshop (reverse proxy)
 
-(copy the template above)
+*Purpose / Responsibility*
+Central entry point for all frontend requests. Aggregates and routes requests to domain services (basket, quarry). Exposes metrics for Prometheus and sends traces to Zipkin.
+
+*Interfaces*
+Provided: REST API for the frontend; /actuator/prometheus for metrics.
+Consumed: obelix-basket REST API; obelix-quarry REST API; Zipkin trace ingestion API.
+Internal contracts: Implements shared Java interfaces for basket/quarry clients.
+
+*Quality / Performance Characteristics*
+Single point of entry; ensures consistent APIs and cross-cutting concerns (tracing, metrics).
+
+*Location*
+backend/obelix-webshop
 
 '''
 
 ==== obelix-quarry
 
-(copy the template above)
+*Purpose / Responsibility*
+Manages product data (Hinkelsteine) and provides CRUD APIs for product operations.
+
+*Interfaces*
+Provided: REST API for product operations; /actuator/prometheus for metrics.
+Consumed: Zipkin trace ingestion API.
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
+
+*Quality / Performance Characteristics*
+Focus on data consistency and fast read access for product catalogs.
+
+*Location*
+backend/obelix-quarry-impl
 
 '''
 
 ==== obelix-basket
 
-(copy the template above)
+*Purpose / Responsibility*
+Manages shopping baskets for customers. Enables adding, removing, and updating items in the basket.
+
+*Interfaces*
+Provided: REST API for basket operations; /actuator/prometheus for metrics.
+Consumed: Zipkin trace ingestion API; obelix-quarry API (for product validation).
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
+
+*Quality / Performance Characteristics*
+Stateful service; requires data persistence for active baskets.
+
+*Location*
+backend/obelix-basket-impl
 
 '''
 
@@ -204,7 +269,47 @@ Level 2 describes the **internal structure** of selected Level-1 building blocks
 ==== White Box obelix-webshop (reverse proxy)
 
 ==== Overview Diagram
+.Building Block View
+[plantuml, puml]
+----
+@startuml
+title Level 2:
 
+interface obelix_backend_api
+
+component obelix_webshop_frontend
+component obelix_webshop_backend {
+component obelix_basket_api
+component obelix_basket_impl
+component obelix_common
+component obelix_quarry_api
+component obelix_quarry_impl
+component obelix_webshop
+
+
+interface configs
+interface quarry_api
+interface basket_api
+
+obelix_common -- configs
+
+obelix_quarry_api ..> configs : requires
+obelix_basket_api ..> configs :requires
+
+obelix_quarry_api -- quarry_api
+obelix_quarry_impl ..> quarry_api : requires
+
+obelix_basket_api -- basket_api
+obelix_basket_impl ..> basket_api : requires
+
+obelix_webshop ..> quarry_api : requires
+obelix_webshop ..> basket_api : requires
+}
+
+obelix_webshop_backend -- obelix_backend_api
+obelix_webshop_frontend ..> obelix_backend_api : requires
+@enduml
+----
 [plantuml, webshop-whitebox, svg]
 ----
 @startuml
@@ -251,3 +356,64 @@ Central entrypoint; integrates clients to downstream services and cross-cutting 
 === Level 3
 
 _Level 3 is currently not required. Further decomposition will be added if complexity increases._
+
+=== Frontend Building Blocks
+
+==== Component Structure
+
+....
+Frontend Application
+│
+├── AppComponent (Root)
+│ ├── NavbarComponent (Navigation + Cart Counter)
+│ └── Router Outlet
+│ ├── AdminListComponent (Dashboard)
+│ │ ├── MenhirCardComponent (Product Cards)
+│ │ └── CreateMenhirModalComponent (Create Form)
+│ └── CartComponent (Shopping Cart)
+│
+├── Services
+│ ├── AdminService (Menhir CRUD)
+│ └── CartService (Cart State)
+│
+└── Pipes
+ └── ChfCurrencyPipe (Currency Format)
+....
+
+==== Component Descriptions
+
+[cols="1,2",options="header"]
+|===
+|Component |Responsibility
+
+|AppComponent
+|Root component, provides main layout and router outlet
+
+|NavbarComponent
+|Navigation bar with logo and cart counter, uses toSignal for reactive cart count
+
+|MenhirCardComponent
+|Displays single menhir with image, specs and price, uses input() signal and computed signals for price/height/weight
+
+|CartComponent
+|Shopping cart view with item list, quantity controls and total calculation using computed signal
+
+|AdminListComponent
+|Admin dashboard displaying all menhirs in a grid, manages create modal visibility
+
+|CreateMenhirModalComponent
+|Modal form for creating new menhirs with image upload and preview
+|===
+
+==== Service Descriptions
+
+[cols="1,2",options="header"]
+|===
+|Service |Responsibility
+
+|AdminService
+|Handles menhir CRUD operations, stores data in localStorage (mock backend)
+
+|CartService
+|Manages cart state with BehaviorSubject, persists to localStorage, provides methods for add/remove/update
+|===
