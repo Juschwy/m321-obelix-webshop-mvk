@@ -1,1 +1,172 @@
 
+== User Documentation
+
+This document describes how to interact with the Obelix backend services.
+It is intended for developers and integrators who want to use the public API
+or understand how the API gateway communicates with internal microservices.
+
+The examples below use simple HTTP requests and `curl` commands to demonstrate
+typical usage scenarios.
+
+=== Public API (Client → Webshop / API Gateway)
+
+The public API is exposed by the webshop API gateway.
+Clients such as the frontend or external tools communicate exclusively
+with these endpoints.
+
+==== Welcome Endpoint
+
+Returns a simple welcome message to verify that the API is reachable.
+
+*Request*
+[source,http]
+----
+GET /api HTTP/1.1
+Host: localhost:8080
+----
+
+*Example curl call*
+[source,bash]
+----
+curl http://localhost:8080/api
+----
+
+*Response*
+[source,text]
+----
+Welcome to Obelix's Menhir Shop! The finest menhirs in all of Gaul!
+Ces Romains sont fous!
+----
+
+==== List Menhirs
+
+Returns a list of all available menhirs.
+
+*Request*
+[source,http]
+----
+GET /api/menhirs HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+----
+
+*Example curl call*
+[source,bash]
+----
+curl -H "Accept: application/json" http://localhost:8080/api/menhirs
+----
+
+*Response*
+[source,json]
+----
+[
+  {
+    "id": "11111111-1111-1111-1111-111111111111",
+    "weight": 2.5,
+    "stoneType": "Granite",
+    "decorativeness": "PLAIN",
+    "description": "Description 1"
+  }
+]
+----
+
+==== Get Menhir by ID
+
+Returns details for a specific menhir.
+
+*Request*
+[source,http]
+----
+GET /api/menhirs/{menhirId} HTTP/1.1
+Host: localhost:8080
+Accept: application/json
+----
+
+*Example curl call*
+[source,bash]
+----
+curl -H "Accept: application/json" \
+http://localhost:8080/api/menhirs/3fa85f64-5717-4562-b3fc-2c963f66afa6
+----
+
+==== Add Item to Basket
+
+Adds a single item to the basket.
+
+*Request*
+[source,http]
+----
+PUT /api/basket/offer HTTP/1.1
+Host: localhost:8080
+Content-Type: application/json
+----
+
+*Example curl call*
+[source,bash]
+----
+curl -X PUT http://localhost:8080/api/basket/offer \
+  -H "Content-Type: application/json" \
+  -d '{"name":"boar","count":2}'
+----
+
+==== Buy Menhir
+
+Completes the purchase of a menhir.
+
+*Request*
+[source,http]
+----
+POST /api/basket/buy/{menhirId} HTTP/1.1
+Host: localhost:8080
+----
+
+*Example curl call*
+[source,bash]
+----
+curl -X POST \
+http://localhost:8080/api/basket/buy/3fa85f64-5717-4562-b3fc-2c963f66afa6
+----
+
+=== Service APIs (API Gateway → Microservices)
+
+The following endpoints are internal service APIs.
+They are used by the API gateway to communicate with backend services
+and are not intended to be called directly by external clients.
+
+==== Quarry Service
+
+Provides access to menhir data.
+
+*Get all menhirs*
+[source,bash]
+----
+curl http://quarry-service:8080/api/quarry/
+----
+
+*Get menhir by ID*
+[source,bash]
+----
+curl http://quarry-service:8080/api/quarry/3fa85f64-5717-4562-b3fc-2c963f66afa6
+----
+
+*Create menhir*
+[source,bash]
+----
+curl -X POST http://quarry-service:8080/api/quarry/ \
+  -H "Content-Type: application/json" \
+  -d '{"id":"33333333-3333-3333-3333-333333333333","weight":4.2,
+       "stoneType":"Granite","decorativeness":"PLAIN",
+       "description":"New menhir"}'
+----
+
+==== Basket Service
+
+Handles basket-related operations.
+
+*Add item to basket*
+[source,bash]
+----
+curl -X PUT http://basket-service:8080/api/basket/offer \
+  -H "Content-Type: application/json" \
+  -d '{"name":"boar","count":2}'
+----
