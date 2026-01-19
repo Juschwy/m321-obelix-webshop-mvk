@@ -54,6 +54,37 @@ It ensures all stakeholders have a **shared understanding** and avoids ambiguity
 
 |BBW (Berufsbildungsschule Winterthur)
 |The school operating the MAAS environment used for this project; provides the infrastructure context.
+
+|Signal
+|Reactive state primitive in Angular. Created with signal(), accessed by calling the signal as a function.
+
+|Computed Signal
+|Derived signal that automatically updates when its dependencies change. Created with computed().
+
+|Standalone Component
+|Angular component that declares its own dependencies without requiring an NgModule.
+
+|Control Flow Syntax
+|Angular 17+ template syntax using @if, @for, @empty instead of structural directives.
+
+|MenhirCardComponent
+|Component that displays a single menhir with image, specifications and price.
+
+|CartService
+|Service that manages shopping cart state using BehaviorSubject and persists to localStorage.
+
+|AdminService
+|Service that handles menhir CRUD operations with mock backend using localStorage.
+
+|ChfCurrencyPipe
+|Custom Angular pipe that formats numbers as Swiss Franc currency (CHF).
+
+|toSignal()
+|Function that converts an RxJS Observable to an Angular Signal.
+
+|input()
+|Function to create a signal-based component input, replacing @Input decorator.
+
 |===
 
 == Notes / Optional Columns
