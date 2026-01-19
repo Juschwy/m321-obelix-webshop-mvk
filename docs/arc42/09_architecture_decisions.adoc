@@ -7,69 +7,84 @@ This section documents **important architectural decisions** and their rationale
 Use this template to capture each decision clearly and consistently.
 
 ---
+=== Frontend Architecture Decisions
+==== ADR-FE-01: Use Angular Signals for State Management
 
-=== <Decision 1 – Short Title>
+Context:
 
-==== Context
+Frontend needs reactive state management that is simple and performant.
 
-TODO:  
-Describe the situation, requirements, or problem that prompted this decision.
+Decision:
+Use Angular Signals instead of RxJS BehaviorSubjects or NgRx for component
+state.
 
-* Which constraints apply?  
-* Which stakeholders are affected?  
-* What prior decisions are relevant?
+Alternatives Considered:
 
-==== Decision
+* RxJS Observables: More boilerplate, manual subscription management
+* NgRx Store: Too complex for current application size
 
-TODO:  
-Clearly state the **chosen alternative**.
+Rationale:
 
-* What solution / approach was selected?  
-* Why was this alternative chosen over others?
+* Automatic change detection optimization
+* Simpler syntax than RxJS
+* Fine-grained reactivity
+* Built into Angular
 
-#### Alternatives Considered
+Implications:
 
-TODO:  
-List other reasonable options and briefly explain why they were **not chosen**.
+* All component state uses signals
+* Services can use RxJS internally and expose via toSignal()
+* Templates access signals with () syntax
 
-* Alternative 1: <description>  
-* Alternative 2: <description>  
-* Alternative n: <description>
+==== ADR-FE-02: Use Standalone Components
+Context:
+Angular supports both NgModules and Standalone Components.
 
-==== Rationale
+Decision:
+Use only Standalone Components, no NgModules.
 
-TODO:  
-Explain **why this decision is correct**, e.g.:
+Alternatives Considered:
 
-* Benefits
-* Trade-offs
-* Impact on system quality attributes (performance, scalability, security)
+* Traditional NgModules: More boilerplate, harder to tree-shake
+* Hybrid approach: Inconsistent codebase
 
-==== Implications
+Rationale:
 
-TODO:  
-Describe **consequences of the decision**, including:
+* Less boilerplate code
+* Better tree-shaking for smaller bundles
+* Simpler component organization
+* Aligns with Angular future direction
 
-* Impact on other building blocks  
-* Technical debt or risks  
-* Testing / operational considerations
+Implications:
 
-#### Related Decisions
+* All components marked as standalone: true
+* Each component declares its own imports
+* No shared modules needed
 
-TODO (optional):  
-Link to related architectural decisions or references to other chapters.
+==== ADR-FE-03: Use Modern Control Flow Syntax
+Context:
+Angular 17+ offers new control flow syntax (@if, @for, @empty).
 
----
+Decision:
+Use new control flow syntax exclusively, no structural directives.
 
-=== <Decision 2 – Short Title>
+Alternatives Considered:
 
-(copy the template above)
+* Keep *ngIf/*ngFor: Legacy syntax, worse performance
+* Mix both: Inconsistent codebase
 
----
+Rationale:
 
-=== <Decision 3 – Short Title>
+* Better performance through built-in optimizations
+* Improved type checking
+* More readable template syntax
+* Smaller bundle size
 
-(copy the template above)
+Implications:
+
+* All templates use @if, @for, @empty
+* No imports needed for CommonModule directives
+* Track expression required for @for loops
 
 ---
 
