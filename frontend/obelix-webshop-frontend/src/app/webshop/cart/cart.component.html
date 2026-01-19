@@ -96,7 +96,12 @@
         <span class="cart-total__amount">{{ formatPrice(total()) }}</span>
       </div>
 
-      <button type="button" class="checkout-button">
+      <button
+        type="button"
+        class="checkout-button"
+        [disabled]="!items$$().length"
+        (click)="checkout()"
+      >
         Proceed to Checkout
       </button>
     </footer>

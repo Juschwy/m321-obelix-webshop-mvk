@@ -1,0 +1,7 @@
+export enum MenhirType {
+  SIMPLE = 'SIMPLE',
+  PLAIN = 'PLAIN',
+  ORNATE = 'ORNATE',
+  DECORATED = 'DECORATED',
+  MASTERWORK = 'MASTERWORK',
+}
