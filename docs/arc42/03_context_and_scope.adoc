@@ -131,3 +131,39 @@ node "PostgreSQL Database" {
 * Data exchange is done exclusively using **JSON**.
 * The backend follows a layered architecture (controller, service, persistence).
 * No asynchronous messaging or message queues are used.
+
+=== Frontend Context
+
+==== Business Context
+
+[cols="1,2,2",options="header"]
+|===
+|Communication Partner |Inputs to Frontend |Outputs from Frontend
+
+|Customer
+|Browses menhir catalog, adds items to cart, views cart
+|Product display, cart state, order confirmation
+
+|Administrator
+|Creates new menhirs, uploads images, manages catalog
+|Admin dashboard, menhir forms, validation feedback
+|===
+
+==== Technical Context
+
+[cols="1,2,2",options="header"]
+|===
+|Communication Partner |Channel / Protocol |Data Format
+
+|Backend REST API
+|HTTPS REST calls
+|JSON (menhirs, cart items)
+
+|Browser localStorage
+|JavaScript API
+|JSON (cart persistence)
+
+|Browser APIs
+|Native APIs
+|File uploads, navigation
+|===
