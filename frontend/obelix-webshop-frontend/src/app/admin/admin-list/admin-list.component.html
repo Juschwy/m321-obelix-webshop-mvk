@@ -49,7 +49,6 @@
 @if (showCreateModal$$()) {
   <app-create-menhir-modal
     (close)="closeCreateModal()"
-    (created)="onMenhirCreated($event)"
+    (created)="onMenhirCreated()"
   ></app-create-menhir-modal>
 }
-

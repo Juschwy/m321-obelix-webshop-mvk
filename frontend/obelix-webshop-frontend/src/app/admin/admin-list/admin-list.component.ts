@@ -52,9 +52,8 @@ export class AdminListComponent implements OnInit {
     this.showCreateModal$$.set(false);
   }
 
-  protected onMenhirCreated(menhir: MenhirDto): void {
+  protected onMenhirCreated(): void {
     this.loadMenhirs();
     this.closeCreateModal();
   }
 }
-
