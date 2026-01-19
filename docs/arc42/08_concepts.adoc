@@ -8,78 +8,113 @@ Concepts may include practices, patterns, regulations, or solution ideas.
 
 Use this template to guide the documentation, without filling in actual details yet.
 
----
+'''
 
-=== <Concept 1 – Name / Title>
+=== Observability (Metrics & Tracing)
 
 ==== Purpose / Motivation
 
-TODO:  
-Explain **why this concept is relevant** for the system.
-
-Examples:
-* Security
-* Logging
-* Monitoring / Tracing
-* Error handling
-* Configuration management
-* LLM / AI usage guidelines
+Provide unified monitoring and tracing across all services to meet assignment requirements and support troubleshooting in dev/test.
 
 ==== Affected Building Blocks
 
-TODO:  
-List all building blocks impacted by this concept.
-
-Example:
-* <Service A>
-* <Service B>
-* <Frontend / UI>
+* obelix-webshop, obelix-quarry, obelix-basket
+* Prometheus, Grafana, Zipkin
 
 ==== Description
 
-TODO:  
-Provide a textual explanation of the concept.
+* Metrics are exposed via Spring Boot Actuator (/actuator/prometheus) on backend services and scraped by Prometheus.
+* Grafana visualizes metrics from Prometheus.
+* Traces are sent via HTTP to Zipkin (port 9411) using Spring Cloud Sleuth/Micrometer tracing configuration.
 
-* What problem does it address?
-* How does it influence the architecture?
-* Any high-level rules or patterns?
+==== Notes / Guidelines
 
-==== Example / Diagram (Optional)
+* Ensure each service exposes /actuator/prometheus.
+* Zipkin endpoint: http://zipkin:9411/api/v2/spans (configured via MANAGEMENT_ZIPKIN_TRACING_ENDPOINT).
 
-[plantuml, concept1, svg]
-----
-@startuml
-' Optional diagram showing how the concept applies
-rectangle "<Building Block 1>" as BB1
-rectangle "<Building Block 2>" as BB2
+'''
 
-BB1 --> BB2 : <Interaction / Constraint / Shared Behavior>
-@enduml
-----
+=== API Strategy (OpenAPI & Clients)
 
-==== Notes / Guidelines (Optional)
+==== Purpose / Motivation
 
-TODO:
-* Implementation hints
-* Restrictions or rules
-* Monitoring / observability
-* Performance considerations
-* Risks or open questions
+Guarantee consistent and documented APIs; enable frontend to use generated clients.
+
+==== Affected Building Blocks
+
+* All backend microservices
+* Frontend (Angular)
+
+==== Description
+
+* OpenAPI 3.x specifications are generated code-first (e.g., springdoc).
+* Frontend uses a client generated from OpenAPI definitions (openapi-generator) to call the reverse proxy.
+* All properties in OAS must have descriptions and examples.
+
+'''
+
+=== Configuration & Deployment
+
+==== Purpose / Motivation
+
+Ensure reproducible deployments to the BBW-Maas VM with minimal overhead.
+
+==== Affected Building Blocks
+
+* All services
+* CI/CD pipeline
+
+==== Description
+
+* Docker Compose orchestrates all containers on a single Ubuntu 24.04 VM.
+* Images are built and published to GHCR via GitHub Actions.
+* VM provisioning via MAAS API; updates via WireGuard + SSH; compose executed with `docker compose up -d`.
+
+'''
+
+=== Security Posture (Dev/Test)
+
+==== Purpose / Motivation
+
+Clarify simplified security model for a dev/test environment.
+
+==== Description
+
+* Admin UI has CRUD without authentication or sessions.
+* No external exposure beyond necessary HTTP ports on the VM.
+* Tracing/metrics endpoints accessible within Docker network.
+
+'''
+
+=== CI/CD & Collaboration
+
+==== Purpose / Motivation
+
+Maintain quality and collaboration across a large team.
+
+==== Description
+
+* Protected main branch; all changes via PR with three mandatory reviews.
+* Automated tests and builds on PR; deployments on main.
+* Ownership defined via OWNERS/CODEOWNERS.
 
 ---
 
-=== <Concept 2 – Name / Title>
+=== Backend Internal Contracts (Shared Java Interfaces)
 
-(copy the template above)
+==== Purpose / Motivation
+Ensure consistent and type-safe contracts between the reverse proxy and microservices without relying solely on REST specs.
 
----
+==== Affected Building Blocks
+* obelix-webshop (clients)
+* obelix-quarry, obelix-basket (implementations)
+* Shared modules (e.g., obelix-common, API modules)
 
-=== <Concept 3 – Name / Title>
+==== Description
+* Java interfaces are defined in shared modules to express service contracts.
+* Clients in obelix-webshop implement these interfaces to call downstream services.
+* This approach complements OpenAPI by providing compile-time guarantees across modules.
 
-(copy the template above)
-
----
-
-=== <Concept n – Name / Title>
-
-(copy the template above)
+==== Notes / Guidelines
+* Keep interfaces stable; version carefully.
+* Align interface contracts with REST endpoints to avoid drift.

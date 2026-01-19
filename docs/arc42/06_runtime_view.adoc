@@ -7,151 +7,161 @@ This chapter describes **runtime behavior and interactions** between the buildin
 It focuses on **architecturally relevant scenarios** and is intentionally limited
 to a small, representative set.
 
-Each scenario should explain *how* building blocks collaborate at runtime.
+Each scenario explains how building blocks collaborate at runtime.
 
-=== How to use this chapter
+'''
 
-* Add **only relevant scenarios** (important, risky, or representative).
-* Prefer **clarity over completeness**.
-* Each scenario should be understandable **without reading the source code**.
-* Use **PlantUML** for diagrams where possible.
-
----
-
-=== <Runtime Scenario Name>
+=== Customer purchases a Hinkelstein
 
 ==== Purpose
-
-TODO:  
-Briefly explain **why this scenario is documented**.
-
-Examples:
-* Core business use case
-* Critical interaction between services
-* Operational or failure scenario
+Core business scenario: Customer browses products and adds items to basket.
 
 ==== Trigger
-
-TODO:  
-Describe what **starts** this scenario.
-
-Examples:
-* User action
-* External system request
-* System startup
+User action in the frontend.
 
 ==== Involved Building Blocks
-
-TODO:  
-List all participating building blocks.
-
-Example:
-* <Client / UI>
-* <Service A>
-* <Service B>
-* <External System>
+* Frontend (Angular + Nginx)
+* obelix-webshop (reverse proxy)
+* obelix-quarry
+* obelix-basket
 
 ==== Runtime Diagram
 
-[plantuml, <scenario-id>, svg]
+[plantuml, runtime-purchase, svg]
 ----
 @startuml
-actor "<Actor / Trigger>" as Actor
+actor "Customer" as Customer
+participant "Frontend" as FE
+participant "webshop" as WS
+participant "quarry" as Q
+participant "basket" as B
 
-participant "<Building Block 1>" as BB1
-participant "<Building Block 2>" as BB2
-participant "<Building Block n>" as BBn
+Customer -> FE : View products
+FE -> WS : GET /products
+WS -> Q : GET /products
+Q --> WS : 200 products
+WS --> FE : 200 products
 
-Actor -> BB1 : <Action / Request>
-BB1 -> BB2 : <Call / Message>
-BB2 -> BBn : <Call / Message>
-BBn --> BB2 : <Response>
-BB2 --> BB1 : <Response>
-BB1 --> Actor : <Result>
+Customer -> FE : Add to basket
+FE -> WS : POST /basket/items
+WS -> B : POST /basket/items
+B --> WS : 200 item added
+WS --> FE : 200 item added
 @enduml
 ----
 
-NOTE:  
-Only show **relevant interactions**.  
-Avoid technical noise (e.g. frameworks, libraries).
-
-==== Steps (Optional)
-
-TODO (optional):  
-Describe the interaction as a **numbered list**, if it improves understanding.
-
-. Step 1: <Description>
-. Step 2: <Description>
-. Step n: <Description>
-
 ==== Notable Aspects
+* Frontend calls only webshop; webshop fans out to domain services.
+* Observability: backend services emit traces to Zipkin; metrics exposed via /actuator/prometheus.
 
-TODO:  
-Highlight **architecturally relevant aspects**, for example:
+'''
 
-* Cross-service communication
-* Error handling
-* Performance implications
-* Synchronous vs. asynchronous behavior
-* Monitoring / tracing relevance
-
----
-
-=== <Runtime Scenario Name>
-
-(copy the template above)
-
----
-
-=== <Runtime Scenario Name>
-
-(copy the template above)
-
----
-
-=== Operational Scenarios (Optional)
-
-Use this section for **non-functional** runtime behavior.
-
-Examples:
-* Application startup
-* Service shutdown
-* Deployment
-* Health checks
-
-==== <Operational Scenario Name>
-
-(copy the scenario template above)
-
----
-
-=== Error and Exception Scenarios (Optional)
-
-Document **important failure scenarios** that impact architecture decisions.
-
-==== <Error Scenario Name>
+=== Admin performs CRUD on Hinkelsteine
 
 ==== Purpose
+Admin UI scenario: Perform CRUD (without auth/session).
 
-TODO:  
-Explain why this error scenario is relevant.
+==== Trigger
+Admin actions in the frontend.
+
+==== Involved Building Blocks
+* Frontend (Angular + Nginx)
+* obelix-webshop (reverse proxy)
+* obelix-quarry
 
 ==== Runtime Diagram
 
-[plantuml, <error-scenario-id>, svg]
+[plantuml, runtime-admin-crud, svg]
 ----
 @startuml
-participant "<Building Block 1>" as BB1
-participant "<Building Block 2>" as BB2
+actor "Admin" as Admin
+participant "Frontend" as FE
+participant "webshop" as WS
+participant "quarry" as Q
 
-BB1 -> BB2 : <Request>
-BB2 --> BB1 : <Error / Exception>
+Admin -> FE : Create product
+FE -> WS : POST /products
+WS -> Q : POST /products
+Q --> WS : 201 created
+WS --> FE : 201 created
+
+Admin -> FE : Update product
+FE -> WS : PUT /products/{id}
+WS -> Q : PUT /products/{id}
+Q --> WS : 200 updated
+WS --> FE : 200 updated
 @enduml
 ----
 
 ==== Notable Aspects
+* No authentication; simplified flows for dev/test.
 
-TODO:
-* Error propagation
-* Fallback behavior
-* Observability (logs, metrics, traces)
+'''
+
+=== Observability flows (metrics & tracing)
+
+==== Purpose
+Show how metrics are scraped and traces are collected.
+
+==== Involved Building Blocks
+* obelix-webshop, obelix-quarry, obelix-basket
+* Prometheus, Grafana, Zipkin
+
+==== Runtime Diagram
+
+[plantuml, runtime-observability, svg]
+----
+@startuml
+participant "Prometheus" as P
+participant "Grafana" as G
+participant "Zipkin" as Z
+participant "webshop" as WS
+participant "quarry" as Q
+participant "basket" as B
+
+P -> WS : GET /actuator/prometheus
+P -> Q : GET /actuator/prometheus
+P -> B : GET /actuator/prometheus
+G -> P : Query metrics
+WS -> Z : POST /api/v2/spans
+Q -> Z : POST /api/v2/spans
+B -> Z : POST /api/v2/spans
+@enduml
+----
+
+==== Notable Aspects
+* Prometheus scrapes HTTP metrics endpoints.
+* Zipkin receives spans over HTTP.
+
+'''
+
+=== Operational: Deployment to BBW-Maas
+
+==== Purpose
+Capture the automated deployment flow used by CI/CD.
+
+==== Involved Building Blocks
+* GitHub Actions
+* BBW-Maas API
+* Ubuntu VM (Docker)
+
+==== Runtime Diagram
+
+[plantuml, runtime-deploy, svg]
+----
+@startuml
+participant "GitHub Actions" as CI
+participant "BBW-Maas API" as MAAS
+participant "Ubuntu VM" as VM
+
+CI -> MAAS : Provision VM (if missing)
+MAAS --> CI : VM details
+CI -> VM : Connect (WireGuard + SSH)
+CI -> VM : Update image tags (GHCR)
+CI -> VM : docker compose up -d
+VM --> CI : Status
+@enduml
+----
+
+==== Notable Aspects
+* Main branch protected; deployments follow reviews and CI success.
