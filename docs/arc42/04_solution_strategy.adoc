@@ -33,107 +33,58 @@ See https://docs.arc42.org/section-4/[Solution Strategy] in the arc42 documentat
 ****
 endif::arc42help[]
 
-=== Technologieentscheidungen
+=== Technology Decisions
 
 ==== Backend
 
-* Spring Boot 3.5.6 mit Java 21 (Schulvorgabe)
-* Gradle Multi-Project Setup
-* Spring Data JPA für Persistierung
-* Lombok zur Reduzierung von Boilerplate-Code
+* Spring Boot 3.5.6 with Java 21 (school requirement)
+* Gradle Multi-Project Setup (independent service development)
+* Spring Data JPA for persistence (simplifies database access)
+* Lombok to reduce boilerplate code (auto-generates getters, setters, constructors, equals/hashCode)
 
 ==== Frontend
 
-* Angular 21 mit TypeScript (gewählt wegen Team-Erfahrung)
+* Angular 21 with TypeScript (chosen due to team experience)
 
-==== Service-Kommunikation
+==== Service Communication
 
-* Spring WebClient (reactive) für nicht-blockierende Kommunikation
-* Spring HTTP Interface für typsichere Client-Definitionen
-* REST über HTTP
+* Spring WebClient (reactive) for non-blocking communication (better performance)
+* Spring HTTP Interface for type-safe client definitions (type safety)
 
 ==== Observability
 
-* Zipkin für Distributed Tracing
-* Prometheus + Grafana für Metriken
-* Spring Actuator für Health-Checks und Metriken-Endpunkte
+* Zipkin for distributed tracing (school requirement)
+* Prometheus + Grafana for metrics (school requirement)
+* Spring Actuator for health checks and metrics endpoints
 
 ==== Deployment
 
-* Docker Container mit Docker Compose
-* Spring Boot Buildpacks für Image-Erstellung
+* Docker containers with Docker Compose (school requirement)
+* Spring Boot Buildpacks for image creation (simplifies containerization)
 
-==== API-Dokumentation
+==== API Documentation
 
-* OpenAPI 3.x wird automatisch aus dem Code generiert (SpringDoc)
-* Generierte TypeScript-Clients für Frontend
+* OpenAPI 3.x automatically generated from code (SpringDoc) (school requirement)
+* Generated TypeScript clients for frontend (school requirement)
 
-==== Datenbank
+==== Database
 
-* H2 In-Memory (vorläufig, für Produktion geplant: persistente DB)
+* H2 In-Memory (temporary, persistent DB planned for production)
 
-=== Top-Level-Zerlegung
+=== Organizational Decisions
 
-==== Microservices
+==== Development Process
 
-Microservices-Architektur (Schulvorgabe). Drei Services:
+* Pull-Request workflow: `master` branch protected, minimum 3 reviews required (school requirement)
+* Team structure: FE, BE, CICD, MGMT (parallel work)
+* Code-first for OpenAPI (school requirement)
 
-* `obelix-quarry` (Port 8081): Menhir-Verwaltung, CRUD für Produkte
-* `obelix-basket` (Port 8082): Warenkorb-Verwaltung
-* `obelix-webshop` (Port 8080): API-Gateway, aggregiert Daten für Frontend
+==== Documentation
 
-==== API/Impl-Trennung
-
-Jeder Service besteht aus zwei Modulen:
-
-* API-Module (`obelix-quarry-api`, `obelix-basket-api`): Öffentliche Interfaces, DTOs, Service-Definitionen
-* Impl-Module (`obelix-quarry-impl`, `obelix-basket-impl`): Konkrete Implementierung
-
-Vorteile: Typsichere Clients, einfacheres Mocking, lose Kopplung.
-
-==== Common Module
-
-`obelix-common` enthält geteilte Funktionalität:
-* Exception-Klassen, Common Configuration
-* Gemeinsame Abhängigkeiten (Spring Boot Starter, Actuator, Tracing)
-* Test-Fixtures
-
-==== Frontend
-
-Separate Angular-Anwendung, kommuniziert über REST-APIs mit Backend.
-
-=== Qualitätsziele
-
-==== Wartbarkeit
-
-Microservices mit API/Impl-Trennung: klare Verantwortlichkeiten, unabhängige Entwicklung und Deployment.
-
-==== Observability
-
-Zipkin, Prometheus und Grafana für Request-Tracing, Performance-Monitoring und Metriken.
-
-==== Skalierbarkeit
-
-Unabhängige Skalierung pro Service, horizontale Skalierung möglich, reaktive Kommunikation für bessere Ressourcennutzung.
-
-==== Entwicklungsgeschwindigkeit
-
-Code-First OpenAPI, generierte Frontend-Clients, Gradle Multi-Project für parallele Entwicklung.
-
-=== Organisatorische Entscheidungen
-
-==== Entwicklungsprozess
-
-* Pull-Request-Workflow: `master`-Branch geschützt, mindestens 3 Reviews erforderlich
-* Team-Struktur: FE, BE, CICD, MGMT
-* Code-First für OpenAPI (Generierung aus Code)
-
-==== Dokumentation
-
-* arc42-Template für Architekturdokumentation
-* AsciiDoc-Format
+* arc42 template for architecture documentation (school requirement)
+* AsciiDoc format (school requirement)
 
 ==== Testing
 
-* Automatisierte Tests bei jedem PR
-* Test-Fixtures im Common-Modul für wiederverwendbare Utilities
+* Automated tests on every PR (school requirement)
+* Test fixtures in common module for reusable utilities
