@@ -104,6 +104,12 @@
       >
         Proceed to Checkout
       </button>
+      <app-checkout
+        [isOpen]="isCheckoutOpen$$()"
+        [total]="total()"
+        (closed)="closeCheckout()"
+        (purchased)="onPurchased()"
+      ></app-checkout>
     </footer>
   </aside>
 

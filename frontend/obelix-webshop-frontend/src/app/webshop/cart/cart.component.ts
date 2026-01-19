@@ -7,6 +7,7 @@ import * as fromCartActions from '../../../store/action/cart.action';
 import * as fromCartSelector from '../../../store/selector/cart.selector';
 import { BasketControllerService } from '../../../api';
 import { CartUiService } from './cart-ui.service';
+import {CheckoutComponent} from "../checkout/checkout.component";
 
 export interface CartItem {
   readonly id: string;
@@ -20,7 +21,7 @@ export interface CartItem {
 @Component({
   selector: 'app-cart',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CheckoutComponent],
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss',
 })
@@ -33,6 +34,8 @@ export class CartComponent implements OnInit {
   readonly isOpen$$ = this.cartUi.isOpen$$;
 
   readonly items$$ = signal<CartItem[]>([]);
+
+  readonly isCheckoutOpen$$ = signal(false);
 
   ngOnInit(): void {
     this.store$
@@ -113,5 +116,19 @@ export class CartComponent implements OnInit {
         this.close();
       },
     });
+  }
+
+  openCheckout(): void {
+    console.log('open checkout');
+    if (this.items$$().length === 0) return;
+    this.isCheckoutOpen$$.set(true);
+  }
+
+  closeCheckout(): void {
+    this.isCheckoutOpen$$.set(false);
+  }
+
+  onPurchased(): void {
+    this.close();
   }
 }

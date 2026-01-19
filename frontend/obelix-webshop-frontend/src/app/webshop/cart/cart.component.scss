@@ -3,6 +3,16 @@
   min-height: 100vh;
 }
 
+.checkout-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(1);
+}
+
+.checkout-button:disabled:hover {
+  transform: none;
+}
+
 .cart-open-button {
   position: fixed;
   bottom: 24px;
