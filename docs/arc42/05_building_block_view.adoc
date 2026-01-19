@@ -89,28 +89,20 @@ The system is split into a single-page frontend and multiple backend microservic
 
 === Level 1 – Black Box Descriptions
 
-== Frontend (Angular + Nginx)
+==== Frontend (Angular + Nginx)
 
-=== Purpose / Responsibility
-Customer-facing Web UI. The frontend is a single-page application that uses a generated OpenAPI client to communicate with the backend via the reverse proxy.
+*Purpose / Responsibility*
+Customer UI; uses generated OpenAPI client to call reverse proxy.
 
-=== Interfaces
-*Provided:* Web UI (HTTP)
-*Consumed:* `obelix-webshop` REST API
+*Interfaces*
+Provided: Web UI (HTTP).
+Consumed: obelix-webshop REST API.
 
-=== Quality / Performance Characteristics
-Static content is served via Nginx. All dynamic data is retrieved from backend services.
+(Optional) *Quality / Performance Characteristics*
+Static content served via Nginx; relies on backend for data.
 
-=== Implementation Details
-This documentation provides a focused view on the Customer Web UI located under `frontend/obelix-webshop-frontend`:
-
-* Angular 21 single-page application using standalone components and Signals
-* Client-side state management for the shopping cart combining Signals and NgRx Store
-* Backend communication exclusively through an OpenAPI-generated Angular client
-* Build and runtime handled via Node.js / Angular CLI during development and Nginx in the production Docker image
-
-=== Location
-`frontend/obelix-webshop-frontend`
+(Optional) *Location*
+frontend/obelix-webshop-frontend
 
 ==== obelix-webshop (reverse proxy)
 
