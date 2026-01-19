@@ -19,17 +19,17 @@ related to ordering and managing products.
 |===
 |Communication Partner |Inputs to Obelix |Outputs from Obelix
 
-|<Business Actor 1>
-|<Input data / requests>
-|<Output / responses>
+|Customer
+|Product search requests, shopping cart actions, order submissions
+|Product data, order confirmations, error messages
 
-|<Business Actor 2>
-|<Input data / requests>
-|<Output / responses>
+|Administrator
+|Product management requests (create, update, delete), order management requests
+|Updated product data, order status information
 
-|<Business Actor n>
-|<Input data / requests>
-|<Output / responses>
+|Frontend Application
+|HTTP requests for business operations
+|Business data as HTTP responses (products, orders, users)
 |===
 
 ==== Business Context Diagram
@@ -37,24 +37,25 @@ related to ordering and managing products.
 [plantuml, business-context, svg]
 ----
 @startuml
-actor <Actor 1>
-actor <Actor 2>
-actor <Actor n>
+actor Customer
+actor Administrator
+actor Frontend
 
-rectangle "Obelix Application" {
+rectangle "Obelix Application (Backend)" {
 }
 
-<Actor 1> --> "Obelix Application" : <interaction description>
-<Actor 2> --> "Obelix Application" : <interaction description>
-<Actor n> --> "Obelix Application" : <interaction description>
+Customer --> "Obelix Application (Backend)" : Browse products, place orders
+Administrator --> "Obelix Application (Backend)" : Manage products and orders
+Frontend --> "Obelix Application (Backend)" : Forward user requests
 @enduml
 ----
 
 ==== Explanation
 
-* Describe the system as a **black box** in the business context.
-* Mention any **special rules or assumptions** (e.g., authentication, authorization, access restrictions).
-* Explain any **critical interactions or limitations**.
+* The backend system is treated as a **black box** that encapsulates all business logic.
+* Authentication and authorization are required for administrative operations.
+* Customers can only access public product and order-related functionality.
+* All business interactions are triggered indirectly via the frontend.
 
 === Technical Context
 
@@ -66,17 +67,17 @@ The technical context describes **how communication with the Obelix system is re
 |===
 |Communication Partner |Channel / Protocol |Data Format
 
-|<Technical Partner 1>
-|<Channel / transport mechanism>
-|<Data format>
+|Web Frontend
+|HTTPS / REST API
+|JSON
 
-|<Technical Partner 2>
-|<Channel / transport mechanism>
-|<Data format>
+|Database (PostgreSQL)
+|JDBC
+|Relational data (tables)
 
-|<Technical Partner n>
-|<Channel / transport mechanism>
-|<Data format>
+|Authentication Layer
+|HTTP Authorization Header
+|JWT (JSON Web Token)
 |===
 
 ==== Technical Context Diagram
@@ -84,24 +85,24 @@ The technical context describes **how communication with the Obelix system is re
 [plantuml, technical-context, svg]
 ----
 @startuml
-node "<Technical Partner 1>" {
-  component "<Component 1>"
-  component "<Component 2>"
+node "Web Frontend" {
+  component "Angular"
 }
 
 node "Obelix Backend" {
-  component "<Microservice 1>"
-  component "<Microservice 2>"
-  component "<Microservice 3>"
+  component "REST Controllers"
+  component "Service Layer"
+  component "Persistence Layer"
 }
 
-node "<Technical Partner 2>" {
-  component "<Component 3>"
-  component "<Component 4>"
+node "PostgreSQL Database" {
+  component "Product Table"
+  component "Order Table"
+  component "User Table"
 }
 
-"<Technical Partner 1>" --> "Obelix Backend" : <protocol / format>
-"Obelix Backend" --> "<Technical Partner 2>" : <protocol / format>
+"Web Frontend" --> "Obelix Backend" : HTTPS / JSON
+"Obelix Backend" --> "PostgreSQL Database" : JDBC
 @enduml
 ----
 
@@ -111,21 +112,58 @@ node "<Technical Partner 2>" {
 |===
 |Business Interaction |Technical Channel |Protocol / Format
 
-|<Interaction 1>
-|<Channel / flow>
-|<Protocol / format>
+|View products
+|Frontend → Backend
+|HTTPS / REST / JSON
 
-|<Interaction 2>
-|<Channel / flow>
-|<Protocol / format>
+|Place order
+|Frontend → Backend
+|HTTPS / REST / JSON
 
-|<Interaction n>
-|<Channel / flow>
-|<Protocol / format>
+|Manage products
+|Frontend → Backend
+|HTTPS / REST / JSON
 |===
 
 ==== Notes
 
-* Document **assumptions or constraints** about technical communication (e.g., HTTPS only, REST API, OpenAPI 3.x).  
-* Specify whether **frontend uses generated clients** or other integration patterns.  
-* Mention any **asynchronous communication** or message queues if relevant.  
+* The backend exposes a **RESTful API** secured via HTTPS.
+* Data exchange is done exclusively using **JSON**.
+* The backend follows a layered architecture (controller, service, persistence).
+* No asynchronous messaging or message queues are used.
+
+=== Frontend Context
+
+==== Business Context
+
+[cols="1,2,2",options="header"]
+|===
+|Communication Partner |Inputs to Frontend |Outputs from Frontend
+
+|Customer
+|Browses menhir catalog, adds items to cart, views cart
+|Product display, cart state, order confirmation
+
+|Administrator
+|Creates new menhirs, uploads images, manages catalog
+|Admin dashboard, menhir forms, validation feedback
+|===
+
+==== Technical Context
+
+[cols="1,2,2",options="header"]
+|===
+|Communication Partner |Channel / Protocol |Data Format
+
+|Backend REST API
+|HTTPS REST calls
+|JSON (menhirs, cart items)
+
+|Browser localStorage
+|JavaScript API
+|JSON (cart persistence)
+
+|Browser APIs
+|Native APIs
+|File uploads, navigation
+|===

@@ -1,0 +1,22 @@
+<app-cart class="cart-floating"></app-cart>
+<section class="products-grid">
+  @if (isLoading$$()) {
+    <p class="products-loading">Loading menhirs...</p>
+  } @else if (error$$()) {
+    <p class="products-error">{{ error$$() }}</p>
+  } @else {
+    @for (menhir of menhirs$$(); track menhir.id) {
+      <app-card
+        [id$$]="menhir.id"
+        [title$$]="menhir.title"
+        [description$$]="menhir.description"
+        [weight$$]="menhir.weight"
+        [size$$]="menhir.size"
+        [prize$$]="menhir.price"
+        [menhirType$$]="menhir.menhirType"
+      ></app-card>
+    } @empty {
+      <p class="products-empty">No menhirs available yet.</p>
+    }
+  }
+</section>

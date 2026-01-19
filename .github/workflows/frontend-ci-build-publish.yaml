@@ -1,4 +1,8 @@
 name: Frontend CI - Build & Publish
+permissions:
+  contents: read
+  packages: write
+  checks: write
 
 on:
   push:
@@ -11,7 +15,15 @@ on:
     paths:
       - 'frontend/**'
   workflow_dispatch:
-    inputs: { }
+    inputs:
+      publish:
+        description: 'Publish images to GHCR'
+        type: boolean
+        default: true
+      image_registry:
+        description: 'Override IMAGE_REGISTRY (e.g. ghcr.io/owner/repo)'
+        type: string
+        required: false
 
 jobs:
   test:
@@ -36,19 +48,75 @@ jobs:
         run: npm test -- --watch=false --browsers=ChromeHeadless
         working-directory: ./frontend/obelix-webshop-frontend
 
-      - name: Log in to GitHub Container Registry
+  build-and-push:
+    if: github.event_name == 'pull_request' || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    needs: test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./frontend/obelix-webshop-frontend
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./frontend/obelix-webshop-frontend
+
+      - name: Set image registry
+        shell: bash
+        env:
+          IMAGE_REGISTRY_INPUT: ${{ inputs.image_registry }}
+        run: |
+          set -euo pipefail
+
+          raw_ref="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          branch_tag="$(printf '%s' "$raw_ref" \
+            | tr '[:upper:]' '[:lower:]' \
+            | sed -E 's/[^a-z0-9]+/-/g; s/^-+//; s/-+$//')"
+          sha_short="$(printf '%s' "${GITHUB_SHA}" | cut -c1-12)"
+          ts_utc="$(date -u +%Y%m%d%H%M%S)"
+
+          if [[ -z "$branch_tag" ]]; then
+            branch_tag="unknown-${sha_short}"
+          fi
+
+          image_tag_version="${branch_tag}_${sha_short}_${ts_utc}"
+          image_tag_alias=""
+          if [[ "${GITHUB_REF_NAME}" == "master" ]]; then
+            image_tag_alias="latest"
+          fi
+
+          {
+            echo "IMAGE_REGISTRY=${IMAGE_REGISTRY_INPUT:-ghcr.io/juschwy/m321-obelix-webshop-mvk}"
+            echo "IMAGE_TAG_VERSION=${image_tag_version}"
+            echo "IMAGE_TAG_ALIAS=${image_tag_alias}"
+          } >> "$GITHUB_ENV"
+
+      - name: Docker login to GHCR
+        if: github.event_name != 'pull_request' && github.ref_name == 'master' && (github.event_name == 'push' || inputs.publish == true)
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set IMAGE variable
-        run: echo "IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}/frontend:latest" >> $GITHUB_ENV
+      - name: Build Docker image (no publish)
+        if: github.event_name == 'pull_request' || github.ref_name != 'master' || (github.event_name == 'workflow_dispatch' && inputs.publish != true)
+        run: docker build -t "${{ env.IMAGE_REGISTRY }}/frontend:${{ env.IMAGE_TAG_VERSION }}" ./frontend/obelix-webshop-frontend
 
-      - name: Build Docker image
-        run: docker build -t "$IMAGE" ./frontend/obelix-webshop-frontend
-
-      - name: Push Docker image
-        if: steps.tests.outcome == 'success'
-        run: docker push "$IMAGE"
+      - name: Build and push Docker image (publish)
+        if: github.ref_name == 'master' && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.publish == true))
+        run: |
+          docker build -t "${{ env.IMAGE_REGISTRY }}/frontend:${{ env.IMAGE_TAG_VERSION }}" \
+                       -t "${{ env.IMAGE_REGISTRY }}/frontend:${{ env.IMAGE_TAG_ALIAS }}" \
+                       ./frontend/obelix-webshop-frontend
+          docker push "${{ env.IMAGE_REGISTRY }}/frontend:${{ env.IMAGE_TAG_VERSION }}"
+          docker push "${{ env.IMAGE_REGISTRY }}/frontend:${{ env.IMAGE_TAG_ALIAS }}"

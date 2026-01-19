@@ -3,77 +3,36 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-quality-scenarios]]
 == Quality Requirements
 
-This chapter captures all **relevant quality requirements** and associated scenarios.
-It focuses on **measurable and architecturally relevant** qualities.
+This chapter captures **relevant quality requirements** and associated scenarios.
 
----
+'''
 
 === Quality Requirements Overview
-
-Use this section to provide a **summary of the most important quality requirements**.
-Reference high-priority quality goals from section 1.2 if needed.
 
 [cols="1,2",options="header"]
 |===
 |Category / Topic |Short Description
 
-|<Quality Category 1>
-|<Brief description, measurable if possible>
+|Simplicity of Deployment
+|Single VM with Docker Compose; setup within <30 minutes on a fresh VM via cloud-init.
 
-|<Quality Category 2>
-|<Brief description, measurable if possible>
+|Observability
+|Prometheus scrapes all backend services; Zipkin collects traces; Grafana dashboards load in <5s.
 
-|<Quality Category n>
-|<Brief description, measurable if possible>
+|Documentation Quality
+|arc42 chapters filled; OpenAPI has descriptions+examples for all properties; diagrams embedded.
+
+|CI Reliability
+|PR builds succeed deterministically; main deployments complete in <10 minutes.
+
+|Performance (Dev/Test)
+|API endpoints respond in <500ms under light load (<20 RPS) on the single VM.
+
+|Security (Dev/Test)
+|No auth per assignment; VM has only required ports open; secrets handled in CI securely.
 |===
 
-NOTE: You may optionally use a mindmap or a quality attribute tree.
-
----
-
-=== Quality Scenario <Scenario 1 – Short Name>
-
-==== Scenario ID
-
-TODO: Assign a **unique ID**.
-
-==== Context / Background
-
-TODO: Describe the **system, component, or environment** relevant to this scenario.
-
-==== Source / Stimulus
-
-TODO: Describe **who or what triggers** this scenario.
-
-==== Environment
-
-TODO: Describe **conditions under which the stimulus occurs**.
-
-==== Artifact / Building Blocks Involved
-
-TODO: List **affected building blocks**.
-
-==== Response
-
-TODO: Describe **expected system behavior**.
-
-#### Metric / Acceptance Criteria
-
-TODO: Specify **measurable criteria** to judge success.
-
----
-
-=== Quality Scenario <Scenario 2 – Short Name>
-
-(copy the template above)
-
----
-
-=== Quality Scenario <Scenario n – Short Name>
-
-(copy the template above)
-
----
+'''
 
 === Notes / Optional
 

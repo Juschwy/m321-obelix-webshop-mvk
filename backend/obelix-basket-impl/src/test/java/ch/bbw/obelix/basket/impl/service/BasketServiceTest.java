@@ -145,7 +145,7 @@ class BasketServiceTest {
     @Test
     void testIsGoodOffer_withOtherItem_shouldUseDefaultValue() {
         // Given
-        basketService.offer(new BasketItem("fish", 5));
+        basketService.offer(new BasketItem("esel", 1));
         DecorativenessDto decorativeness = DecorativenessDto.SIMPLE;
 
         // When

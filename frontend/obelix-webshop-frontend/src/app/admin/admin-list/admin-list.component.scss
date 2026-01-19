@@ -1,0 +1,109 @@
+.admin-list-container {
+  min-height: calc(100vh - 65px);
+  padding: 2rem 1.5rem;
+  background-color: #f8f9fa;
+}
+
+.admin-list-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0 0.5rem;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.btn-create {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.875rem 1.5rem;
+  background-color: var(--color-accent);
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-base);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(223, 148, 68, 0.3);
+
+  &:hover {
+    background-color: #c8843a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(223, 148, 68, 0.4);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+
+  .plus-icon {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    stroke-width: 2.5;
+  }
+}
+
+// Messages
+.message {
+  padding: 1rem;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+
+  p {
+    margin: 0;
+  }
+}
+
+.message-error {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+
+  p {
+    color: #721c24;
+  }
+}
+
+.loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--color-text);
+}
+
+.empty-state {
+  padding: 3rem 2rem;
+  text-align: center;
+  color: var(--color-text);
+
+  p {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+}
+
+.menhirs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 1.5rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+}
+

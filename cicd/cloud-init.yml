@@ -46,7 +46,7 @@ write_files:
           ports:
             - "9411:9411"
         obelix-quarry:
-          image: ghcr.io/juschwy/m321-obelix-webshop-mvk/obelix-quarry:latest
+          image: ghcr.io/juschwy/m321-obelix-webshop-mvk/obelix-quarry:${OBELIX_BE_VERSION:-latest}
           ports:
             - "8081:8081"
           environment:
@@ -54,7 +54,7 @@ write_files:
           depends_on:
             - zipkin
         obelix-basket:
-          image: ghcr.io/juschwy/m321-obelix-webshop-mvk/obelix-basket:latest
+          image: ghcr.io/juschwy/m321-obelix-webshop-mvk/obelix-basket:${OBELIX_BE_VERSION:-latest}
           ports:
             - "8082:8082"
           environment:
@@ -62,8 +62,9 @@ write_files:
             MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
           depends_on:
             - zipkin
+            - obelix-quarry
         obelix-webshop:
-          image: ghcr.io/juschwy/m321-obelix-webshop-mvk/obelix-webshop:latest
+          image: ghcr.io/juschwy/m321-obelix-webshop-mvk/obelix-webshop:${OBELIX_BE_VERSION:-latest}
           ports:
             - "8080:8080"
           environment:
@@ -72,6 +73,14 @@ write_files:
             MANAGEMENT_ZIPKIN_TRACING_ENDPOINT: http://zipkin:9411/api/v2/spans
           depends_on:
             - zipkin
+            - obelix-quarry
+            - obelix-basket
+        obelix-frontend:
+          image: ghcr.io/juschwy/m321-obelix-webshop-mvk/frontend:${OBELIX_FE_VERSION:-latest}
+          ports:
+            - "80:80"
+          depends_on:
+            - obelix-webshop
         prometheus:
           image: prom/prometheus:v3.7.3
           ports:

@@ -1,0 +1,77 @@
+name: Deploy to Obelix
+
+on:
+  workflow_dispatch:
+    inputs:
+      backend_version:
+        description: 'Backend Version'
+        required: true
+        default: latest
+        type: string
+      frontend_version:
+        description: 'Frontend Version'
+        required: true
+        default: latest
+        type: string
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Prepare VM
+        id: prepare_vm
+        uses: ./.github/actions/provisionVm
+        with:
+          maas_user: ${{ secrets.MAAS_USER }}
+          maas_password: ${{ secrets.MAAS_PASSWORD }}
+          dns_user: ${{ secrets.DNS_USER }}
+          dns_password: ${{ secrets.DNS_PASSWORD }}
+
+      - name: Output VM Details
+        run: |
+          echo "VM IP Address: ${{ steps.prepare_vm.outputs.vm_ip }}"
+          echo "VM ID: ${{ steps.prepare_vm.outputs.vm_id }}"
+
+      - name: Setup WireGuard
+        uses: niklaskeerl/easy-wireguard-action@v2
+        with:
+          WG_CONFIG_FILE: ${{ secrets.MAAS_WIREGUARD_CONF }}
+
+      - name: Wait 15 seconds
+        run: sleep 15
+        shell: bash
+
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v1.2.0
+        env:
+          OBELIX_BE_VERSION: ${{ github.event.inputs.backend_version }}
+          OBELIX_FE_VERSION: ${{ github.event.inputs.frontend_version }}
+        with:
+          host: obelix.liuuner.ch
+          username: obelix
+          key: ${{ secrets.ID_ED25519 }}
+          envs: OBELIX_BE_VERSION,OBELIX_FE_VERSION
+          script: |
+            cd /home/obelix
+            
+            docker compose pull
+            docker compose up -d
+
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📦 Deployed Versions" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Version |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|---------|" >> $GITHUB_STEP_SUMMARY
+          echo "| 🖥️ Backend | \`${{ github.event.inputs.backend_version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| 🎨 Frontend | \`${{ github.event.inputs.frontend_version }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "✅ **Deployment completed successfully!**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Deployed by @${{ github.actor }} on $(date +'%Y-%m-%d %H:%M:%S UTC')_" >> $GITHUB_STEP_SUMMARY
+
