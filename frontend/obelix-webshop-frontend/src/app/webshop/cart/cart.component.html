@@ -99,8 +99,8 @@
       <button
         type="button"
         class="checkout-button"
-        (click)="openCheckout()"
-        [disabled]="items$$().length === 0"
+        [disabled]="!items$$().length"
+        (click)="checkout()"
       >
         Proceed to Checkout
       </button>

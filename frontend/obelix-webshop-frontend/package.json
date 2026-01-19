@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --proxy-config proxy.conf.json",
     "build": "ng build --configuration production",
     "build-services": "ng-openapi -c openapi.config.ts && ng build --configuration production",
     "watch": "ng build --watch --configuration development",
@@ -33,8 +33,8 @@
     "**/*": "prettier --write --ignore-unknown"
   },
   "devDependencies": {
-    "@angular/build": "^21.0.2",
-    "@angular/cli": "^21.0.4",
+    "@angular/build": "21.0.3",
+    "@angular/cli": "21.0.3",
     "@angular/compiler-cli": "21.0.5",
     "@types/jasmine": "~5.1.0",
     "husky": "^9.1.7",

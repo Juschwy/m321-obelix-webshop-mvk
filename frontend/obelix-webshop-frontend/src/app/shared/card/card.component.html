@@ -1,12 +1,23 @@
 <article class="product-card">
   <div class="media">
-    <img class="media__img" src="assets/menhir.jpg" alt="Classic Standing Menhir" loading="lazy" />
+    <img
+      class="media__img"
+      [src]="'assets/images/Menhir_' + menhirType$$() + '.png'"
+      [alt]="'Menhir ' + menhirType$$()"
+      loading="lazy"
+    />
   </div>
 
   <div class="content">
     <h3 class="title">{{ title$$() }}</h3>
-
-    <p class="desc">{{ description$$() }}</p>
+    <p class="desc" [class.desc--truncated]="isDescriptionTruncated$$()">
+      <span class="desc__text" #descText>{{ description$$() }}</span>
+      @if (isDescriptionTruncated$$()) {
+        <span class="desc__tooltip" aria-hidden="true">
+          {{ description$$() }}
+        </span>
+      }
+    </p>
 
     <div class="meta">
       <div class="meta__item">
