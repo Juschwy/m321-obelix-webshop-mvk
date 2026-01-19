@@ -1,0 +1,49 @@
+@if (isOpen()) {
+  <div class="checkout-wrapper" [class.checkout-wrapper--open]="isOpen()">
+    <div class="checkout-backdrop" (click)="close()" aria-hidden="true"></div>
+
+    <section
+      class="checkout-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="checkout-title"
+    >
+      <header class="checkout-header">
+        <h2 id="checkout-title">Checkout</h2>
+        <button
+          type="button"
+          class="checkout-close"
+          aria-label="Close checkout"
+          (click)="close()"
+        >
+          ×
+        </button>
+      </header>
+
+      <div class="checkout-content">
+        @if (!isSuccess$$()) {
+          <p class="checkout-text">Ready to buy?</p>
+
+          <div class="checkout-total">
+            <span>Total:</span>
+            <strong>{{ total() }}</strong>
+          </div>
+
+          <button
+            type="button"
+            class="buy-button"
+            (click)="buy()"
+            [disabled]="isBuying$$()"
+          >
+            Buy
+          </button>
+        } @else {
+          <div class="checkout-success">
+            <h3>Success 🎉</h3>
+            <p>Purchase completed. Redirecting in 5 seconds…</p>
+          </div>
+        }
+      </div>
+    </section>
+  </div>
+}
