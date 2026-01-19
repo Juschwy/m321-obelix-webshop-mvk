@@ -3,85 +3,98 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-architecture-constraints]]
 == Architecture Constraints
 
-This chapter lists **all constraints** that affect the architecture or development process.
-Constraints may be technical, organizational, or conventional (e.g., naming, versioning, or documentation rules).
+This chapter lists **external constraints** imposed on the project from outside the team.
+These are non-negotiable limitations we must work within.
 
 ---
 
-=== Technical Constraints
+=== Infrastructure Constraints (BBW-Maas)
 
 [cols="1,2",options="header"]
 |===
-|Constraint |Description / Rationale
+|Constraint |Description / Impact
 
-|Single VM on BBW-Maas (Ubuntu 24.04)
-|All services must run on one VM in the BBW MAAS cluster. Environment is ephemeral; prioritize simplicity over HA.
+|BBW-Maas platform only
+|We are required to use BBW-Maas for hosting. No alternative cloud providers or on-premise options allowed.
 
-|Docker Compose orchestration
-|Deployment must use Docker Compose (not Kubernetes), per assignment; minimizes operational overhead.
+|Ephemeral VMs (auto-deletion)
+|VMs are automatically deleted after a set period. No persistent infrastructure; deployments must be repeatable and automated.
 
-|Observability stack: Zipkin, Prometheus, Grafana
-|Tracing and metrics are mandatory; services must expose metrics and send traces to Zipkin.
+|Single VM allocation
+|Only one VM is provided per project. No horizontal scaling or multi-node setups possible.
 
-|OpenAPI 3.x (code-first) per microservice
-|APIs must have generated OAS definitions (e.g., springdoc). Properties require descriptions and examples.
+|No control over VM resources
+|VM sizing (CPU, RAM, disk) is fixed by MAAS administration. We cannot request larger instances.
 
-|Frontend uses generated OpenAPI client
-|Angular FE must consume backend via generated client from OAS.
+|Ubuntu 24.04 only
+|Operating system is predetermined; no choice of OS or version.
 
-|No authentication/session
-|Admin UI is CRUD without auth/sessions for simplicity in test/dev.
-
-|Ports and protocols
-|Services listen on fixed ports: frontend 80, webshop 8080, quarry 8081, basket 8082, prometheus 9090, grafana 3000, zipkin 9411.
-
-|Public domain mapping (obelix.liuuner.ch)
-|GitHub workflow registers the VM under obelix.liuuner.ch; services are exposed via specific ports on this domain.
+|No guaranteed uptime
+|Infrastructure is for educational purposes; outages and resets are expected.
 |===
 
 ---
 
-=== Organizational / Political Constraints
+=== Time & Resource Constraints
 
 [cols="1,2",options="header"]
 |===
-|Constraint |Description / Rationale
+|Constraint |Description / Impact
 
-|Protected GitHub main branch
-|All changes via PR; main is protected with mandatory reviews (three). Enforces quality and collaboration.
+|Limited project timeline
+|Strict deadline imposed by module schedule. No time for extensive exploration or rework.
 
-|CI/CD via GitHub Actions
-|Automated build/test on PRs; deployment of main to BBW-Maas VM.
+|Small team size (~17 people)
+|Limited workforce distributed across all tasks (frontend, backend, docs, DevOps). Parallel work is essential.
 
-|Team size and roles
-|Approx. 17 contributors; responsibilities via OWNERS/CODEOWNERS; parallel work requires microservice separation.
+|Limited working hours
+|Team members are students with other commitments; availability is constrained.
 |===
 
 ---
 
-=== Conventions
+=== Technical Requirements (Given/Predefined)
 
 [cols="1,2",options="header"]
 |===
-|Constraint / Convention |Description / Rationale
+|Constraint |Description / Impact
 
-|AsciiDoc + PlantUML for docs (arc42 template)
-|Documentation must use AsciiDoc with embedded PlantUML diagrams; arc42 chapters required.
+|Backend services predefined
+|Backend architecture and service structure (webshop, quarry, basket) are given. We implement within this structure, not redesign it.
 
-|Container images in GHCR
-|Build/publish Docker images to GitHub Container Registry; versions managed via CI/CD.
+|OpenAPI interface mandatory
+|Frontend-backend communication must use OpenAPI specification. Frontend generates client from OAS definitions.
 
-|WireGuard + SSH for deployment steps
-|CI/CD connects to VM via WireGuard and SSH to update versions and run docker compose.
+|GitHub repository (user-level)
+|We only have access to a user-owned GitHub repository, not an organization. Limits some GitHub features.
 
-|Naming and modules
-|Microservices: obelix-webshop, obelix-basket, obelix-quarry; frontend: obelix-frontend.
+|Docker Compose for orchestration
+|Deployment method is prescribed; Kubernetes or other orchestrators are not permitted.
+
+|Observability stack prescribed
+|Must use Zipkin (tracing), Prometheus (metrics), and Grafana (dashboards). No alternative tools allowed.
+
 |===
 
 ---
 
-=== Notes / Additional Constraints (Optional)
+=== Organizational Constraints
 
-* Environment is test/dev; availability is a single point of failure and acceptable.
-* Resource sizing is controlled by MAAS; project team cannot change VM size.
-* Public endpoints: http://obelix.liuuner.ch:{80,8080,8081,8082,9090,3000,9411}.
+[cols="1,2",options="header"]
+|===
+|Constraint |Description / Impact
+
+|Protected main branch
+|All changes require pull requests with mandatory reviews. Direct commits to main are blocked.
+
+|Documentation format prescribed
+|Must use AsciiDoc with arc42 template structure. No Markdown or other formats for architecture docs.
+|===
+
+---
+
+=== Summary of External Limitations
+
+* **We cannot change**: hosting platform, VM resources, backend structure, API specification format, tooling choices
+* **We must accept**: ephemeral infrastructure, limited time, small team, predefined architecture
+* **We control**: implementation details within given constraints, code quality, documentation content
