@@ -1,0 +1,55 @@
+<div class="admin-list-container">
+  <div class="admin-list-content">
+    <div class="admin-header">
+      <h1>Admin - Menhir Management</h1>
+      <button (click)="openCreateModal()" class="btn-create">
+        <svg class="plus-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Create Menhir
+      </button>
+    </div>
+    
+    <!-- Error Message -->
+    @if (errorMessage$$()) {
+      <div class="message message-error">
+        <p>{{ errorMessage$$() }}</p>
+      </div>
+    }
+
+    <!-- Loading State -->
+    @if (isLoading$$()) {
+      <div class="loading">
+        <p>Loading menhirs...</p>
+      </div>
+    }
+
+    <!-- Menhir List -->
+    @if (!isLoading$$() && !errorMessage$$()) {
+      <div class="admin-list">
+        @if (menhirs$$().length === 0) {
+          <div class="empty-state">
+            <p>No menhirs found. Create your first menhir!</p>
+          </div>
+        }
+        
+        @if (menhirs$$().length > 0) {
+          <div class="menhirs-grid">
+            @for (menhir of menhirs$$(); track menhir.id) {
+              <app-menhir-card [menhir]="menhir"></app-menhir-card>
+            }
+          </div>
+        }
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Create Modal -->
+@if (showCreateModal$$()) {
+  <app-create-menhir-modal
+    (close)="closeCreateModal()"
+    (created)="onMenhirCreated($event)"
+  ></app-create-menhir-modal>
+}
+
