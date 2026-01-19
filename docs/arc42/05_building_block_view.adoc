@@ -91,14 +91,14 @@ The system is split into a single-page frontend and multiple backend microservic
 
 ==== Frontend (Angular + Nginx)
 
-*Purpose / Responsibility*  
+*Purpose / Responsibility*
 Customer UI; uses generated OpenAPI client to call reverse proxy.
 
-*Interfaces*  
+*Interfaces*
 Provided: Web UI (HTTP).
 Consumed: obelix-webshop REST API.
 
-(Optional) *Quality / Performance Characteristics*  
+(Optional) *Quality / Performance Characteristics*
 Static content served via Nginx; relies on backend for data.
 
 (Optional) *Location*
@@ -130,7 +130,7 @@ Provided: REST API; /actuator/prometheus.
 Consumed: Zipkin ingestion API.
 Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
-(Optional) *Location*  
+(Optional) *Location*
 backend/obelix-quarry-impl
 
 ==== obelix-basket
