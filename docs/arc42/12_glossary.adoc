@@ -10,14 +10,29 @@ It ensures all stakeholders have a **shared understanding** and avoids ambiguity
 |===
 |Term |Definition
 
-|Hinkelstein
-|Product sold in the webshop; domain object managed by the quarry service.
+|AdminService
+|Service that handles menhir CRUD operations with mock backend using localStorage.
 
-|Obelix Webshop
-|The overall application consisting of frontend and backend microservices.
+|BBW (Berufsbildungsschule Winterthur)
+|The school operating the MAAS environment used for this project; provides the infrastructure context.
 
-|MAAS (Metal as a Service)
-|Infrastructure used to provision VMs; BBW-Maas is the school-managed instance.
+|CartService
+|Service that manages shopping cart state using BehaviorSubject and persists to localStorage.
+
+|ChfCurrencyPipe
+|Custom Angular pipe that formats numbers as Swiss Franc currency (CHF).
+
+|CI/CD
+|Automated processes for building, testing, and deploying the application via GitHub Actions.
+
+|Code-first API
+|Approach where API documentation is generated from source code annotations.
+
+|Computed Signal
+|Derived signal that automatically updates when its dependencies change. Created with computed().
+
+|Control Flow Syntax
+|Angular 17+ template syntax using @if, @for, @empty instead of structural directives.
 
 |Docker Compose
 |Container orchestration used to run all services on the VM.
@@ -25,66 +40,47 @@ It ensures all stakeholders have a **shared understanding** and avoids ambiguity
 |GHCR (GitHub Container Registry)
 |Registry where Docker images are published.
 
-|Zipkin
-|Distributed tracing system that collects spans from backend services.
-
-|Prometheus
-|Metrics collection system that scrapes /actuator/prometheus endpoints.
-
 |Grafana
 |Visualization tool for Prometheus metrics.
 
-|OpenAPI (OAS 3.x)
-|API specification describing REST endpoints; generated code-first per microservice.
-
-|Code-first API
-|Approach where API documentation is generated from source code annotations.
-
-|Reverse Proxy (Gateway)
-|obelix-webshop component that routes/aggregates frontend requests to domain services.
-
-|WireGuard
-|VPN used to securely connect CI/CD to the VM for deployment.
-
-|Actuator (/prometheus)
-|Spring Boot endpoint exposing metrics for Prometheus.
-
-|CI/CD
-|Automated processes for building, testing, and deploying the application via GitHub Actions.
-
-|BBW (Berufsbildungsschule Winterthur)
-|The school operating the MAAS environment used for this project; provides the infrastructure context.
-
-|Signal
-|Reactive state primitive in Angular. Created with signal(), accessed by calling the signal as a function.
-
-|Computed Signal
-|Derived signal that automatically updates when its dependencies change. Created with computed().
-
-|Standalone Component
-|Angular component that declares its own dependencies without requiring an NgModule.
-
-|Control Flow Syntax
-|Angular 17+ template syntax using @if, @for, @empty instead of structural directives.
-
-|MenhirCardComponent
-|Component that displays a single menhir with image, specifications and price.
-
-|CartService
-|Service that manages shopping cart state using BehaviorSubject and persists to localStorage.
-
-|AdminService
-|Service that handles menhir CRUD operations with mock backend using localStorage.
-
-|ChfCurrencyPipe
-|Custom Angular pipe that formats numbers as Swiss Franc currency (CHF).
-
-|toSignal()
-|Function that converts an RxJS Observable to an Angular Signal.
+|Hinkelstein
+|Product sold in the webshop; domain object managed by the quarry service.
 
 |input()
 |Function to create a signal-based component input, replacing @Input decorator.
 
+|MAAS (Metal as a Service)
+|Infrastructure used to provision VMs; BBW-Maas is the school-managed instance.
+
+|MenhirCardComponent
+|Component that displays a single menhir with image, specifications and price.
+
+|Obelix Webshop
+|The overall application consisting of frontend and backend microservices.
+
+|OpenAPI (OAS 3.x)
+|API specification describing REST endpoints; generated code-first per microservice.
+
+|Prometheus
+|Metrics collection system that scrapes /actuator/prometheus endpoints.
+
+|Reverse Proxy (Gateway)
+|obelix-webshop component that routes/aggregates frontend requests to domain services.
+
+|Signal
+|Reactive state primitive in Angular. Created with signal(), accessed by calling the signal as a function.
+
+|Standalone Component
+|Angular component that declares its own dependencies without requiring an NgModule.
+
+|toSignal()
+|Function that converts an RxJS Observable to an Angular Signal.
+
+|WireGuard
+|VPN used to securely connect CI/CD to the VM for deployment.
+
+|Zipkin
+|Distributed tracing system that collects spans from backend services.
 |===
 
 == Notes / Optional Columns
