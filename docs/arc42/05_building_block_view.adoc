@@ -89,6 +89,24 @@ The system is split into a single-page frontend and multiple backend microservic
 
 === Level 1 – Black Box Descriptions
 
+==== Building Block View
+[plantuml, puml, svg]
+----
+@startuml
+title Level 1:
+
+actor User
+component obelix_webshop_frontend
+component obelix_webshop_backend
+interface obelix_backend_api
+
+User --> obelix_webshop_frontend
+obelix_webshop_backend -- obelix_backend_api
+obelix_webshop_frontend ..> obelix_backend_api : requires
+
+@enduml
+----
+
 ==== Frontend (Angular + Nginx)
 
 *Purpose / Responsibility*  
@@ -204,7 +222,47 @@ Level 2 describes the **internal structure** of selected Level-1 building blocks
 ==== White Box obelix-webshop (reverse proxy)
 
 ==== Overview Diagram
+.Building Block View
+[plantuml, puml]
+----
+@startuml
+title Level 2:
 
+interface obelix_backend_api
+
+component obelix_webshop_frontend
+component obelix_webshop_backend {
+component obelix_basket_api
+component obelix_basket_impl
+component obelix_common
+component obelix_quarry_api
+component obelix_quarry_impl
+component obelix_webshop
+
+
+interface configs
+interface quarry_api
+interface basket_api
+
+obelix_common -- configs
+
+obelix_quarry_api ..> configs : requires
+obelix_basket_api ..> configs :requires
+
+obelix_quarry_api -- quarry_api
+obelix_quarry_impl ..> quarry_api : requires
+
+obelix_basket_api -- basket_api
+obelix_basket_impl ..> basket_api : requires
+
+obelix_webshop ..> quarry_api : requires
+obelix_webshop ..> basket_api : requires
+}
+
+obelix_webshop_backend -- obelix_backend_api
+obelix_webshop_frontend ..> obelix_backend_api : requires
+@enduml
+----
 [plantuml, webshop-whitebox, svg]
 ----
 @startuml
