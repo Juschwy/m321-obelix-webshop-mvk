@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { first } from 'rxjs/operators';
 import { AdminService } from '../../services/admin.service';
-import { DecorativenessDto, MenhirDto } from '../../models/menhir.dto';
+import { DecorativenessDto } from '../../models/menhir.dto';
 
 @Component({
   selector: 'app-create-menhir-modal',
@@ -14,7 +14,7 @@ import { DecorativenessDto, MenhirDto } from '../../models/menhir.dto';
 })
 export class CreateMenhirModalComponent {
   @Output() close = new EventEmitter<void>();
-  @Output() created = new EventEmitter<MenhirDto>();
+  @Output() created = new EventEmitter<void>();
 
   private readonly fb = inject(FormBuilder);
   private readonly adminService = inject(AdminService);
@@ -80,12 +80,12 @@ export class CreateMenhirModalComponent {
       description: formValue.description || '',
       imageUrl: imageUrl
     }).pipe(first()).subscribe({
-      next: (menhir: MenhirDto) => {
+      next: () => {
         this.isSubmitting$$.set(false);
         this.menhirForm.reset();
         this.selectedImage$$.set(null);
         this.imagePreview$$.set(null);
-        this.created.emit(menhir);
+        this.created.emit();
         this.closeModal();
       },
       error: (error) => {
@@ -140,4 +140,3 @@ export class CreateMenhirModalComponent {
     return !!(control && control.invalid && control.touched);
   }
 }
-

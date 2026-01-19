@@ -51,15 +51,7 @@ describe('AdminCreateComponent', () => {
   });
 
   it('should call adminService.createMenhir on submit', () => {
-    const mockMenhir = {
-      id: 'test-id',
-      weight: 2.5,
-      stoneType: 'Granite',
-      decorativeness: DecorativenessDto.PLAIN,
-      description: 'Test menhir'
-    };
-
-    adminService.createMenhir.and.returnValue(of(mockMenhir));
+    adminService.createMenhir.and.returnValue(of(void 0));
 
     component.menhirForm.patchValue({
       weight: 2.5,
@@ -71,7 +63,6 @@ describe('AdminCreateComponent', () => {
     component.onSubmit();
 
     expect(adminService.createMenhir).toHaveBeenCalled();
-    expect(component.createdMenhir$$()).toEqual(mockMenhir);
     expect(component.successMessage$$()).toBe('Menhir successfully created!');
   });
 
@@ -92,5 +83,4 @@ describe('AdminCreateComponent', () => {
     expect(component.isSubmitting$$()).toBeFalsy();
   });
 });
-
 

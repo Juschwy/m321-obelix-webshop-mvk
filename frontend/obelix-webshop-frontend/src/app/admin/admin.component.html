@@ -9,20 +9,6 @@
     @if (successMessage$$()) {
       <div class="message message-success">
         <p>{{ successMessage$$() }}</p>
-        @if (createdMenhir$$()) {
-          <div class="created-menhir-info">
-            <h3>Created Menhir Details:</h3>
-            <ul>
-              <li><strong>ID:</strong> {{ createdMenhir$$()!.id }}</li>
-              <li><strong>Weight:</strong> {{ createdMenhir$$()!.weight }} tons</li>
-              <li><strong>Stone Type:</strong> {{ createdMenhir$$()!.stoneType }}</li>
-              <li><strong>Decorativeness:</strong> {{ createdMenhir$$()!.decorativeness }}</li>
-              @if (createdMenhir$$()!.description) {
-                <li><strong>Description:</strong> {{ createdMenhir$$()!.description }}</li>
-              }
-            </ul>
-          </div>
-        }
       </div>
     }
 
@@ -130,4 +116,3 @@
     </form>
   </div>
 </div>
-

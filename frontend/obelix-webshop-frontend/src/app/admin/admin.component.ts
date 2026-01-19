@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { RouterModule, Router } from '@angular/router';
 import { first } from 'rxjs/operators';
 import { AdminService } from '../services/admin.service';
-import { DecorativenessDto, MenhirDto } from '../models/menhir.dto';
+import { DecorativenessDto } from '../models/menhir.dto';
 
 @Component({
   selector: 'app-admin-create',
@@ -23,7 +23,6 @@ export class AdminCreateComponent {
   protected readonly isSubmitting$$ = signal<boolean>(false);
   protected readonly successMessage$$ = signal<string | null>(null);
   protected readonly errorMessage$$ = signal<string | null>(null);
-  protected readonly createdMenhir$$ = signal<MenhirDto | null>(null);
 
   constructor() {
     this.menhirForm = this.fb.group({
@@ -43,7 +42,6 @@ export class AdminCreateComponent {
     this.isSubmitting$$.set(true);
     this.errorMessage$$.set(null);
     this.successMessage$$.set(null);
-    this.createdMenhir$$.set(null);
 
     const formValue = this.menhirForm.value;
 
@@ -53,10 +51,9 @@ export class AdminCreateComponent {
       decorativeness: formValue.decorativeness,
       description: formValue.description || ''
     }).pipe(first()).subscribe({
-      next: (menhir: MenhirDto) => {
+      next: () => {
         this.isSubmitting$$.set(false);
         this.successMessage$$.set('Menhir successfully created!');
-        this.createdMenhir$$.set(menhir);
         this.menhirForm.reset();
         // Navigate back to admin list after 2 seconds
         setTimeout(() => {
@@ -110,4 +107,3 @@ export class AdminCreateComponent {
     return !!(control && control.invalid && control.touched);
   }
 }
-
