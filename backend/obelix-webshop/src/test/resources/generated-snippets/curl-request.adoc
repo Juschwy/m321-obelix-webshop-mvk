@@ -1,0 +1,109 @@
+[[curl-request]]
+== Curl request
+
+=== Public API (client -> webshop/api-gateway)
+
+==== GET /api
+
+----
+$ curl 'http://localhost:8080/api'
+----
+
+==== GET /api/menhirs
+
+----
+$ curl -H 'Accept: application/json' \
+    'http://localhost:8080/api/menhirs'
+----
+
+==== GET /api/menhirs/{menhirId}
+
+----
+$ curl -H 'Accept: application/json' \
+    'http://localhost:8080/api/menhirs/3fa85f64-5717-4562-b3fc-2c963f66afa6'
+----
+
+==== PUT /api/basket/offer
+
+----
+$ curl -X PUT 'http://localhost:8080/api/basket/offer' \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -d '{"name":"boar","count":2}'
+----
+
+==== PUT /api/basket/offerMultible
+
+----
+$ curl -X PUT 'http://localhost:8080/api/basket/offerMultible' \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -d '[{"name":"boar","count":2},{"name":"fish","count":1}]'
+----
+
+==== DELETE /api/basket
+
+----
+$ curl -X DELETE 'http://localhost:8080/api/basket'
+----
+
+==== POST /api/basket/buy/{menhirId}
+
+----
+$ curl -X POST 'http://localhost:8080/api/basket/buy/3fa85f64-5717-4562-b3fc-2c963f66afa6'
+----
+
+==== POST /api/basket/buyMultible
+
+----
+$ curl -X POST 'http://localhost:8080/api/basket/buyMultible' \
+    -H 'Content-Type: application/json' \
+    -d '["3fa85f64-5717-4562-b3fc-2c963f66afa6","22222222-2222-2222-2222-222222222222"]'
+----
+
+=== Service APIs (webshop/api-gateway -> microservices)
+
+==== Quarry service: GET /api/quarry/
+
+----
+$ curl -H 'Accept: application/json' \
+    'http://quarry-service:8080/api/quarry/'
+----
+
+==== Quarry service: GET /api/quarry/{menhirId}
+
+----
+$ curl -H 'Accept: application/json' \
+    'http://quarry-service:8080/api/quarry/3fa85f64-5717-4562-b3fc-2c963f66afa6'
+----
+
+==== Quarry service: POST /api/quarry/
+
+----
+$ curl -X POST 'http://quarry-service:8080/api/quarry/' \
+    -H 'Content-Type: application/json' \
+    -d '{"id":"33333333-3333-3333-3333-333333333333","weight":4.2,"stoneType":"Granite","decorativeness":"PLAIN","description":"New menhir"}'
+----
+
+==== Quarry service: PUT /api/quarry/{menhirId}
+
+----
+$ curl -X PUT 'http://quarry-service:8080/api/quarry/3fa85f64-5717-4562-b3fc-2c963f66afa6' \
+    -H 'Content-Type: application/json' \
+    -d '{"id":"3fa85f64-5717-4562-b3fc-2c963f66afa6","weight":2.9,"stoneType":"Granite","decorativeness":"MASTERWORK","description":"Updated description"}'
+----
+
+==== Quarry service: DELETE /api/quarry/{menhirId}
+
+----
+$ curl -X DELETE 'http://quarry-service:8080/api/quarry/3fa85f64-5717-4562-b3fc-2c963f66afa6'
+----
+
+==== Basket service: PUT /api/basket/offer
+
+----
+$ curl -X PUT 'http://basket-service:8080/api/basket/offer' \
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -d '{"name":"boar","count":2}'
+----
