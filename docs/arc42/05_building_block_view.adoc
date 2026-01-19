@@ -1,225 +1,253 @@
 ifndef::imagesdir[:imagesdir: ../images]
 
 [[section-building-block-view]]
-
-
 == Building Block View
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content
-The building block view shows the static decomposition of the system into building blocks (modules, components, subsystems, classes, interfaces, packages, libraries, frameworks, layers, partitions, tiers, functions, macros, operations, data structures, ...) as well as their dependencies (relationships, associations, ...)
+This chapter describes the **static decomposition** of the system into building blocks.
+It serves as a **shared template** and is intentionally abstract.
+Concrete building blocks and details must be added by the responsible teams.
 
-This view is mandatory for every architecture documentation.
-In analogy to a house this is the _floor plan_.
-
-.Motivation
-Maintain an overview of your source code by making its structure understandable through
-abstraction.
-
-This allows you to communicate with your stakeholder on an abstract level without disclosing implementation details.
-
-.Form
-The building block view is a hierarchical collection of black boxes and white boxes
-(see figure below) and their descriptions.
-
-image::05_building_blocks-EN.png["Hierarchy of building blocks"]
-
-*Level 1* is the white box description of the overall system together with black
-box descriptions of all contained building blocks.
-
-*Level 2* zooms into some building blocks of level 1.
-Thus it contains the white box description of selected building blocks of level 1, together with black box descriptions of their internal building blocks.
-
-*Level 3* zooms into selected building blocks of level 2, and so on.
-
-
-.Further Information
-
-See https://docs.arc42.org/section-5/[Building Block View] in the arc42 documentation.
-
-****
-endif::arc42help[]
+The goal is to keep the structure consistent and easy to extend.
 
 === Whitebox Overall System
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Here you describe the decomposition of the overall system using the following white box template. It contains
+==== Overview Diagram
 
- * an overview diagram
- * a motivation for the decomposition
- * black box descriptions of the contained building blocks. For these we offer you alternatives:
+[plantuml, building-block-overview, svg]
+----
+@startuml
+rectangle "Obelix Webshop" {
 
-   ** use _one_ table for a short and pragmatic overview of all contained building blocks and their interfaces
-   ** use a list of black box descriptions of the building blocks according to the black box template (see below).
-   Depending on your choice of tool this list could be sub-chapters (in text files), sub-pages (in a Wiki) or nested elements (in a modeling tool).
+  rectangle "Frontend (Angular + Nginx)" as FE
 
+  rectangle "Backend / Services" {
+    rectangle "obelix-webshop (reverse proxy)" as WS
+    rectangle "obelix-quarry" as Q
+    rectangle "obelix-basket" as B
+  }
 
- * (optional:) important interfaces, that are not explained in the black box templates of a building block, but are very important for understanding the white box.
-Since there are so many ways to specify interfaces why do not provide a specific template for them.
- In the worst case you have to specify and describe syntax, semantics, protocols, error handling,
- restrictions, versions, qualities, necessary compatibilities and many things more.
-In the best case you will get away with examples or simple signatures.
+  rectangle "Observability" {
+    rectangle "Prometheus" as P
+    rectangle "Zipkin" as Z
+    rectangle "Grafana" as G
+  }
+}
+FE --> WS : HTTP
+WS --> Q : HTTP
+WS --> B : HTTP
+P --> WS : scrape metrics
+P --> Q : scrape metrics
+P --> B : scrape metrics
+WS --> Z : traces
+Q --> Z : traces
+B --> Z : traces
+G --> P : metrics
+@enduml
+----
 
-****
-endif::arc42help[]
+==== Motivation
 
-_**<Overview Diagram>**_
+The system is split into a single-page frontend and multiple backend microservices to allow parallel development by a large team and clear separation of responsibilities. A reverse proxy (obelix-webshop) aggregates calls to domain services (quarry, basket). Observability is built-in with Zipkin (traces) and Prometheus/Grafana (metrics) to meet the assignment requirements and support troubleshooting.
 
-Motivation::
+==== Contained Building Blocks
 
-_<text explanation>_
-
-
-Contained Building Blocks::
-_<Description of contained building block (black boxes)>_
-
-Important Interfaces::
-_<Description of important interfaces>_
-
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Insert your explanations of black boxes from level 1:
-
-If you use tabular form you will only describe your black boxes with name and
-responsibility according to the following schema:
-
-[cols="1,2" options="header"]
+[cols="1,2",options="header"]
 |===
-| **Name** | **Responsibility**
-| _<black box 1>_ | _<Text>_
-| _<black box 2>_ | _<Text>_
+|Name |Responsibility
+
+|Frontend (Angular + Nginx)
+|Customer-facing UI for browsing and purchasing Hinkelsteine; uses generated OpenAPI client.
+
+|obelix-webshop (reverse proxy)
+|Gateway for frontend; routes/aggregates requests to basket/quarry; exposes /actuator/prometheus metrics.
+
+|obelix-quarry
+|Provides product (Hinkelstein) data and APIs.
+
+|obelix-basket
+|Manages shopping baskets and operations.
+
+|Prometheus
+|Scrapes metrics from backend services and itself.
+
+|Zipkin
+|Collects distributed traces from backend services.
+
+|Grafana
+|Visualizes Prometheus metrics.
 |===
 
+==== Important Interfaces
 
+* Public REST APIs per microservice (OpenAPI 3.x, code-first via springdoc)
+* Frontend consumes backend via generated OpenAPI client
+* Monitoring endpoints: /actuator/prometheus on backend services
+* Tracing: Zipkin HTTP span ingestion API (port 9411)
+* Internal service contracts: Shared Java interfaces (in shared modules) define reverse-proxy-to-microservice contracts; HTTP clients in obelix-webshop implement these interfaces to call obelix-quarry and obelix-basket.
 
-If you use a list of black box descriptions then you fill in a separate black box template for every important building block .
-Its headline is the name of the black box.
-****
-endif::arc42help[]
+---
 
-==== <Name black box 1>
+=== Level 1 – Black Box Descriptions
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Here you describe <black box 1>
-according the the following black box template:
+==== Frontend (Angular + Nginx)
 
-* Purpose/Responsibility
-* Interface(s), when they are not extracted as separate paragraphs. This interfaces may include qualities and performance characteristics.
-* (Optional) Quality-/Performance characteristics of the black box, e.g.availability, run time behavior, ....
-* (Optional) directory/file location
-* (Optional) Fulfilled requirements (if you need traceability to requirements).
-* (Optional) Open issues/problems/risks
+*Purpose / Responsibility*  
+Customer UI; uses generated OpenAPI client to call reverse proxy.
 
-****
-endif::arc42help[]
+*Interfaces*  
+Provided: Web UI (HTTP).
+Consumed: obelix-webshop REST API.
 
-_<Purpose/Responsibility>_
+(Optional) *Quality / Performance Characteristics*  
+Static content served via Nginx; relies on backend for data.
 
-_<Interface(s)>_
+(Optional) *Location*
+frontend/obelix-webshop-frontend
 
-_<(Optional) Quality/Performance Characteristics>_
+==== obelix-webshop (reverse proxy)
 
-_<(Optional) Directory/File Location>_
+*Purpose / Responsibility*
+Aggregates and routes frontend requests to basket/quarry; exposes metrics and sends traces to Zipkin.
 
-_<(Optional) Fulfilled Requirements>_
+*Interfaces*
+Provided: REST API for frontend.
+Consumed: obelix-basket, obelix-quarry REST APIs; Zipkin ingestion API.
+Internal contracts: Implements shared Java interfaces for basket/quarry clients to ensure consistent method signatures and behaviors.
 
-_<(optional) Open Issues/Problems/Risks>_
+(Optional) *Quality / Performance Characteristics*
+Single point of entry; ensures consistent APIs.
 
+(Optional) *Location*
+backend/obelix-webshop
 
+==== obelix-quarry
 
+*Purpose / Responsibility*
+Product data and CRUD APIs.
 
-==== <Name black box 2>
+*Interfaces*
+Provided: REST API; /actuator/prometheus.
+Consumed: Zipkin ingestion API.
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
-_<black box template>_
+(Optional) *Location*  
+backend/obelix-quarry-impl
 
-==== <Name black box n>
+==== obelix-basket
 
-_<black box template>_
+*Purpose / Responsibility*
+Basket management and CRUD APIs.
 
+*Interfaces*
+Provided: REST API; /actuator/prometheus.
+Consumed: Zipkin ingestion API; obelix-quarry API.
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
-==== <Name interface 1>
+(Optional) *Location*
+backend/obelix-basket-impl
 
-...
+==== Prometheus
 
-==== <Name interface m>
+*Purpose / Responsibility*
+Collects metrics.
 
+*Interfaces*
+Consumed: /actuator/prometheus endpoints of backend services.
 
+==== Grafana
+
+*Purpose / Responsibility*
+Metrics visualization.
+
+*Interfaces*
+Consumed: Prometheus HTTP API.
+
+==== Zipkin
+
+*Purpose / Responsibility*
+Trace collection.
+
+*Interfaces*
+Provided: HTTP span ingestion (port 9411).
+Consumed: spans from backend services.
+
+'''
+
+==== Frontend (Angular + Nginx)
+
+(copy the template above)
+
+'''
+
+==== obelix-webshop (reverse proxy)
+
+(copy the template above)
+
+'''
+
+==== obelix-quarry
+
+(copy the template above)
+
+'''
+
+==== obelix-basket
+
+(copy the template above)
+
+'''
 
 === Level 2
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Here you can specify the inner structure of (some) building blocks from level 1 as white boxes.
+Level 2 describes the **internal structure** of selected Level-1 building blocks.
 
-You have to decide which building blocks of your system are important enough to justify such a detailed description.
-Please prefer relevance over completeness. Specify important, surprising, risky, complex or volatile building blocks.
-Leave out normal, simple, boring or standardized parts of your system
-****
-endif::arc42help[]
+==== White Box obelix-webshop (reverse proxy)
 
-==== White Box _<building block 1>_
+==== Overview Diagram
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-...describes the internal structure of _building block 1_.
-****
-endif::arc42help[]
+[plantuml, webshop-whitebox, svg]
+----
+@startuml
+rectangle "obelix-webshop" {
+  rectangle "Controller Layer"
+  rectangle "Service Layer"
+  rectangle "Client: Basket"
+  rectangle "Client: Quarry"
+  rectangle "Tracing (Zipkin)"
+  rectangle "Actuator (/prometheus)"
+}
+@enduml
+----
 
-_<white box template>_
+==== Motivation
 
-==== White Box _<building block 2>_
+Central entrypoint; integrates clients to downstream services and cross-cutting observability.
 
+==== Contained Building Blocks
 
-_<white box template>_
+[cols="1,2",options="header"]
+|===
+|Name |Responsibility
 
-...
+|Controller Layer
+|Expose REST endpoints for frontend.
 
-==== White Box _<building block m>_
+|Service Layer
+|Orchestrate calls to basket/quarry.
 
+|Client: Basket
+|HTTP client to obelix-basket.
 
-_<white box template>_
+|Client: Quarry
+|HTTP client to obelix-quarry.
 
+|Tracing (Zipkin)
+|Send spans to Zipkin.
 
+|Actuator (/prometheus)
+|Expose metrics for Prometheus scrapes.
+|===
 
 === Level 3
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Here you can specify the inner structure of (some) building blocks from level 2 as white boxes.
-
-When you need more detailed levels of your architecture please copy this
-part of arc42 for additional levels.
-****
-endif::arc42help[]
-
-==== White Box <_building block x.1_>
-
-ifdef::arc42help[]
-[role="arc42help"]
-****
-Specifies the internal structure of _building block x.1_.
-****
-endif::arc42help[]
-
-_<white box template>_
-
-
-==== White Box <_building block x.2_>
-
-_<white box template>_
-
-
-
-==== White Box <_building block y.1_>
-
-_<white box template>_
+_Level 3 is currently not required. Further decomposition will be added if complexity increases._

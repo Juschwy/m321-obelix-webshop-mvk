@@ -1,0 +1,75 @@
+name: Provision Virtual Machine
+description: Provision a VM in MAAS and expose its IP and ID
+author: liun
+
+inputs:
+  maas_user:
+    required: true
+  maas_password:
+    required: true
+  dns_user:
+    required: true
+  dns_password:
+    required: true
+
+outputs:
+    vm_ip:
+        description: 'The IP address of the prepared VM'
+        value: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address[0] }}
+    vm_id:
+        description: 'The ID of the prepared VM'
+        value: ${{ fromJSON(steps.vm_details.outputs.vm_details).system_id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Install dependencies
+      id: install_deps
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y jq
+
+    - name: Login to BBW Maas
+      id: login
+      env:
+        MAAS_USER: ${{ inputs.maas_user }}
+        MAAS_PASSWORD: ${{ inputs.maas_password }}
+      shell: bash
+      run: .github/actions/provisionVm/login.sh
+
+    - name: Check VM Exists
+      id: check_vm
+      shell: bash
+      run: .github/actions/provisionVm/check_vm_exists.sh
+
+    - name: Create VM if not exists
+      id: create_vm
+      if: steps.check_vm.outputs.vm_exists == 'false'
+      shell: bash
+      run: .github/actions/provisionVm/create_vm.sh
+
+    - name: Ensure VM is Available
+      id: ensure_vm_available
+      shell: bash
+      run: .github/actions/provisionVm/ensure_vm_available.sh
+
+    - name: Get VM Details
+      id: vm_details
+      shell: bash
+      run: .github/actions/provisionVm/check_vm_exists.sh
+
+    - name: Update Dynamic DNS
+      id: update_ddns
+      env:
+        DNS_USER: ${{ inputs.dns_user }}
+        DNS_PASSWORD: ${{ inputs.dns_password }}
+        DNS_IP: "${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address[0] }}"
+      shell: bash
+      run: .github/actions/provisionVm/update_ddns.sh
+
+    - name: Output VM Details
+      shell: bash
+      run: |
+        echo "VM IP Address: ${{ fromJSON(steps.vm_details.outputs.vm_details).ip_address[0] }}"
+        echo "VM ID: ${{ fromJSON(steps.vm_details.outputs.vm_details).system_id }}"

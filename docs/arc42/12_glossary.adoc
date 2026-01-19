@@ -3,42 +3,61 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-glossary]]
 == Glossary
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-The most important domain and technical terms that your stakeholders use when discussing the system.
+This section defines the **most important domain and technical terms** used in the Obelix application.
+It ensures all stakeholders have a **shared understanding** and avoids ambiguity.
 
-You can also see the glossary as source for translations if you work in multi-language teams.
-
-.Motivation
-You should clearly define your terms, so that all stakeholders
-
-* have an identical understanding of these terms
-* do not use synonyms and homonyms
-
-
-.Form
-
-A table with columns <Term> and <Definition>.
-
-Potentially more columns in case you need translations.
-
-
-.Further Information
-
-See https://docs.arc42.org/section-12/[Glossary] in the arc42 documentation.
-
-****
-endif::arc42help[]
-
-[cols="e,2e" options="header"]
+[cols="e,2e", options="header"]
 |===
 |Term |Definition
 
-|<Term-1>
-|<definition-1>
+|Hinkelstein
+|Product sold in the webshop; domain object managed by the quarry service.
 
-|<Term-2>
-|<definition-2>
+|Obelix Webshop
+|The overall application consisting of frontend and backend microservices.
+
+|MAAS (Metal as a Service)
+|Infrastructure used to provision VMs; BBW-Maas is the school-managed instance.
+
+|Docker Compose
+|Container orchestration used to run all services on the VM.
+
+|GHCR (GitHub Container Registry)
+|Registry where Docker images are published.
+
+|Zipkin
+|Distributed tracing system that collects spans from backend services.
+
+|Prometheus
+|Metrics collection system that scrapes /actuator/prometheus endpoints.
+
+|Grafana
+|Visualization tool for Prometheus metrics.
+
+|OpenAPI (OAS 3.x)
+|API specification describing REST endpoints; generated code-first per microservice.
+
+|Code-first API
+|Approach where API documentation is generated from source code annotations.
+
+|Reverse Proxy (Gateway)
+|obelix-webshop component that routes/aggregates frontend requests to domain services.
+
+|WireGuard
+|VPN used to securely connect CI/CD to the VM for deployment.
+
+|Actuator (/prometheus)
+|Spring Boot endpoint exposing metrics for Prometheus.
+
+|CI/CD
+|Automated processes for building, testing, and deploying the application via GitHub Actions.
+
+|BBW (Berufsbildungsschule Winterthur)
+|The school operating the MAAS environment used for this project; provides the infrastructure context.
 |===
+
+== Notes / Optional Columns
+
+* You may add columns for **translations**, **abbreviations**, or **examples** if needed.
+* Keep definitions **concise and unambiguous**.
+* Reference terms consistently throughout the documentation.

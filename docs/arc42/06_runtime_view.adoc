@@ -3,51 +3,165 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-runtime-view]]
 == Runtime View
 
+This chapter describes **runtime behavior and interactions** between the building blocks.
+It focuses on **architecturally relevant scenarios** and is intentionally limited
+to a small, representative set.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-The runtime view describes concrete behavior and interactions of the system’s building blocks in form of scenarios from the following areas:
+Each scenario explains how building blocks collaborate at runtime.
 
-* important use cases or features: how do building blocks execute them?
-* interactions at critical external interfaces: how do building blocks cooperate with users and neighboring systems?
-* operation and administration: launch, start-up, stop
-* error and exception scenarios
+'''
 
-Remark: The main criterion for the choice of possible scenarios (sequences, workflows) is their *architectural relevance*. It is *not* important to describe a large number of scenarios. You should rather document a representative selection.
+=== Customer purchases a Hinkelstein
 
-.Motivation
-You should understand how (instances of) building blocks of your system perform their job and communicate at runtime.
-You will mainly capture scenarios in your documentation to communicate your architecture to stakeholders that are less willing or able to read and understand the static models (building block view, deployment view).
+==== Purpose
+Core business scenario: Customer browses products and adds items to basket.
 
-.Form
-There are many notations for describing scenarios, e.g.
+==== Trigger
+User action in the frontend.
 
-* numbered list of steps (in natural language)
-* activity diagrams or flow charts
-* sequence diagrams
-* BPMN or EPCs (event process chains)
-* state machines
-* ...
+==== Involved Building Blocks
+* Frontend (Angular + Nginx)
+* obelix-webshop (reverse proxy)
+* obelix-quarry
+* obelix-basket
 
+==== Runtime Diagram
 
-.Further Information
+[plantuml, runtime-purchase, svg]
+----
+@startuml
+actor "Customer" as Customer
+participant "Frontend" as FE
+participant "webshop" as WS
+participant "quarry" as Q
+participant "basket" as B
 
-See https://docs.arc42.org/section-6/[Runtime View] in the arc42 documentation.
+Customer -> FE : View products
+FE -> WS : GET /products
+WS -> Q : GET /products
+Q --> WS : 200 products
+WS --> FE : 200 products
 
-****
-endif::arc42help[]
+Customer -> FE : Add to basket
+FE -> WS : POST /basket/items
+WS -> B : POST /basket/items
+B --> WS : 200 item added
+WS --> FE : 200 item added
+@enduml
+----
 
-=== <Runtime Scenario 1>
+==== Notable Aspects
+* Frontend calls only webshop; webshop fans out to domain services.
+* Observability: backend services emit traces to Zipkin; metrics exposed via /actuator/prometheus.
 
+'''
 
-* _<insert runtime diagram or textual description of the scenario>_
-* _<insert description of the notable aspects of the interactions between the
-building block instances depicted in this diagram.>_
+=== Admin performs CRUD on Hinkelsteine
 
-=== <Runtime Scenario 2>
+==== Purpose
+Admin UI scenario: Perform CRUD (without auth/session).
 
-=== ...
+==== Trigger
+Admin actions in the frontend.
 
-=== <Runtime Scenario n>
+==== Involved Building Blocks
+* Frontend (Angular + Nginx)
+* obelix-webshop (reverse proxy)
+* obelix-quarry
+
+==== Runtime Diagram
+
+[plantuml, runtime-admin-crud, svg]
+----
+@startuml
+actor "Admin" as Admin
+participant "Frontend" as FE
+participant "webshop" as WS
+participant "quarry" as Q
+
+Admin -> FE : Create product
+FE -> WS : POST /products
+WS -> Q : POST /products
+Q --> WS : 201 created
+WS --> FE : 201 created
+
+Admin -> FE : Update product
+FE -> WS : PUT /products/{id}
+WS -> Q : PUT /products/{id}
+Q --> WS : 200 updated
+WS --> FE : 200 updated
+@enduml
+----
+
+==== Notable Aspects
+* No authentication; simplified flows for dev/test.
+
+'''
+
+=== Observability flows (metrics & tracing)
+
+==== Purpose
+Show how metrics are scraped and traces are collected.
+
+==== Involved Building Blocks
+* obelix-webshop, obelix-quarry, obelix-basket
+* Prometheus, Grafana, Zipkin
+
+==== Runtime Diagram
+
+[plantuml, runtime-observability, svg]
+----
+@startuml
+participant "Prometheus" as P
+participant "Grafana" as G
+participant "Zipkin" as Z
+participant "webshop" as WS
+participant "quarry" as Q
+participant "basket" as B
+
+P -> WS : GET /actuator/prometheus
+P -> Q : GET /actuator/prometheus
+P -> B : GET /actuator/prometheus
+G -> P : Query metrics
+WS -> Z : POST /api/v2/spans
+Q -> Z : POST /api/v2/spans
+B -> Z : POST /api/v2/spans
+@enduml
+----
+
+==== Notable Aspects
+* Prometheus scrapes HTTP metrics endpoints.
+* Zipkin receives spans over HTTP.
+
+'''
+
+=== Operational: Deployment to BBW-Maas
+
+==== Purpose
+Capture the automated deployment flow used by CI/CD.
+
+==== Involved Building Blocks
+* GitHub Actions
+* BBW-Maas API
+* Ubuntu VM (Docker)
+
+==== Runtime Diagram
+
+[plantuml, runtime-deploy, svg]
+----
+@startuml
+participant "GitHub Actions" as CI
+participant "BBW-Maas API" as MAAS
+participant "Ubuntu VM" as VM
+
+CI -> MAAS : Provision VM (if missing)
+MAAS --> CI : VM details
+CI -> VM : Connect (WireGuard + SSH)
+CI -> VM : Update image tags (GHCR)
+CI -> VM : docker compose up -d
+VM --> CI : Status
+@enduml
+----
+
+==== Notable Aspects
+* Main branch protected; deployments follow reviews and CI success.

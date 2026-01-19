@@ -3,63 +3,118 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-concepts]]
 == Cross-cutting Concepts
 
+This section describes **cross-cutting concepts** that affect multiple building blocks.
+Concepts may include practices, patterns, regulations, or solution ideas.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Content
-This section describes crosscutting concepts (practices, patterns, regulations or solution ideas).
-Such concepts are often related to multiple building blocks. 
-They may include many different topics, such as the topics shown in the following diagram:
+Use this template to guide the documentation, without filling in actual details yet.
 
-image::08-concepts-EN.drawio.png["Possible topics for crosscutting concepts"]
+'''
 
-.Motivation
-Concepts form the basis for _conceptual integrity_ (consistency, homogeneity) of the architecture. 
-Thus, they are an important contribution to achieve inner qualities of your system.
+=== Observability (Metrics & Tracing)
 
-This is the place in the template that we provided for a cohesive specification of such concepts.
+==== Purpose / Motivation
 
-Many of these concepts relate to or influence several of your building blocks. 
+Provide unified monitoring and tracing across all services to meet assignment requirements and support troubleshooting in dev/test.
 
-.Form
-The form can be varied:
+==== Affected Building Blocks
 
-* concept papers with any kind of structure
-* example implementations,especially for technical concepts
-* cross-cutting model excerpts or scenarios using notations of the architecture views
+* obelix-webshop, obelix-quarry, obelix-basket
+* Prometheus, Grafana, Zipkin
 
-.Structure
-Pick **only** the most-needed topics for your system and assign each a level-2 heading in this section (e.g. 8.1, 8.2 etc).
+==== Description
 
-DO NOT ATTEMPT to cover all of the topics of the aforementioned diagram.
+* Metrics are exposed via Spring Boot Actuator (/actuator/prometheus) on backend services and scraped by Prometheus.
+* Grafana visualizes metrics from Prometheus.
+* Traces are sent via HTTP to Zipkin (port 9411) using Spring Cloud Sleuth/Micrometer tracing configuration.
 
+==== Notes / Guidelines
 
-.Further Information
+* Ensure each service exposes /actuator/prometheus.
+* Zipkin endpoint: http://zipkin:9411/api/v2/spans (configured via MANAGEMENT_ZIPKIN_TRACING_ENDPOINT).
 
-Some topics within systems often concern multiple building blocks, hardware elements or development processes.
-It might be easier to communicate or document such _cross-cutting_ topics at a central location, instead of repeating them in the description of the concerned building blocks, hardware elements or development processes.
+'''
 
-Certain concepts might concern **all** elements of a system, others might only be relevant for a few.
-In the diagram above, logging concerns all three components, whereas security is relevant only for two components.
+=== API Strategy (OpenAPI & Clients)
 
+==== Purpose / Motivation
 
-See https://docs.arc42.org/section-8/[Concepts] in the arc42 documentation.
-****
-endif::arc42help[]
+Guarantee consistent and documented APIs; enable frontend to use generated clients.
 
-=== _<Concept 1>_
+==== Affected Building Blocks
 
-_<explanation>_
+* All backend microservices
+* Frontend (Angular)
 
+==== Description
 
+* OpenAPI 3.x specifications are generated code-first (e.g., springdoc).
+* Frontend uses a client generated from OpenAPI definitions (openapi-generator) to call the reverse proxy.
+* All properties in OAS must have descriptions and examples.
 
-=== _<Concept 2>_
+'''
 
-_<explanation>_
+=== Configuration & Deployment
 
-...
+==== Purpose / Motivation
 
-=== _<Concept n>_
+Ensure reproducible deployments to the BBW-Maas VM with minimal overhead.
 
-_<explanation>_
+==== Affected Building Blocks
+
+* All services
+* CI/CD pipeline
+
+==== Description
+
+* Docker Compose orchestrates all containers on a single Ubuntu 24.04 VM.
+* Images are built and published to GHCR via GitHub Actions.
+* VM provisioning via MAAS API; updates via WireGuard + SSH; compose executed with `docker compose up -d`.
+
+'''
+
+=== Security Posture (Dev/Test)
+
+==== Purpose / Motivation
+
+Clarify simplified security model for a dev/test environment.
+
+==== Description
+
+* Admin UI has CRUD without authentication or sessions.
+* No external exposure beyond necessary HTTP ports on the VM.
+* Tracing/metrics endpoints accessible within Docker network.
+
+'''
+
+=== CI/CD & Collaboration
+
+==== Purpose / Motivation
+
+Maintain quality and collaboration across a large team.
+
+==== Description
+
+* Protected main branch; all changes via PR with three mandatory reviews.
+* Automated tests and builds on PR; deployments on main.
+* Ownership defined via OWNERS/CODEOWNERS.
+
+---
+
+=== Backend Internal Contracts (Shared Java Interfaces)
+
+==== Purpose / Motivation
+Ensure consistent and type-safe contracts between the reverse proxy and microservices without relying solely on REST specs.
+
+==== Affected Building Blocks
+* obelix-webshop (clients)
+* obelix-quarry, obelix-basket (implementations)
+* Shared modules (e.g., obelix-common, API modules)
+
+==== Description
+* Java interfaces are defined in shared modules to express service contracts.
+* Clients in obelix-webshop implement these interfaces to call downstream services.
+* This approach complements OpenAPI by providing compile-time guarantees across modules.
+
+==== Notes / Guidelines
+* Keep interfaces stable; version carefully.
+* Align interface contracts with REST endpoints to avoid drift.

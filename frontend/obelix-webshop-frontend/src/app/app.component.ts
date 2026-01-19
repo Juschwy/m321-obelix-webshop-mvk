@@ -1,12 +1,15 @@
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { NavbarComponent } from './navbar/navbar.component';
+import { RouterOutlet } from '@angular/router';
+import {HeaderComponent} from "./shared/header/header.component";
+import {CardComponent} from "./shared/card/card.component";
+import { CartComponent } from './webshop/cart/cart.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterModule, NavbarComponent],
+  imports: [CardComponent, CartComponent, HeaderComponent],
   templateUrl: './app.component.html',
+  // TODO remove if card-call is moved to individual components
+  styleUrl: './app.component.scss'
 })
-export class AppComponent {
-}
+export class AppComponent {}

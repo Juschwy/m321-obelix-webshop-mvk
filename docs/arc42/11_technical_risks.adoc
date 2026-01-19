@@ -3,25 +3,458 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-technical-risks]]
 == Risks and Technical Debts
 
+This section captures **identified technical risks and technical debts** from the backend perspective.
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-A list of identified technical risks or technical debts, ordered by priority
+**Author:** Jesse Wetli +
+**Last Updated:** 2026-01-12
 
-.Motivation
-“Risk management is project management for grown-ups” (Tim Lister, Atlantic Systems Guild.) 
+---
 
-This should be your motto for systematic detection and evaluation of risks and technical debts in the architecture, which will be needed by management stakeholders (e.g. project managers, product owners) as part of the overall risk analysis and measurement planning.
+=== Risk 1 – Missing Authentication and Authorization
 
-.Form
-List of risks and/or technical debts, probably including suggested measures to minimize, mitigate or avoid risks or reduce technical debts.
+==== Description
 
+The backend services currently have **no authentication or authorization mechanisms** implemented.
 
-.Further Information
+* All API endpoints are publicly accessible without any access control
+* No Spring Security dependency is present in any of the microservices (webshop, basket, quarry)
+* Admin operations (CRUD on menhirs) are exposed without any protection
+* Any user can perform any operation on any resource
+* No session management or user context tracking
 
-See https://docs.arc42.org/section-11/[Risks and Technical Debt] in the arc42 documentation.
+**Affected Components:**
 
-****
-endif::arc42help[]
+* `obelix-webshop` (backend/obelix-webshop)
+* `obelix-basket` (backend/obelix-basket-impl)
+* `obelix-quarry` (backend/obelix-quarry-impl)
+
+==== Likelihood / Probability
+
+**High** – This is a current state, not a future risk. The system is already vulnerable.
+
+==== Impact / Severity
+
+**Critical**
+
+* Unauthorized users can manipulate product catalog (add/delete/modify menhirs)
+* Shopping baskets can be accessed and modified by anyone
+* No audit trail of who performed which operations
+* Data integrity cannot be guaranteed
+* Violates basic security principles (especially for admin operations)
+* Non-compliance with data protection regulations
+
+==== Mitigation / Remediation Measures
+
+1. **Implement Spring Security** in all microservices
+2. **Add JWT-based authentication** for API access
+3. **Implement role-based access control (RBAC)** to distinguish between customers and administrators
+4. **Secure inter-service communication** using service-to-service authentication
+5. **Add OAuth2/OIDC integration** for enterprise-grade authentication
+6. **Implement session management** for the admin UI
+7. **Add security headers** (CORS, CSP, X-Frame-Options)
+
+==== Status / Owner
+
+* **Status:** Active
+* **Owner:** Backend Team (BE)
+* **Priority:** Critical – Must be addressed before production deployment
+
+---
+
+=== Risk 2 – In-Memory H2 Database (Data Loss)
+
+==== Description
+
+All microservices use **H2 in-memory database** (`jdbc:h2:mem:obelixdb`) as defined in `application-common.yaml:3`.
+
+* All data is stored in memory only
+* Data is lost on every service restart
+* No data persistence between deployments
+* Menhir catalog resets to initial state after restart
+* Shopping baskets are lost when basket service restarts
+
+**Affected Components:**
+
+* All backend services (obelix-common/src/main/resources/application-common.yaml)
+
+==== Likelihood / Probability
+
+**High** – Data loss will occur with every deployment, restart, or crash.
+
+==== Impact / Severity
+
+**High**
+
+* Complete data loss on service restart/crash
+* Poor user experience (lost shopping carts, lost catalog changes)
+* No business continuity
+* Cannot operate as a real e-commerce system
+* Testing and QA becomes difficult (no stable data state)
+
+==== Mitigation / Remediation Measures
+
+1. **Migrate to persistent database** (PostgreSQL, MySQL, or MariaDB)
+2. **Configure file-based H2 database** as intermediate solution (`jdbc:h2:file:./data/obelixdb`)
+3. **Implement database backups and restore procedures**
+4. **Add database migration tooling** (Flyway or Liquibase)
+5. **Configure separate databases per microservice** to maintain service autonomy
+6. **Implement data initialization scripts** for development/testing environments
+
+==== Status / Owner
+
+* **Status:** Active
+* **Owner:** Backend Team (BE) + CI/CD Team
+* **Priority:** High – Required for production readiness
+* **Note:** Comment in `obelix-common/build.gradle:17` states "for now..." indicating temporary solution
+
+---
+
+=== Risk 3 – Unencrypted HTTP Communication Between Services
+
+==== Description
+
+All inter-service communication uses **plain HTTP without TLS/SSL encryption**.
+
+* Service URLs configured as `http://` in docker-compose.yaml and application.yaml files
+* Traffic between webshop → basket, webshop → quarry, basket → quarry is unencrypted
+* No certificate management implemented
+* Communication vulnerable to man-in-the-middle attacks
+
+**Affected Components:**
+
+* Inter-service calls in docker/docker-compose.yaml
+* Configuration in all application.yaml files
+
+==== Likelihood / Probability
+
+**Medium** – In containerized environments within same network, risk is moderate. Higher in cloud deployments.
+
+==== Impact / Severity
+
+**High**
+
+* Sensitive data (basket contents, customer information) transmitted in cleartext
+* Potential for eavesdropping on internal network
+* Man-in-the-middle attacks possible
+* Does not meet security compliance requirements
+* Credentials (if added later) would be transmitted unencrypted
+
+==== Mitigation / Remediation Measures
+
+1. **Enable HTTPS/TLS for all services** using certificates
+2. **Implement mutual TLS (mTLS)** for service-to-service authentication
+3. **Use service mesh** (Istio, Linkerd) for automatic TLS encryption
+4. **Configure certificate management** (Let's Encrypt, internal PKI)
+5. **Update all service URLs** to use `https://` protocol
+6. **Implement certificate rotation** procedures
+
+==== Status / Owner
+
+* **Status:** Active
+* **Owner:** Backend Team (BE) + CI/CD Team
+* **Priority:** High – Critical for production security
+
+---
+
+=== Risk 4 – No Resilience Patterns (Cascading Failures)
+
+==== Description
+
+The microservices architecture **lacks resilience patterns** such as circuit breakers, bulkheads, or retry logic.
+
+* No Resilience4j or similar framework dependency
+* Basket service depends on Quarry service (to validate menhirs)
+* Webshop depends on both Basket and Quarry services
+* If Quarry service fails, dependent services may hang or fail
+* No timeout configuration for inter-service calls
+* No fallback mechanisms
+
+**Affected Components:**
+
+* All service-to-service communication
+* `BasketClientService` (backend/obelix-basket-api)
+* `QuarryClientService` (backend/obelix-quarry-api)
+
+==== Likelihood / Probability
+
+**Medium** – Cascading failures are common in microservices without resilience patterns.
+
+==== Impact / Severity
+
+**High**
+
+* Single service failure can bring down entire system
+* Poor user experience (long timeouts, error messages)
+* Difficult to diagnose issues in production
+* No graceful degradation
+* System becomes fragile and unreliable
+
+==== Mitigation / Remediation Measures
+
+1. **Add Resilience4j dependency** to handle failures
+2. **Implement circuit breakers** for all external service calls
+3. **Configure retry logic with exponential backoff**
+4. **Set appropriate timeouts** for all HTTP client calls
+5. **Implement bulkhead pattern** to isolate failures
+6. **Add fallback responses** for non-critical operations
+7. **Monitor circuit breaker states** in Grafana dashboards
+
+==== Status / Owner
+
+* **Status:** Active
+* **Owner:** Backend Team (BE)
+* **Priority:** Medium – Important for production stability
+
+---
+
+=== Risk 5 – Default Credentials in Monitoring Stack
+
+==== Description
+
+Grafana monitoring system uses **default administrator credentials** (`admin/admin`) as configured in `docker/docker-compose.yaml:48-49`.
+
+* Hardcoded default username and password
+* Accessible to anyone who can reach port 3000
+* No credential rotation mechanism
+* Grafana dashboards may expose sensitive system metrics
+
+**Affected Components:**
+
+* Grafana service (docker/docker-compose.yaml)
+
+==== Likelihood / Probability
+
+**High** – Default credentials are well-known and commonly exploited.
+
+==== Impact / Severity
+
+**Medium**
+
+* Unauthorized access to monitoring dashboards
+* Exposure of system metrics and performance data
+* Ability to modify dashboards and alerts
+* Potential information disclosure for attackers
+* Could reveal system architecture and weaknesses
+
+==== Mitigation / Remediation Measures
+
+1. **Change default Grafana credentials** immediately
+2. **Use environment variables or secrets management** for credentials
+3. **Implement proper authentication** (LDAP, OAuth2, or SAML)
+4. **Enable HTTPS for Grafana** web interface
+5. **Restrict network access** to monitoring tools (firewall rules, network policies)
+6. **Implement role-based access control** in Grafana
+7. **Rotate credentials regularly**
+
+==== Status / Owner
+
+* **Status:** Active
+* **Owner:** CI/CD Team
+* **Priority:** Medium – Should be addressed before external deployment
+
+---
+
+=== Risk 6 – 100% Distributed Tracing Sampling Rate
+
+==== Description
+
+All services are configured with **100% tracing sampling rate** (`probability: 1`) in `application-common.yaml:12`.
+
+* Every single request generates a full trace
+* Sent to Zipkin for storage and analysis
+* Acceptable for development, problematic for production
+
+**Affected Components:**
+
+* All backend services (application-common.yaml)
+
+==== Likelihood / Probability
+
+**Medium** – Performance impact scales with request volume.
+
+==== Impact / Severity
+
+**Medium**
+
+* High performance overhead on production systems
+* Increased network traffic to Zipkin
+* Zipkin storage requirements grow rapidly
+* May impact response times under load
+* Unnecessary resource consumption
+* Cost implications in cloud environments
+
+==== Mitigation / Remediation Measures
+
+1. **Reduce sampling rate for production** (e.g., 0.1 for 10% sampling)
+2. **Use environment-specific configuration** (100% in dev, 10% in prod)
+3. **Implement dynamic sampling** based on request importance
+4. **Add sampling configuration to Spring profiles**
+5. **Monitor Zipkin performance and storage**
+6. **Consider head-based vs. tail-based sampling strategies**
+
+==== Status / Owner
+
+* **Status:** Active
+* **Owner:** Backend Team (BE) + CI/CD Team
+* **Priority:** Low – Can be addressed during production optimization
+
+---
+
+=== Risk 7 – No Rate Limiting or Throttling
+
+==== Description
+
+The backend services have **no rate limiting or request throttling mechanisms** implemented.
+
+* No protection against excessive requests
+* No API gateway with rate limiting
+* Services accept unlimited requests per client
+* Vulnerable to resource exhaustion attacks
+
+**Affected Components:**
+
+* All REST endpoints in all services
+
+==== Likelihood / Probability
+
+**Medium** – Depends on system exposure and visibility.
+
+==== Impact / Severity
+
+**High**
+
+* Denial-of-Service (DoS) attacks possible
+* Resource exhaustion (CPU, memory, database connections)
+* Service degradation for legitimate users
+* Unfair resource allocation
+* No cost control in cloud environments
+
+==== Mitigation / Remediation Measures
+
+1. **Implement rate limiting at API gateway level** (Spring Cloud Gateway, Kong, Traefik)
+2. **Add rate limiting to individual services** using Bucket4j or similar
+3. **Configure per-IP and per-user rate limits**
+4. **Implement backpressure mechanisms**
+5. **Add request queue management**
+6. **Monitor request patterns and set appropriate limits**
+7. **Return HTTP 429 (Too Many Requests)** with Retry-After headers
+
+==== Status / Owner
+
+* **Status:** Active
+* **Owner:** Backend Team (BE)
+* **Priority:** Medium – Important for public-facing APIs
+
+---
+
+=== Risk 8 – Exposed Actuator Endpoints
+
+==== Description
+
+Spring Boot Actuator is configured to expose Prometheus metrics endpoint (`management.endpoints.web.exposure.include: "prometheus"` in `application-common.yaml:24`).
+
+* While only Prometheus endpoint is exposed currently, actuator provides many other endpoints
+* No authentication on actuator endpoints
+* Endpoints may expose sensitive information (environment variables, configuration, health details)
+
+**Affected Components:**
+
+* All backend services (via obelix-common configuration)
+
+==== Likelihood / Probability
+
+**Low** – Currently only Prometheus endpoint is exposed, which is intended for metrics collection.
+
+==== Impact / Severity
+
+**Medium**
+
+* Potential information disclosure
+* Could reveal system internals and configuration
+* Provides reconnaissance information to attackers
+* May expose database connection strings, API keys (if configured)
+
+==== Mitigation / Remediation Measures
+
+1. **Review and minimize exposed actuator endpoints**
+2. **Add authentication to actuator endpoints** (Spring Security)
+3. **Use management port separate from application port** for isolation
+4. **Restrict network access to actuator endpoints** (firewall, network policies)
+5. **Regular audit of exposed endpoints**
+6. **Remove sensitive information from environment variables**
+7. **Use Spring Cloud Config** for external configuration management
+
+==== Status / Owner
+
+* **Status:** Proposed
+* **Owner:** Backend Team (BE)
+* **Priority:** Low – Review during security hardening phase
+
+---
+
+=== Technical Debt 9 – Hardcoded Service URLs
+
+==== Description
+
+Service URLs are **hardcoded in configuration files** rather than using service discovery.
+
+* URLs in application.yaml files (e.g., `http://localhost:8081`)
+* Docker Compose overrides with environment variables
+* No service discovery mechanism (Eureka, Consul, Kubernetes DNS)
+* Difficult to scale or add service instances
+
+**Affected Components:**
+
+* All application.yaml files
+* docker/docker-compose.yaml environment variables
+
+==== Likelihood / Probability
+
+**High** – Will become problematic when scaling or deploying to cloud.
+
+==== Impact / Severity
+
+**Low to Medium**
+
+* Difficult to scale services horizontally
+* Cannot do zero-downtime deployments easily
+* Tight coupling between services
+* Manual configuration updates required for environment changes
+* No automatic load balancing between service instances
+
+==== Mitigation / Remediation Measures
+
+1. **Implement service discovery** (Spring Cloud Netflix Eureka, Consul)
+2. **Use Kubernetes service DNS** if deploying to Kubernetes
+3. **Configure client-side load balancing** (Spring Cloud LoadBalancer)
+4. **Remove hardcoded URLs** from application.yaml
+5. **Use environment-specific configuration** with external config server
+6. **Implement health checks and service registration**
+
+==== Status / Owner
+
+* **Status:** Proposed
+* **Owner:** Backend Team (BE) + CI/CD Team
+* **Priority:** Low – Can be addressed when scaling requirements arise
+
+---
+
+=== Summary
+
+This risk analysis identifies **9 critical areas** requiring attention:
+
+* **3 Critical/High severity security risks** (Authentication, HTTPS, Data Persistence)
+* **4 Medium severity operational risks** (Resilience, Credentials, Rate Limiting, Actuator)
+* **2 Low/Medium technical debts** (Tracing overhead, Service discovery)
+
+**Recommended Priority Order:**
+
+1. Implement authentication and authorization (Risk 1)
+2. Migrate to persistent database (Risk 2)
+3. Enable HTTPS/TLS communication (Risk 3)
+4. Add resilience patterns (Risk 4)
+5. Fix default monitoring credentials (Risk 5)
+6. Implement rate limiting (Risk 7)
+7. Reduce tracing sampling rate (Risk 6)
+8. Secure actuator endpoints (Risk 8)
+9. Implement service discovery (Debt 9)

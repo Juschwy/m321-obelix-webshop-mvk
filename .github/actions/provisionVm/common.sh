@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# Common constants
+LABEL="obelix-vm"
+MAAS_URL="https://maas.bbw-it.ch/maas-user.php"
+
+# Login function
+login() {
+  local user="$1"
+  local password="$2"
+
+  COOKIES_FILE="$(mktemp -t maas_cookies.XXXXXX)" || {
+    echo "Failed to create temporary cookies file" >&2
+    exit 1
+  }
+  echo "COOKIES_FILE=$COOKIES_FILE" >> "$GITHUB_ENV"
+
+  curl -k -c "$COOKIES_FILE" -X POST "$MAAS_URL" \
+    --data-raw "login=$user&passwd=$password"
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && echo "::add-mask::$line"
+  done < "$COOKIES_FILE"
+}
+
+# Fetch VM function
+fetch_vm() {
+  local label="$1"
+  local json
+  json=$(curl -sk -b "$COOKIES_FILE" "$MAAS_URL?list")
+  echo "$json" | jq -c --arg label "$label" '.[] | select(.label == $label)'
+}
+
+# Create VM function
+create_vm() {
+  local label="$1"
+  local script_path="$2"
+  local script_encoded
+  script_encoded=$(jq -sRr @uri < "$script_path")
+  curl -k -b "$COOKIES_FILE" "$MAAS_URL?create" \
+    --data "class=5IA22c&teacher=mvonkaenel&label=${label}&lifetime=3&image=ubuntu%2Fnoble&script=${script_encoded}"
+}
+
+# Delete VM function
+delete_vm() {
+  local systemid="$1"
+  curl -k -b "$COOKIES_FILE" "$MAAS_URL?action=release&systemid=${systemid}"
+}
+
+# Extend lifetime for 2 hours (max 8 hrs from now)
+extend_vm_lifetime() {
+  local systemid="$1"
+  curl -k -b "$COOKIES_FILE" "$MAAS_URL?action=extend&systemid=${systemid}"
+}
+
+update_ddns() {
+  local user="$1"
+  local password="$2"
+  local ip="$3"
+  curl --user "$user:$password" "https://infomaniak.com/nic/update?hostname=obelix.liuuner.ch&myip=$ip"
+}

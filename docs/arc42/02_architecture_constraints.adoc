@@ -3,27 +3,85 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-architecture-constraints]]
 == Architecture Constraints
 
+This chapter lists **all constraints** that affect the architecture or development process.
+Constraints may be technical, organizational, or conventional (e.g., naming, versioning, or documentation rules).
 
-ifdef::arc42help[]
-[role="arc42help"]
-****
-.Contents
-Any requirement that constraints software architects in their freedom of design and implementation decisions or decision about the development process. These constraints sometimes go beyond individual systems and are valid for whole organizations and companies.
+---
 
-.Motivation
-Architects should know exactly where they are free in their design decisions and where they must adhere to constraints.
-Constraints must always be dealt with; they may be negotiable, though.
+=== Technical Constraints
 
-.Form
-Simple tables of constraints with explanations.
-If needed you can subdivide them into
-technical constraints, organizational and political constraints and
-conventions (e.g. programming or versioning guidelines, documentation or naming conventions)
+[cols="1,2",options="header"]
+|===
+|Constraint |Description / Rationale
 
+|Single VM on BBW-Maas (Ubuntu 24.04)
+|All services must run on one VM in the BBW MAAS cluster. Environment is ephemeral; prioritize simplicity over HA.
 
-.Further Information
+|Docker Compose orchestration
+|Deployment must use Docker Compose (not Kubernetes), per assignment; minimizes operational overhead.
 
-See https://docs.arc42.org/section-2/[Architecture Constraints] in the arc42 documentation.
+|Observability stack: Zipkin, Prometheus, Grafana
+|Tracing and metrics are mandatory; services must expose metrics and send traces to Zipkin.
 
-****
-endif::arc42help[]
+|OpenAPI 3.x (code-first) per microservice
+|APIs must have generated OAS definitions (e.g., springdoc). Properties require descriptions and examples.
+
+|Frontend uses generated OpenAPI client
+|Angular FE must consume backend via generated client from OAS.
+
+|No authentication/session
+|Admin UI is CRUD without auth/sessions for simplicity in test/dev.
+
+|Ports and protocols
+|Services listen on fixed ports: frontend 80, webshop 8080, quarry 8081, basket 8082, prometheus 9090, grafana 3000, zipkin 9411.
+
+|Public domain mapping (obelix.liuuner.ch)
+|GitHub workflow registers the VM under obelix.liuuner.ch; services are exposed via specific ports on this domain.
+|===
+
+---
+
+=== Organizational / Political Constraints
+
+[cols="1,2",options="header"]
+|===
+|Constraint |Description / Rationale
+
+|Protected GitHub main branch
+|All changes via PR; main is protected with mandatory reviews (three). Enforces quality and collaboration.
+
+|CI/CD via GitHub Actions
+|Automated build/test on PRs; deployment of main to BBW-Maas VM.
+
+|Team size and roles
+|Approx. 17 contributors; responsibilities via OWNERS/CODEOWNERS; parallel work requires microservice separation.
+|===
+
+---
+
+=== Conventions
+
+[cols="1,2",options="header"]
+|===
+|Constraint / Convention |Description / Rationale
+
+|AsciiDoc + PlantUML for docs (arc42 template)
+|Documentation must use AsciiDoc with embedded PlantUML diagrams; arc42 chapters required.
+
+|Container images in GHCR
+|Build/publish Docker images to GitHub Container Registry; versions managed via CI/CD.
+
+|WireGuard + SSH for deployment steps
+|CI/CD connects to VM via WireGuard and SSH to update versions and run docker compose.
+
+|Naming and modules
+|Microservices: obelix-webshop, obelix-basket, obelix-quarry; frontend: obelix-frontend.
+|===
+
+---
+
+=== Notes / Additional Constraints (Optional)
+
+* Environment is test/dev; availability is a single point of failure and acceptable.
+* Resource sizing is controlled by MAAS; project team cannot change VM size.
+* Public endpoints: http://obelix.liuuner.ch:{80,8080,8081,8082,9090,3000,9411}.
