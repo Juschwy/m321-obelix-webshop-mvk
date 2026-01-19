@@ -1,0 +1,242 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/basket/offer": {
+      "put": {
+        "tags": [
+          "basket-controller"
+        ],
+        "operationId": "offer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BasketItem"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/BasketDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/basket/buy/{menhirId}": {
+      "post": {
+        "tags": [
+          "basket-controller"
+        ],
+        "operationId": "exchangeFor",
+        "parameters": [
+          {
+            "name": "menhirId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api": {
+      "get": {
+        "tags": [
+          "webshop-controller"
+        ],
+        "operationId": "welcome",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/menhirs": {
+      "get": {
+        "tags": [
+          "menhir-controller"
+        ],
+        "operationId": "getAllMenhirs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MenhirDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/menhirs/{menhirId}": {
+      "get": {
+        "tags": [
+          "menhir-controller"
+        ],
+        "operationId": "getMenhirById",
+        "parameters": [
+          {
+            "name": "menhirId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenhirDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/basket": {
+      "delete": {
+        "tags": [
+          "basket-controller"
+        ],
+        "operationId": "leave",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "BasketItem": {
+        "type": "object",
+        "description": "Represents a single item added to the shopping basket.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The common name of the product.",
+            "example": "Small Menhir"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The quantity of items to add.",
+            "example": 3
+          }
+        }
+      },
+      "BasketDto": {
+        "type": "object",
+        "description": "The current state of the shopping basket containing all items.",
+        "properties": {
+          "items": {
+            "type": "array",
+            "description": "List of items currently in the basket.",
+            "items": {
+              "$ref": "#/components/schemas/BasketItem"
+            }
+          }
+        },
+        "example": {
+          "items": [
+            {
+              "name": "Small Menhir",
+              "count": 3
+            },
+            {
+              "name": "Chisel",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "MenhirDto": {
+        "type": "object",
+        "description": "Detailed information about a Menhir stone.",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Unique identifier for the Menhir.",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          },
+          "weight": {
+            "type": "number",
+            "format": "double",
+            "description": "Weight in kilograms.",
+            "example": 450.5
+          },
+          "stoneType": {
+            "type": "string",
+            "description": "The geological classification of the stone.",
+            "example": "Granite"
+          },
+          "decorativeness": {
+            "type": "string",
+            "description": "The level of artistic detail on the stone.",
+            "example": "ORNATE",
+            "enum": [
+              "PLAIN",
+              "SIMPLE",
+              "DECORATED",
+              "ORNATE",
+              "MASTERWORK"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "A textual description of the item's appearance or history.",
+            "example": "A tall, rough-hewn stone with spiral carvings."
+          }
+        }
+      }
+    }
+  }
+}
