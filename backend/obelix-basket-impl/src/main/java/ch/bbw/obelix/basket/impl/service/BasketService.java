@@ -16,7 +16,7 @@ import java.util.*;
 
 /**
  * @author Tim Leo Laurin Leuenberger
- * @version 15.12.2025
+ * @version 19.01.2026
  */
 
 @Transactional
@@ -48,12 +48,15 @@ public class BasketService {
     }
 
     public boolean isGoodOffer(DecorativenessDto decorativeness) {
-        var stoneWorth = decorativeness.ordinal();
+        var stoneWorth = decorativeness.ordinal() * 50;
         var basketWorth = basket.items()
                 .stream().map(x -> switch (x.name().toLowerCase(Locale.ROOT)) {
-                    case "boar" -> 5; // oh boy, oh boy!
-                    case "honey" -> 2;
-                    case "magic potion" -> 0; // not allowed to drink this!
+                    case "silber" -> 1;
+                    case "schaf" -> 40;
+                    case "wildschwein" -> 67;
+                    case "esel" -> 100;
+                    case "gold" -> 150;
+                    case "kamel" -> 160;
                     default -> 1; // everything is worth something
                 } * x.count()).reduce(0, Integer::sum);
         log.info("basket worth {} vs menhir worth {} ({})", basketWorth, decorativeness, stoneWorth);
