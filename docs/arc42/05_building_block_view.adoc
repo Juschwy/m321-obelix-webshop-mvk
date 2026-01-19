@@ -194,14 +194,14 @@ Consumed: spans from backend services.
 ==== Frontend (Angular + Nginx)
 
 *Purpose / Responsibility*
-Stellt die Benutzeroberfläche für Kunden bereit, um Hinkelsteine zu durchsuchen und zu kaufen. Verwendet einen generierten OpenAPI-Client zur Kommunikation mit dem Backend.
+Provides the customer-facing user interface for browsing and purchasing Hinkelsteine. Uses a generated OpenAPI client to communicate with the backend.
 
 *Interfaces*
-Provided: Web-UI (HTTP/HTTPS über Nginx).
+Provided: Web UI (HTTP/HTTPS via Nginx).
 Consumed: obelix-webshop REST API.
 
 *Quality / Performance Characteristics*
-Statischer Content wird über Nginx ausgeliefert; alle dynamischen Daten werden vom Backend bezogen. Single-Page-Application mit reaktivem State-Management (NgRx).
+Static content is served via Nginx; all dynamic data is fetched from the backend. Single-page application with reactive state management (NgRx).
 
 *Location*
 frontend/obelix-webshop-frontend
@@ -211,15 +211,15 @@ frontend/obelix-webshop-frontend
 ==== obelix-webshop (reverse proxy)
 
 *Purpose / Responsibility*
-Zentraler Einstiegspunkt für alle Frontend-Anfragen. Aggregiert und routet Requests zu den Domain-Services (basket, quarry). Stellt Metriken für Prometheus bereit und sendet Traces an Zipkin.
+Central entry point for all frontend requests. Aggregates and routes requests to domain services (basket, quarry). Exposes metrics for Prometheus and sends traces to Zipkin.
 
 *Interfaces*
-Provided: REST API für das Frontend; /actuator/prometheus für Metriken.
-Consumed: obelix-basket REST API; obelix-quarry REST API; Zipkin Trace-Ingestion API.
-Internal contracts: Implementiert shared Java Interfaces für Basket/Quarry-Clients.
+Provided: REST API for the frontend; /actuator/prometheus for metrics.
+Consumed: obelix-basket REST API; obelix-quarry REST API; Zipkin trace ingestion API.
+Internal contracts: Implements shared Java interfaces for basket/quarry clients.
 
 *Quality / Performance Characteristics*
-Single Point of Entry; gewährleistet konsistente APIs und Cross-Cutting Concerns (Tracing, Metrics).
+Single point of entry; ensures consistent APIs and cross-cutting concerns (tracing, metrics).
 
 *Location*
 backend/obelix-webshop
@@ -229,15 +229,15 @@ backend/obelix-webshop
 ==== obelix-quarry
 
 *Purpose / Responsibility*
-Verwaltet Produktdaten (Hinkelsteine) und stellt CRUD-APIs für die Produktverwaltung bereit.
+Manages product data (Hinkelsteine) and provides CRUD APIs for product operations.
 
 *Interfaces*
-Provided: REST API für Produktoperationen; /actuator/prometheus für Metriken.
-Consumed: Zipkin Trace-Ingestion API.
-Internal contracts: Exponiert und implementiert shared Java Interfaces, die vom Gateway-Client verwendet werden.
+Provided: REST API for product operations; /actuator/prometheus for metrics.
+Consumed: Zipkin trace ingestion API.
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
 *Quality / Performance Characteristics*
-Fokus auf Datenkonsistenz und schnelle Lesezugriffe für Produktkataloge.
+Focus on data consistency and fast read access for product catalogs.
 
 *Location*
 backend/obelix-quarry-impl
@@ -247,15 +247,15 @@ backend/obelix-quarry-impl
 ==== obelix-basket
 
 *Purpose / Responsibility*
-Verwaltet Warenkörbe für Kunden. Ermöglicht das Hinzufügen, Entfernen und Aktualisieren von Artikeln im Warenkorb.
+Manages shopping baskets for customers. Enables adding, removing, and updating items in the basket.
 
 *Interfaces*
-Provided: REST API für Warenkorb-Operationen; /actuator/prometheus für Metriken.
-Consumed: Zipkin Trace-Ingestion API; obelix-quarry API (für Produktvalidierung).
-Internal contracts: Exponiert und implementiert shared Java Interfaces, die vom Gateway-Client verwendet werden.
+Provided: REST API for basket operations; /actuator/prometheus for metrics.
+Consumed: Zipkin trace ingestion API; obelix-quarry API (for product validation).
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
 *Quality / Performance Characteristics*
-Zustandsbehafteter Service; erfordert Datenpersistenz für aktive Warenkörbe.
+Stateful service; requires data persistence for active baskets.
 
 *Location*
 backend/obelix-basket-impl
