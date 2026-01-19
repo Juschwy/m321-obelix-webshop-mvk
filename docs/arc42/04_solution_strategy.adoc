@@ -32,3 +32,108 @@ See https://docs.arc42.org/section-4/[Solution Strategy] in the arc42 documentat
 
 ****
 endif::arc42help[]
+
+=== Technologieentscheidungen
+
+==== Backend
+
+* Spring Boot 3.5.6 mit Java 21 (Schulvorgabe)
+* Gradle Multi-Project Setup
+* Spring Data JPA für Persistierung
+* Lombok zur Reduzierung von Boilerplate-Code
+
+==== Frontend
+
+* Angular 21 mit TypeScript (gewählt wegen Team-Erfahrung)
+
+==== Service-Kommunikation
+
+* Spring WebClient (reactive) für nicht-blockierende Kommunikation
+* Spring HTTP Interface für typsichere Client-Definitionen
+* REST über HTTP
+
+==== Observability
+
+* Zipkin für Distributed Tracing
+* Prometheus + Grafana für Metriken
+* Spring Actuator für Health-Checks und Metriken-Endpunkte
+
+==== Deployment
+
+* Docker Container mit Docker Compose
+* Spring Boot Buildpacks für Image-Erstellung
+
+==== API-Dokumentation
+
+* OpenAPI 3.x wird automatisch aus dem Code generiert (SpringDoc)
+* Generierte TypeScript-Clients für Frontend
+
+==== Datenbank
+
+* H2 In-Memory (vorläufig, für Produktion geplant: persistente DB)
+
+=== Top-Level-Zerlegung
+
+==== Microservices
+
+Microservices-Architektur (Schulvorgabe). Drei Services:
+
+* `obelix-quarry` (Port 8081): Menhir-Verwaltung, CRUD für Produkte
+* `obelix-basket` (Port 8082): Warenkorb-Verwaltung
+* `obelix-webshop` (Port 8080): API-Gateway, aggregiert Daten für Frontend
+
+==== API/Impl-Trennung
+
+Jeder Service besteht aus zwei Modulen:
+
+* API-Module (`obelix-quarry-api`, `obelix-basket-api`): Öffentliche Interfaces, DTOs, Service-Definitionen
+* Impl-Module (`obelix-quarry-impl`, `obelix-basket-impl`): Konkrete Implementierung
+
+Vorteile: Typsichere Clients, einfacheres Mocking, lose Kopplung.
+
+==== Common Module
+
+`obelix-common` enthält geteilte Funktionalität:
+* Exception-Klassen, Common Configuration
+* Gemeinsame Abhängigkeiten (Spring Boot Starter, Actuator, Tracing)
+* Test-Fixtures
+
+==== Frontend
+
+Separate Angular-Anwendung, kommuniziert über REST-APIs mit Backend.
+
+=== Qualitätsziele
+
+==== Wartbarkeit
+
+Microservices mit API/Impl-Trennung: klare Verantwortlichkeiten, unabhängige Entwicklung und Deployment.
+
+==== Observability
+
+Zipkin, Prometheus und Grafana für Request-Tracing, Performance-Monitoring und Metriken.
+
+==== Skalierbarkeit
+
+Unabhängige Skalierung pro Service, horizontale Skalierung möglich, reaktive Kommunikation für bessere Ressourcennutzung.
+
+==== Entwicklungsgeschwindigkeit
+
+Code-First OpenAPI, generierte Frontend-Clients, Gradle Multi-Project für parallele Entwicklung.
+
+=== Organisatorische Entscheidungen
+
+==== Entwicklungsprozess
+
+* Pull-Request-Workflow: `master`-Branch geschützt, mindestens 3 Reviews erforderlich
+* Team-Struktur: FE, BE, CICD, MGMT
+* Code-First für OpenAPI (Generierung aus Code)
+
+==== Dokumentation
+
+* arc42-Template für Architekturdokumentation
+* AsciiDoc-Format
+
+==== Testing
+
+* Automatisierte Tests bei jedem PR
+* Test-Fixtures im Common-Modul für wiederverwendbare Utilities

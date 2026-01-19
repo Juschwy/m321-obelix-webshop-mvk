@@ -4,7 +4,313 @@ ifndef::imagesdir[:imagesdir: ../images]
 == Architecture Decisions
 
 This section documents **important architectural decisions** and their rationale.
-Use this template to capture each decision clearly and consistently.
+
+'''
+
+=== Use Docker Compose on a Single VM (BBW-Maas)
+
+==== Context
+Assignment requires deployment using Docker Compose. Environment is a school-managed MAAS cluster with ephemeral VMs; team focuses on dev/test.
+
+==== Decision
+Run all services on a single Ubuntu 24.04 VM orchestrated with Docker Compose.
+
+==== Alternatives Considered
+* Kubernetes: Provides HA and scaling but adds significant complexity and is not required.
+* Multiple VMs: Improved isolation but conflicts with simplicity and resource constraints.
+
+==== Rationale
+Minimizes operational overhead; fastest setup for ephemeral environments; meets assignment constraints.
+
+==== Implications
+Single point of failure; limited scalability; simpler operations and troubleshooting.
+
+'''
+
+=== Reverse Proxy Gateway (obelix-webshop)
+
+==== Context
+Frontend needs a single entrypoint; backend consists of multiple domain services.
+
+==== Decision
+Use obelix-webshop as a reverse proxy/gateway that routes and aggregates calls to basket/quarry.
+
+==== Alternatives Considered
+* Direct frontend-to-services: Increases client complexity and coupling.
+* Dedicated API Gateway product: Overkill for dev/test and scope.
+
+==== Rationale
+Simplifies frontend; centralizes cross-cutting concerns (metrics, tracing).
+
+==== Implications
+Gateway becomes a critical component; potential bottleneck; clear API surface for FE.
+
+'''
+
+=== Observability Stack (Zipkin, Prometheus, Grafana)
+
+==== Context
+Assignment mandates tracing and metrics.
+
+==== Decision
+Integrate Zipkin for traces, Prometheus for metrics, Grafana for visualization.
+
+==== Alternatives Considered
+* Jaeger, OpenTelemetry collector: More flexible, but Zipkin satisfies requirements.
+* External monitoring: Not suitable for a single VM dev/test setup.
+
+==== Rationale
+Well-known tools; easy Docker images; good developer UX.
+
+==== Implications
+Services must expose metrics and send spans; minor runtime overhead.
+
+'''
+
+=== OpenAPI Code-first & Generated Frontend Client
+
+==== Context
+APIs must be well-documented, and frontend must use a generated client.
+
+==== Decision
+Generate OpenAPI specs code-first (springdoc); generate and use FE client via openapi-generator.
+
+==== Alternatives Considered
+* Spec-first with manual maintenance: Risk of drift.
+* Manual frontend client: Increases effort and risk.
+
+==== Rationale
+Aligns with assignment; improves API consistency and developer experience.
+
+==== Implications
+Requires maintaining annotations/descriptions in code; FE build depends on current OAS.
+
+'''
+
+=== CI/CD: GitHub Actions + GHCR + MAAS + WireGuard/SSH
+
+==== Context
+Automated tests and deployments to the MAAS VM; protected main.
+
+==== Decision
+Use GitHub Actions for CI/CD; publish images to GHCR; provision VM via MAAS API; connect via WireGuard + SSH to update and deploy Compose.
+
+==== Alternatives Considered
+* Manual deployment: Error-prone and slow.
+* Other registries/pipelines: No clear benefit for class project; GitHub ecosystem is integrated.
+
+==== Rationale
+Automates quality checks and deployments; traceability and repeatability.
+
+==== Implications
+Requires secrets management and network setup (WireGuard keys); pipeline becomes critical for operations.
+
+'''
+
+=== Split Backend into Domain Microservices (+ optional BFF)
+
+==== Context
+
+The assignment requires the Obelix application to run with **at least 3 microservices** and to stay aligned with the existing “Obelix-App” expectations.
+
+Business-wise we need:
+* A customer WebUI to buy *Hinkelsteine*
+* An admin UI to manage *Hinkelsteine* with CRUD (explicitly “easy”, no auth/session required)
+
+Key constraints / stakeholders:
+* FE depends on stable, clear APIs (they will consume via generated client)
+* DevOps/ops needs services that can be deployed and monitored independently
+* PenTesters / reviewers want clear boundaries and ownership per service
+
+==== Decision
+
+We implement a **domain-oriented microservice split** with clear responsibilities and “database-per-service” isolation:
+
+* **Stone Service** (Hinkelstein Catalog / Admin CRUD)
+* Owns Hinkelstein entities, validation, CRUD, search/filtering.
+* **Order Service** (Shopping / Checkout)
+* Owns carts/orders, order state machine (e.g., `CREATED -> CONFIRMED -> CANCELLED`).
+* **Fulfillment/Receipt Service** (Processing after checkout)
+* Generates “receipts” / confirmations (or simplified fulfillment) and encapsulates post-order logic.
+
+Optional (if FE benefits): a lightweight **BFF/API Gateway** for the web UIs that aggregates calls, but it still counts as just an edge component; the “minimum 3 microservices” is met by the three domain services.
+
+Service-to-service communication is **synchronous REST** for this project scope (simple, debuggable), plus **idempotency keys** for “create order” to avoid double-charges/double-orders on retries.
+
+==== Alternatives Considered
+
+* Alternative 1: **Monolith**
+* Rejected because requirement is min. 3 microservices.
+* Alternative 2: **Microservices with shared database**
+* Rejected because it couples deployability and creates “hidden” cross-service dependencies and locking/contention.
+* Alternative 3: **Event-driven async messaging (Kafka/RabbitMQ) for everything**
+* Rejected for complexity/learning overhead in a class project; harder debugging, more moving parts.
+
+==== Rationale
+
+Benefits:
+* Clear ownership boundaries per domain → simpler codebases and reviews
+* Independent deploy/test scope per service
+* Easier to match observability requirements (traces/metrics per service)
+
+Trade-offs:
+* More operational overhead than a monolith (more deployments, network calls)
+* Requires clear API contracts and versioning discipline
+
+Quality attributes impacted:
+* **Scalability:** can scale order traffic independently from admin CRUD
+* **Maintainability:** smaller, focused services; clearer separation of concerns
+* **Reliability:** failures can be isolated (e.g., fulfillment down shouldn’t break admin CRUD)
+
+==== Implications
+
+* Each service needs its **own persistence** (even if all use the same DB engine).
+* Requires **cross-service consistency strategy**:
+* Order Service is source of truth for order state.
+* Fulfillment/Receipt consumes order events via REST callback/polling (simple approach) or internal “process” endpoint.
+* Testing:
+* Service-level tests + a small set of end-to-end tests that run all services together (e.g., docker-compose in CI).
+
+==== Related Decisions
+
+* Decision 2 (OpenAPI contract + generated clients)
+* Decision 3 (Observability with Zipkin/Prometheus/Grafana)
+
+'''
+
+=== Code-first OpenAPI per Microservice + Generated Clients
+
+==== Context
+
+The assignment requires:
+* **OAS 3.x** interface definitions **per microservice**
+* OAS must be **generated (code-first)**
+* OAS must be **readable** (descriptions + examples)
+* FE must use **only a generated client**
+
+This means API changes must be controlled to avoid breaking the generated client and the integration guide.
+
+==== Decision
+
+We implement **code-first OpenAPI generation per service**:
+
+* Each microservice generates its OpenAPI 3.x spec during build (e.g., Springdoc/OpenAPI plugin).
+* The generated YAML/JSON is published as a build artifact (and optionally served at `/v3/api-docs`).
+* The frontend uses **openapi-generator** (or equivalent) to generate a typed client from those specs (no handwritten HTTP calls).
+* We adopt an API versioning rule:
+* Backward compatible changes (add optional fields, add endpoints) stay in `/v1`
+* Breaking changes require `/v2` (new base path), with explicit deprecation period
+
+==== Alternatives Considered
+
+* Alternative 1: **Design-first OpenAPI (write YAML manually)**
+* Rejected because requirement is code-first generation.
+* Alternative 2: **Handwritten FE API client**
+* Rejected because FE must use only generated client.
+* Alternative 3: **Single shared OpenAPI for all services**
+* Rejected because requirement is “per microservice” and it blurs ownership boundaries.
+
+==== Rationale
+
+Benefits:
+* Contract stays aligned with code (less drift)
+* FE integration becomes safer (typed client, compile-time checks)
+* Improves documentation quality (required descriptions/examples)
+
+Trade-offs:
+* Requires discipline to keep annotations/descriptions clean
+* Build pipeline must include spec generation and client regeneration checks
+
+Quality attributes impacted:
+* **Maintainability:** fewer integration surprises, clearer contracts
+* **Security:** explicit schemas help validation and reduce “loose” inputs
+
+==== Implications
+
+* Every endpoint must have:
+* explicit request/response DTOs
+* validation rules (e.g., required fields, ranges)
+* examples/descriptions (so generated spec is “readable”)
+* Add **contract checks** in CI:
+* Ensure spec is generated
+* Optionally fail build if a breaking change is detected (e.g., compare against main branch spec)
+* The integration guide can reference the generated client + spec confidently.
+
+==== Related Decisions
+
+* Decision 1 (microservice boundaries define spec boundaries)
+* Decision 3 (trace headers and correlation should be documented in OpenAPI as well)
+
+'''
+
+=== End-to-end Observability with Trace Propagation + Metrics
+
+==== Context
+
+The assignment explicitly requires:
+* **Zipkin** (distributed tracing)
+* **Prometheus + Grafana** (metrics + dashboards)
+
+With multiple microservices, we need request-level visibility across service boundaries, plus service health/SLIs.
+
+==== Decision
+
+We implement an “observability baseline” in every microservice:
+
+* **Distributed tracing**
+* Use OpenTelemetry (or framework equivalent) instrumentation
+* Propagate trace context via standard headers (`traceparent` / B3, depending on stack)
+* Export traces to **Zipkin**
+* **Metrics**
+* Expose a Prometheus scrape endpoint (e.g., `/actuator/prometheus`)
+* Standard metrics: request latency, error rates, JVM/process metrics, DB call timing
+* Grafana dashboards for:
+* RED metrics per service (Rate, Errors, Duration)
+* Dependency latency between services
+* **Logging**
+* Structured logs with `traceId`/`spanId` included for correlation with Zipkin
+
+==== Alternatives Considered
+
+* Alternative 1: **Only logs**
+* Rejected because requirement demands Zipkin + Prometheus/Grafana.
+* Alternative 2: **Metrics only**
+* Rejected because you lose per-request causality across services (harder debugging).
+* Alternative 3: **Vendor APM (Datadog/NewRelic/etc.)**
+* Rejected because project targets the required open tooling stack and likely limited environment.
+
+==== Rationale
+
+Benefits:
+* Fast debugging of cross-service failures (see the whole trace in Zipkin)
+* Operations visibility (dashboards + alerts possible)
+* Encourages good “SRE hygiene” even in a small project
+
+Trade-offs:
+* Slight overhead in request processing
+* Needs consistent configuration and context propagation everywhere
+
+Quality attributes impacted:
+* **Operability:** major improvement (required stack)
+* **Reliability:** faster incident resolution
+* **Performance:** small overhead; measurable via metrics
+
+==== Implications
+
+* Every inbound request must:
+* accept and forward trace headers to downstream services
+* create spans around external calls (HTTP/DB)
+* CI/Local run:
+* Provide docker-compose with Zipkin + Prometheus + Grafana to verify end-to-end traces/metrics.
+* Testing:
+* Add at least one integration test that makes a “purchase” flow and asserts trace propagation headers are passed.
+
+==== Related Decisions
+
+* Decision 1 (service boundaries define trace boundaries and dependencies)
+* Decision 2 (document trace headers in OpenAPI where relevant)
+
+'''
 
 ---
 === Frontend Architecture Decisions
@@ -85,9 +391,3 @@ Implications:
 * All templates use @if, @for, @empty
 * No imports needed for CommonModule directives
 * Track expression required for @for loops
-
----
-
-=== <Decision n – Short Title>
-
-(copy the template above)
