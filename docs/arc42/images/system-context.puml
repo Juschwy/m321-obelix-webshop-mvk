@@ -1,0 +1,29 @@
+@startuml SystemContext
+
+!define RECTANGLE class
+
+RECTANGLE Customer {
+  +name
+  +email
+}
+
+RECTANGLE Admin {
+  +manageStones()
+}
+
+RECTANGLE WebUI
+RECTANGLE AdminUI
+RECTANGLE ObelixAPI
+RECTANGLE Microservice1
+RECTANGLE Microservice2
+RECTANGLE Microservice3
+
+Customer --> WebUI : kauft Hinkelsteine
+Admin --> AdminUI : verwaltet Hinkelsteine
+WebUI --> ObelixAPI : ruft API auf
+AdminUI --> ObelixAPI
+ObelixAPI --> Microservice1
+ObelixAPI --> Microservice2
+ObelixAPI --> Microservice3
+
+@enduml
