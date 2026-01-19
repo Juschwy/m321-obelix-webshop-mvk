@@ -3,35 +3,38 @@ ifndef::imagesdir[:imagesdir: ../images]
 [[section-quality-scenarios]]
 == Quality Requirements
 
-This chapter captures all **relevant quality requirements** and associated scenarios.
-It focuses on **measurable and architecturally relevant** qualities.
+This chapter captures **relevant quality requirements** and associated scenarios.
 
----
+'''
 
 === Quality Requirements Overview
-
-Use this section to provide a **summary of the most important quality requirements**.
-Reference high-priority quality goals from section 1.2 if needed.
 
 [cols="1,2",options="header"]
 |===
 |Category / Topic |Short Description
 
-|<Quality Category 1>
-|<Brief description, measurable if possible>
+|Simplicity of Deployment
+|Single VM with Docker Compose; setup within <30 minutes on a fresh VM via cloud-init.
 
-|<Quality Category 2>
-|<Brief description, measurable if possible>
+|Observability
+|Prometheus scrapes all backend services; Zipkin collects traces; Grafana dashboards load in <5s.
 
-|<Quality Category n>
-|<Brief description, measurable if possible>
+|Documentation Quality
+|arc42 chapters filled; OpenAPI has descriptions+examples for all properties; diagrams embedded.
+
+|CI Reliability
+|PR builds succeed deterministically; main deployments complete in <10 minutes.
+
+|Performance (Dev/Test)
+|API endpoints respond in <500ms under light load (<20 RPS) on the single VM.
+
+|Security (Dev/Test)
+|No auth per assignment; VM has only required ports open; secrets handled in CI securely.
 |===
 
-NOTE: You may optionally use a mindmap or a quality attribute tree.
+'''
 
----
-
-=== Quality Scenario <Scenario 1 – Short Name>
+=== Quality Scenario QS-01: Observability Metrics Available
 
 ==== Scenario ID
 
@@ -39,41 +42,93 @@ TODO: Assign a **unique ID**.
 
 ==== Context / Background
 
-TODO: Describe the **system, component, or environment** relevant to this scenario.
+Backend services expose /actuator/prometheus; Prometheus scrapes metrics.
 
 ==== Source / Stimulus
 
-TODO: Describe **who or what triggers** this scenario.
+Prometheus scheduled scrape every 15s.
 
 ==== Environment
 
-TODO: Describe **conditions under which the stimulus occurs**.
+Single VM; Docker network; Prometheus config from cloud-init.
 
 ==== Artifact / Building Blocks Involved
 
-TODO: List **affected building blocks**.
+obelix-webshop, obelix-quarry, obelix-basket, Prometheus, Grafana.
 
 ==== Response
 
-TODO: Describe **expected system behavior**.
+Prometheus stores metrics; Grafana visualizes without errors.
 
-#### Metric / Acceptance Criteria
+==== Metric / Acceptance Criteria
 
-TODO: Specify **measurable criteria** to judge success.
+All three services’ targets show “UP=1” in Prometheus within 1 minute of startup; Grafana dashboard loads <5s.
 
----
+'''
 
-=== Quality Scenario <Scenario 2 – Short Name>
+=== Quality Scenario QS-02: Traces Collected in Zipkin
 
-(copy the template above)
+==== Scenario ID
 
----
+TODO: Assign a **unique ID**.
 
-=== Quality Scenario <Scenario n – Short Name>
+==== Context / Background
 
-(copy the template above)
+Services send spans to Zipkin.
 
----
+==== Source / Stimulus
+
+HTTP requests via frontend to backend services.
+
+==== Environment
+
+Single VM; Zipkin container listening on 9411.
+
+==== Artifact / Building Blocks Involved
+
+obelix-webshop, obelix-quarry, obelix-basket, Zipkin.
+
+==== Response
+
+Zipkin displays end-to-end traces for requests.
+
+==== Metric / Acceptance Criteria
+
+At least one trace per handled request within 5s; error rate of span submission <1% over 10 minutes.
+
+'''
+
+=== Quality Scenario QS-03: CI/CD Deployment Reproducibility
+
+==== Scenario ID
+
+TODO: Assign a **unique ID**.
+
+==== Context / Background
+
+CI provisions VM, connects, updates images, and runs docker compose.
+
+==== Source / Stimulus
+
+Merge to main branch triggers deployment.
+
+==== Environment
+
+GitHub Actions; BBW-Maas; Ubuntu VM with Docker.
+
+==== Artifact / Building Blocks Involved
+
+CI pipeline, MAAS API, VM.
+
+==== Response
+
+Deployment completes without manual intervention.
+
+==== Metric / Acceptance Criteria
+
+Pipeline finishes <10 minutes; VM services reach healthy state; compose exit code 0.
+
+'''
 
 === Notes / Optional
 

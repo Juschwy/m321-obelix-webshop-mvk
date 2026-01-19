@@ -4,75 +4,103 @@ ifndef::imagesdir[:imagesdir: ../images]
 == Architecture Decisions
 
 This section documents **important architectural decisions** and their rationale.
-Use this template to capture each decision clearly and consistently.
 
----
+'''
 
-=== <Decision 1 – Short Title>
+=== Use Docker Compose on a Single VM (BBW-Maas)
 
 ==== Context
-
-TODO:  
-Describe the situation, requirements, or problem that prompted this decision.
-
-* Which constraints apply?  
-* Which stakeholders are affected?  
-* What prior decisions are relevant?
+Assignment requires deployment using Docker Compose. Environment is a school-managed MAAS cluster with ephemeral VMs; team focuses on dev/test.
 
 ==== Decision
+Run all services on a single Ubuntu 24.04 VM orchestrated with Docker Compose.
 
-TODO:  
-Clearly state the **chosen alternative**.
-
-* What solution / approach was selected?  
-* Why was this alternative chosen over others?
-
-#### Alternatives Considered
-
-TODO:  
-List other reasonable options and briefly explain why they were **not chosen**.
-
-* Alternative 1: <description>  
-* Alternative 2: <description>  
-* Alternative n: <description>
+==== Alternatives Considered
+* Kubernetes: Provides HA and scaling but adds significant complexity and is not required.
+* Multiple VMs: Improved isolation but conflicts with simplicity and resource constraints.
 
 ==== Rationale
-
-TODO:  
-Explain **why this decision is correct**, e.g.:
-
-* Benefits
-* Trade-offs
-* Impact on system quality attributes (performance, scalability, security)
+Minimizes operational overhead; fastest setup for ephemeral environments; meets assignment constraints.
 
 ==== Implications
+Single point of failure; limited scalability; simpler operations and troubleshooting.
 
-TODO:  
-Describe **consequences of the decision**, including:
+'''
 
-* Impact on other building blocks  
-* Technical debt or risks  
-* Testing / operational considerations
+=== Reverse Proxy Gateway (obelix-webshop)
 
-#### Related Decisions
+==== Context
+Frontend needs a single entrypoint; backend consists of multiple domain services.
 
-TODO (optional):  
-Link to related architectural decisions or references to other chapters.
+==== Decision
+Use obelix-webshop as a reverse proxy/gateway that routes and aggregates calls to basket/quarry.
 
----
+==== Alternatives Considered
+* Direct frontend-to-services: Increases client complexity and coupling.
+* Dedicated API Gateway product: Overkill for dev/test and scope.
 
-=== <Decision 2 – Short Title>
+==== Rationale
+Simplifies frontend; centralizes cross-cutting concerns (metrics, tracing).
 
-(copy the template above)
+==== Implications
+Gateway becomes a critical component; potential bottleneck; clear API surface for FE.
 
----
+'''
 
-=== <Decision 3 – Short Title>
+=== Observability Stack (Zipkin, Prometheus, Grafana)
 
-(copy the template above)
+==== Context
+Assignment mandates tracing and metrics.
 
----
+==== Decision
+Integrate Zipkin for traces, Prometheus for metrics, Grafana for visualization.
 
-=== <Decision n – Short Title>
+==== Alternatives Considered
+* Jaeger, OpenTelemetry collector: More flexible, but Zipkin satisfies requirements.
+* External monitoring: Not suitable for a single VM dev/test setup.
 
-(copy the template above)
+==== Rationale
+Well-known tools; easy Docker images; good developer UX.
+
+==== Implications
+Services must expose metrics and send spans; minor runtime overhead.
+
+'''
+
+=== OpenAPI Code-first & Generated Frontend Client
+
+==== Context
+APIs must be well-documented, and frontend must use a generated client.
+
+==== Decision
+Generate OpenAPI specs code-first (springdoc); generate and use FE client via openapi-generator.
+
+==== Alternatives Considered
+* Spec-first with manual maintenance: Risk of drift.
+* Manual frontend client: Increases effort and risk.
+
+==== Rationale
+Aligns with assignment; improves API consistency and developer experience.
+
+==== Implications
+Requires maintaining annotations/descriptions in code; FE build depends on current OAS.
+
+'''
+
+=== CI/CD: GitHub Actions + GHCR + MAAS + WireGuard/SSH
+
+==== Context
+Automated tests and deployments to the MAAS VM; protected main.
+
+==== Decision
+Use GitHub Actions for CI/CD; publish images to GHCR; provision VM via MAAS API; connect via WireGuard + SSH to update and deploy Compose.
+
+==== Alternatives Considered
+* Manual deployment: Error-prone and slow.
+* Other registries/pipelines: No clear benefit for class project; GitHub ecosystem is integrated.
+
+==== Rationale
+Automates quality checks and deployments; traceability and repeatability.
+
+==== Implications
+Requires secrets management and network setup (WireGuard keys); pipeline becomes critical for operations.
