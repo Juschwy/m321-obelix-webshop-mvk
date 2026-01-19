@@ -89,16 +89,34 @@ The system is split into a single-page frontend and multiple backend microservic
 
 === Level 1 – Black Box Descriptions
 
+==== Building Block View
+[plantuml, puml, svg]
+----
+@startuml
+title Level 1:
+
+actor User
+component obelix_webshop_frontend
+component obelix_webshop_backend
+interface obelix_backend_api
+
+User --> obelix_webshop_frontend
+obelix_webshop_backend -- obelix_backend_api
+obelix_webshop_frontend ..> obelix_backend_api : requires
+
+@enduml
+----
+
 ==== Frontend (Angular + Nginx)
 
-*Purpose / Responsibility*  
+*Purpose / Responsibility*
 Customer UI; uses generated OpenAPI client to call reverse proxy.
 
-*Interfaces*  
+*Interfaces*
 Provided: Web UI (HTTP).
 Consumed: obelix-webshop REST API.
 
-(Optional) *Quality / Performance Characteristics*  
+(Optional) *Quality / Performance Characteristics*
 Static content served via Nginx; relies on backend for data.
 
 (Optional) *Location*
@@ -130,7 +148,7 @@ Provided: REST API; /actuator/prometheus.
 Consumed: Zipkin ingestion API.
 Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
-(Optional) *Location*  
+(Optional) *Location*
 backend/obelix-quarry-impl
 
 ==== obelix-basket
@@ -175,25 +193,72 @@ Consumed: spans from backend services.
 
 ==== Frontend (Angular + Nginx)
 
-(copy the template above)
+*Purpose / Responsibility*
+Stellt die Benutzeroberfläche für Kunden bereit, um Hinkelsteine zu durchsuchen und zu kaufen. Verwendet einen generierten OpenAPI-Client zur Kommunikation mit dem Backend.
+
+*Interfaces*
+Provided: Web-UI (HTTP/HTTPS über Nginx).
+Consumed: obelix-webshop REST API.
+
+*Quality / Performance Characteristics*
+Statischer Content wird über Nginx ausgeliefert; alle dynamischen Daten werden vom Backend bezogen. Single-Page-Application mit reaktivem State-Management (NgRx).
+
+*Location*
+frontend/obelix-webshop-frontend
 
 '''
 
 ==== obelix-webshop (reverse proxy)
 
-(copy the template above)
+*Purpose / Responsibility*
+Zentraler Einstiegspunkt für alle Frontend-Anfragen. Aggregiert und routet Requests zu den Domain-Services (basket, quarry). Stellt Metriken für Prometheus bereit und sendet Traces an Zipkin.
+
+*Interfaces*
+Provided: REST API für das Frontend; /actuator/prometheus für Metriken.
+Consumed: obelix-basket REST API; obelix-quarry REST API; Zipkin Trace-Ingestion API.
+Internal contracts: Implementiert shared Java Interfaces für Basket/Quarry-Clients.
+
+*Quality / Performance Characteristics*
+Single Point of Entry; gewährleistet konsistente APIs und Cross-Cutting Concerns (Tracing, Metrics).
+
+*Location*
+backend/obelix-webshop
 
 '''
 
 ==== obelix-quarry
 
-(copy the template above)
+*Purpose / Responsibility*
+Verwaltet Produktdaten (Hinkelsteine) und stellt CRUD-APIs für die Produktverwaltung bereit.
+
+*Interfaces*
+Provided: REST API für Produktoperationen; /actuator/prometheus für Metriken.
+Consumed: Zipkin Trace-Ingestion API.
+Internal contracts: Exponiert und implementiert shared Java Interfaces, die vom Gateway-Client verwendet werden.
+
+*Quality / Performance Characteristics*
+Fokus auf Datenkonsistenz und schnelle Lesezugriffe für Produktkataloge.
+
+*Location*
+backend/obelix-quarry-impl
 
 '''
 
 ==== obelix-basket
 
-(copy the template above)
+*Purpose / Responsibility*
+Verwaltet Warenkörbe für Kunden. Ermöglicht das Hinzufügen, Entfernen und Aktualisieren von Artikeln im Warenkorb.
+
+*Interfaces*
+Provided: REST API für Warenkorb-Operationen; /actuator/prometheus für Metriken.
+Consumed: Zipkin Trace-Ingestion API; obelix-quarry API (für Produktvalidierung).
+Internal contracts: Exponiert und implementiert shared Java Interfaces, die vom Gateway-Client verwendet werden.
+
+*Quality / Performance Characteristics*
+Zustandsbehafteter Service; erfordert Datenpersistenz für aktive Warenkörbe.
+
+*Location*
+backend/obelix-basket-impl
 
 '''
 
@@ -204,7 +269,47 @@ Level 2 describes the **internal structure** of selected Level-1 building blocks
 ==== White Box obelix-webshop (reverse proxy)
 
 ==== Overview Diagram
+.Building Block View
+[plantuml, puml]
+----
+@startuml
+title Level 2:
 
+interface obelix_backend_api
+
+component obelix_webshop_frontend
+component obelix_webshop_backend {
+component obelix_basket_api
+component obelix_basket_impl
+component obelix_common
+component obelix_quarry_api
+component obelix_quarry_impl
+component obelix_webshop
+
+
+interface configs
+interface quarry_api
+interface basket_api
+
+obelix_common -- configs
+
+obelix_quarry_api ..> configs : requires
+obelix_basket_api ..> configs :requires
+
+obelix_quarry_api -- quarry_api
+obelix_quarry_impl ..> quarry_api : requires
+
+obelix_basket_api -- basket_api
+obelix_basket_impl ..> basket_api : requires
+
+obelix_webshop ..> quarry_api : requires
+obelix_webshop ..> basket_api : requires
+}
+
+obelix_webshop_backend -- obelix_backend_api
+obelix_webshop_frontend ..> obelix_backend_api : requires
+@enduml
+----
 [plantuml, webshop-whitebox, svg]
 ----
 @startuml
