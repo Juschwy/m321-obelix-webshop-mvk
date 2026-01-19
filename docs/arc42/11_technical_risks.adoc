@@ -8,7 +8,7 @@ This section captures **identified technical risks and technical debts** from th
 **Author:** Jesse Wetli +
 **Last Updated:** 2026-01-12
 
----
+'''
 
 === Risk 1 – Missing Authentication and Authorization
 
@@ -43,23 +43,13 @@ The backend services currently have **no authentication or authorization mechani
 * Violates basic security principles (especially for admin operations)
 * Non-compliance with data protection regulations
 
-==== Mitigation / Remediation Measures
-
-1. **Implement Spring Security** in all microservices
-2. **Add JWT-based authentication** for API access
-3. **Implement role-based access control (RBAC)** to distinguish between customers and administrators
-4. **Secure inter-service communication** using service-to-service authentication
-5. **Add OAuth2/OIDC integration** for enterprise-grade authentication
-6. **Implement session management** for the admin UI
-7. **Add security headers** (CORS, CSP, X-Frame-Options)
-
 ==== Status / Owner
 
 * **Status:** Active
 * **Owner:** Backend Team (BE)
 * **Priority:** Critical – Must be addressed before production deployment
 
----
+'''
 
 === Risk 2 – In-Memory H2 Database (Data Loss)
 
@@ -91,15 +81,6 @@ All microservices use **H2 in-memory database** (`jdbc:h2:mem:obelixdb`) as defi
 * Cannot operate as a real e-commerce system
 * Testing and QA becomes difficult (no stable data state)
 
-==== Mitigation / Remediation Measures
-
-1. **Migrate to persistent database** (PostgreSQL, MySQL, or MariaDB)
-2. **Configure file-based H2 database** as intermediate solution (`jdbc:h2:file:./data/obelixdb`)
-3. **Implement database backups and restore procedures**
-4. **Add database migration tooling** (Flyway or Liquibase)
-5. **Configure separate databases per microservice** to maintain service autonomy
-6. **Implement data initialization scripts** for development/testing environments
-
 ==== Status / Owner
 
 * **Status:** Active
@@ -107,7 +88,7 @@ All microservices use **H2 in-memory database** (`jdbc:h2:mem:obelixdb`) as defi
 * **Priority:** High – Required for production readiness
 * **Note:** Comment in `obelix-common/build.gradle:17` states "for now..." indicating temporary solution
 
----
+'''
 
 === Risk 3 – Unencrypted HTTP Communication Between Services
 
@@ -139,22 +120,13 @@ All inter-service communication uses **plain HTTP without TLS/SSL encryption**.
 * Does not meet security compliance requirements
 * Credentials (if added later) would be transmitted unencrypted
 
-==== Mitigation / Remediation Measures
-
-1. **Enable HTTPS/TLS for all services** using certificates
-2. **Implement mutual TLS (mTLS)** for service-to-service authentication
-3. **Use service mesh** (Istio, Linkerd) for automatic TLS encryption
-4. **Configure certificate management** (Let's Encrypt, internal PKI)
-5. **Update all service URLs** to use `https://` protocol
-6. **Implement certificate rotation** procedures
-
 ==== Status / Owner
 
 * **Status:** Active
 * **Owner:** Backend Team (BE) + CI/CD Team
 * **Priority:** High – Critical for production security
 
----
+'''
 
 === Risk 4 – No Resilience Patterns (Cascading Failures)
 
@@ -189,23 +161,13 @@ The microservices architecture **lacks resilience patterns** such as circuit bre
 * No graceful degradation
 * System becomes fragile and unreliable
 
-==== Mitigation / Remediation Measures
-
-1. **Add Resilience4j dependency** to handle failures
-2. **Implement circuit breakers** for all external service calls
-3. **Configure retry logic with exponential backoff**
-4. **Set appropriate timeouts** for all HTTP client calls
-5. **Implement bulkhead pattern** to isolate failures
-6. **Add fallback responses** for non-critical operations
-7. **Monitor circuit breaker states** in Grafana dashboards
-
 ==== Status / Owner
 
 * **Status:** Active
 * **Owner:** Backend Team (BE)
 * **Priority:** Medium – Important for production stability
 
----
+'''
 
 === Risk 5 – Default Credentials in Monitoring Stack
 
@@ -236,23 +198,13 @@ Grafana monitoring system uses **default administrator credentials** (`admin/adm
 * Potential information disclosure for attackers
 * Could reveal system architecture and weaknesses
 
-==== Mitigation / Remediation Measures
-
-1. **Change default Grafana credentials** immediately
-2. **Use environment variables or secrets management** for credentials
-3. **Implement proper authentication** (LDAP, OAuth2, or SAML)
-4. **Enable HTTPS for Grafana** web interface
-5. **Restrict network access** to monitoring tools (firewall rules, network policies)
-6. **Implement role-based access control** in Grafana
-7. **Rotate credentials regularly**
-
 ==== Status / Owner
 
 * **Status:** Active
 * **Owner:** CI/CD Team
 * **Priority:** Medium – Should be addressed before external deployment
 
----
+'''
 
 === Risk 6 – 100% Distributed Tracing Sampling Rate
 
@@ -283,22 +235,13 @@ All services are configured with **100% tracing sampling rate** (`probability: 1
 * Unnecessary resource consumption
 * Cost implications in cloud environments
 
-==== Mitigation / Remediation Measures
-
-1. **Reduce sampling rate for production** (e.g., 0.1 for 10% sampling)
-2. **Use environment-specific configuration** (100% in dev, 10% in prod)
-3. **Implement dynamic sampling** based on request importance
-4. **Add sampling configuration to Spring profiles**
-5. **Monitor Zipkin performance and storage**
-6. **Consider head-based vs. tail-based sampling strategies**
-
 ==== Status / Owner
 
 * **Status:** Active
 * **Owner:** Backend Team (BE) + CI/CD Team
 * **Priority:** Low – Can be addressed during production optimization
 
----
+'''
 
 === Risk 7 – No Rate Limiting or Throttling
 
@@ -329,23 +272,13 @@ The backend services have **no rate limiting or request throttling mechanisms** 
 * Unfair resource allocation
 * No cost control in cloud environments
 
-==== Mitigation / Remediation Measures
-
-1. **Implement rate limiting at API gateway level** (Spring Cloud Gateway, Kong, Traefik)
-2. **Add rate limiting to individual services** using Bucket4j or similar
-3. **Configure per-IP and per-user rate limits**
-4. **Implement backpressure mechanisms**
-5. **Add request queue management**
-6. **Monitor request patterns and set appropriate limits**
-7. **Return HTTP 429 (Too Many Requests)** with Retry-After headers
-
 ==== Status / Owner
 
 * **Status:** Active
 * **Owner:** Backend Team (BE)
 * **Priority:** Medium – Important for public-facing APIs
 
----
+'''
 
 === Risk 8 – Exposed Actuator Endpoints
 
@@ -374,23 +307,13 @@ Spring Boot Actuator is configured to expose Prometheus metrics endpoint (`manag
 * Provides reconnaissance information to attackers
 * May expose database connection strings, API keys (if configured)
 
-==== Mitigation / Remediation Measures
-
-1. **Review and minimize exposed actuator endpoints**
-2. **Add authentication to actuator endpoints** (Spring Security)
-3. **Use management port separate from application port** for isolation
-4. **Restrict network access to actuator endpoints** (firewall, network policies)
-5. **Regular audit of exposed endpoints**
-6. **Remove sensitive information from environment variables**
-7. **Use Spring Cloud Config** for external configuration management
-
 ==== Status / Owner
 
 * **Status:** Proposed
 * **Owner:** Backend Team (BE)
 * **Priority:** Low – Review during security hardening phase
 
----
+'''
 
 === Technical Debt 9 – Hardcoded Service URLs
 
@@ -422,22 +345,13 @@ Service URLs are **hardcoded in configuration files** rather than using service 
 * Manual configuration updates required for environment changes
 * No automatic load balancing between service instances
 
-==== Mitigation / Remediation Measures
-
-1. **Implement service discovery** (Spring Cloud Netflix Eureka, Consul)
-2. **Use Kubernetes service DNS** if deploying to Kubernetes
-3. **Configure client-side load balancing** (Spring Cloud LoadBalancer)
-4. **Remove hardcoded URLs** from application.yaml
-5. **Use environment-specific configuration** with external config server
-6. **Implement health checks and service registration**
-
 ==== Status / Owner
 
 * **Status:** Proposed
 * **Owner:** Backend Team (BE) + CI/CD Team
 * **Priority:** Low – Can be addressed when scaling requirements arise
 
----
+'''
 
 === Summary
 
