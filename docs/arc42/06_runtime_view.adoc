@@ -50,6 +50,87 @@ WS --> FE : 200 item added
 @enduml
 ----
 
+=== Frontend Runtime Scenarios
+==== Scenario 1: User Adds Menhir to Cart
+[plantuml, frontend-scenario-1, svg]
+----
+@startuml
+actor User
+participant MenhirCardComponent
+participant CartService
+participant NavbarComponent
+
+User -> MenhirCardComponent : Click "Add to Cart"
+MenhirCardComponent -> CartService : addItem(menhir)
+CartService -> CartService : Update signal state
+CartService -> CartService : Save to localStorage
+CartService -> NavbarComponent : Notify cart update (toSignal)
+NavbarComponent -> NavbarComponent : Update badge count
+@enduml
+----
+Steps:
+
+* User clicks "Add to Cart" button on MenhirCardComponent
+* Component calls CartService.addItem(menhir)
+* CartService updates internal BehaviorSubject with new item
+* CartService saves updated cart to localStorage
+* NavbarComponent receives update via toSignal and displays new count
+
+==== Scenario 2: Admin Creates New Menhir
+[plantuml, frontend-scenario-2, svg]
+----
+@startuml
+actor Admin
+participant AdminListComponent
+participant CreateMenhirModal
+participant AdminService
+
+Admin -> AdminListComponent : Click "Create Menhir"
+AdminListComponent -> CreateMenhirModal : Open modal
+Admin -> CreateMenhirModal : Fill form
+Admin -> CreateMenhirModal : Click Submit
+CreateMenhirModal -> AdminService : createMenhir()
+AdminService --> CreateMenhirModal : Return menhir
+CreateMenhirModal --> AdminListComponent : Emit created event
+AdminListComponent -> AdminListComponent : Reload list
+@enduml
+----
+Steps:
+
+* Admin clicks "Create Menhir" button
+* AdminListComponent sets showCreateModal$$ signal to true
+* Admin fills form (weight, stoneType, decorativeness, description, image)
+* Image is converted to Base64 for preview and storage
+* AdminService.createMenhir() stores menhir in localStorage
+* Modal emits created event, AdminListComponent reloads list
+
+==== Scenario 3: User Views Cart
+[plantuml, frontend-scenario-3, svg]
+----
+@startuml
+actor User
+participant NavbarComponent
+participant Router
+participant CartComponent
+participant CartService
+
+User -> NavbarComponent : Click cart icon
+NavbarComponent -> Router : Navigate to /cart
+Router -> CartComponent : Activate route
+CartComponent -> CartService : getCartItems()
+CartService --> CartComponent : Observable items
+CartComponent -> CartComponent : toSignal() + display items
+CartComponent -> CartComponent : Compute total
+@enduml
+----
+Steps:
+
+* User clicks cart icon in NavbarComponent
+* Angular Router navigates to /cart route
+* CartComponent loads and calls CartService.getCartItems()
+* Items are converted to signal using toSignal()
+* Total is calculated automatically via computed signal
+
 ==== Notable Aspects
 * Frontend calls only webshop; webshop fans out to domain services.
 * Observability: backend services emit traces to Zipkin; metrics exposed via /actuator/prometheus.
