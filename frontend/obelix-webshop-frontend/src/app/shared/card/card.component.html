@@ -10,7 +10,14 @@
 
   <div class="content">
     <h3 class="title">{{ title$$() }}</h3>
-    <p class="desc">{{ description$$() }}</p>
+    <p class="desc" [class.desc--truncated]="isDescriptionTruncated$$()">
+      <span class="desc__text" #descText>{{ description$$() }}</span>
+      @if (isDescriptionTruncated$$()) {
+        <span class="desc__tooltip" aria-hidden="true">
+          {{ description$$() }}
+        </span>
+      }
+    </p>
 
     <div class="meta">
       <div class="meta__item">

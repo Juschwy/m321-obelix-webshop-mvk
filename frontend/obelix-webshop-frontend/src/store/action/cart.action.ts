@@ -15,5 +15,5 @@ export const clearCart = createAction('[Cart] Clear Cart');
 
 export const updateItemFromCart = createAction(
   '[Cart] Update Item Quantity',
-  props<{ menhirs: { name: string; quantity: number } }>(),
+  props<{ menhirs: { id: string; quantity: number } }>(),
 );

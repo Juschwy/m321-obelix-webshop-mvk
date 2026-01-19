@@ -26,7 +26,7 @@ public interface QuarryApi {
     void deleteById(@PathVariable UUID menhirId);
 
     @PostExchange("/")
-    void createMenhir(MenhirDto menhirDto);
+    void createMenhir(@RequestBody MenhirDto menhirDto);
 
     @PutExchange("/{menhirId}")
     void updateMenhir(@RequestBody MenhirDto menhirDto, @PathVariable UUID menhirId);
