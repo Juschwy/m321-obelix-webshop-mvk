@@ -86,7 +86,7 @@ The technical context describes **how communication with the Obelix system is re
 ----
 @startuml
 node "Web Frontend" {
-  component "React UI"
+  component "Angular"
 }
 
 node "Obelix Backend" {
