@@ -16,141 +16,212 @@ The goal is to keep the structure consistent and easy to extend.
 [plantuml, building-block-overview, svg]
 ----
 @startuml
-rectangle "<System Name>" {
+rectangle "Obelix Webshop" {
 
-  rectangle "<Frontend / Client 1>"
-  rectangle "<Frontend / Client 2>"
+  rectangle "Frontend (Angular + Nginx)" as FE
 
-  rectangle "<Backend / Services>" {
-    rectangle "<Service A>"
-    rectangle "<Service B>"
-    rectangle "<Service C>"
+  rectangle "Backend / Services" {
+    rectangle "obelix-webshop (reverse proxy)" as WS
+    rectangle "obelix-quarry" as Q
+    rectangle "obelix-basket" as B
+  }
+
+  rectangle "Observability" {
+    rectangle "Prometheus" as P
+    rectangle "Zipkin" as Z
+    rectangle "Grafana" as G
   }
 }
+FE --> WS : HTTP
+WS --> Q : HTTP
+WS --> B : HTTP
+P --> WS : scrape metrics
+P --> Q : scrape metrics
+P --> B : scrape metrics
+WS --> Z : traces
+Q --> Z : traces
+B --> Z : traces
+G --> P : metrics
 @enduml
 ----
 
-NOTE: Replace placeholders with actual building blocks.  
-Only show **relevant structural elements**, not technical details.
-
 ==== Motivation
 
-TODO:  
-Explain **why** the system is decomposed this way.
-
-* Why are these building blocks needed?
-* Why are they separated?
-* What benefits does this decomposition provide (e.g. scalability, clarity, parallel work)?
-
-Keep this section **short and high-level**.
+The system is split into a single-page frontend and multiple backend microservices to allow parallel development by a large team and clear separation of responsibilities. A reverse proxy (obelix-webshop) aggregates calls to domain services (quarry, basket). Observability is built-in with Zipkin (traces) and Prometheus/Grafana (metrics) to meet the assignment requirements and support troubleshooting.
 
 ==== Contained Building Blocks
-
-Use this table for a **compact overview** of all Level-1 building blocks.
 
 [cols="1,2",options="header"]
 |===
 |Name |Responsibility
 
-|<Building Block 1>
-|<Short description of responsibility>
+|Frontend (Angular + Nginx)
+|Customer-facing UI for browsing and purchasing Hinkelsteine; uses generated OpenAPI client.
 
-|<Building Block 2>
-|<Short description of responsibility>
+|obelix-webshop (reverse proxy)
+|Gateway for frontend; routes/aggregates requests to basket/quarry; exposes /actuator/prometheus metrics.
 
-|<Building Block n>
-|<Short description of responsibility>
+|obelix-quarry
+|Provides product (Hinkelstein) data and APIs.
+
+|obelix-basket
+|Manages shopping baskets and operations.
+
+|Prometheus
+|Scrapes metrics from backend services and itself.
+
+|Zipkin
+|Collects distributed traces from backend services.
+
+|Grafana
+|Visualizes Prometheus metrics.
 |===
-
-TIP:  
-Responsibilities should be **business- or domain-oriented**, not technical.
 
 ==== Important Interfaces
 
-TODO (optional):  
-List only **interfaces that are critical** for understanding the overall system.
-
-Examples:
-* Public REST APIs
-* Shared data models
-* Cross-cutting technical interfaces (e.g. monitoring, tracing)
-
-Do **not** repeat interfaces that are already well described in the black box sections.
+* Public REST APIs per microservice (OpenAPI 3.x, code-first via springdoc)
+* Frontend consumes backend via generated OpenAPI client
+* Monitoring endpoints: /actuator/prometheus on backend services
+* Tracing: Zipkin HTTP span ingestion API (port 9411)
+* Internal service contracts: Shared Java interfaces (in shared modules) define reverse-proxy-to-microservice contracts; HTTP clients in obelix-webshop implement these interfaces to call obelix-quarry and obelix-basket.
 
 ---
 
 === Level 1 – Black Box Descriptions
 
-For each important building block from the table above,
-create one black box section using the template below.
-
-==== <Name of Building Block>
+==== Frontend (Angular + Nginx)
 
 *Purpose / Responsibility*  
-TODO:  
-Describe **what** this building block does and **why** it exists.
+Customer UI; uses generated OpenAPI client to call reverse proxy.
 
 *Interfaces*  
-TODO:
-* Provided interfaces (e.g. REST API)
-* Consumed interfaces (if relevant)
+Provided: Web UI (HTTP).
+Consumed: obelix-webshop REST API.
 
 (Optional) *Quality / Performance Characteristics*  
-TODO (optional):
-* Availability
-* Performance
-* Scalability
-* Reliability
+Static content served via Nginx; relies on backend for data.
+
+(Optional) *Location*
+frontend/obelix-webshop-frontend
+
+==== obelix-webshop (reverse proxy)
+
+*Purpose / Responsibility*
+Aggregates and routes frontend requests to basket/quarry; exposes metrics and sends traces to Zipkin.
+
+*Interfaces*
+Provided: REST API for frontend.
+Consumed: obelix-basket, obelix-quarry REST APIs; Zipkin ingestion API.
+Internal contracts: Implements shared Java interfaces for basket/quarry clients to ensure consistent method signatures and behaviors.
+
+(Optional) *Quality / Performance Characteristics*
+Single point of entry; ensures consistent APIs.
+
+(Optional) *Location*
+backend/obelix-webshop
+
+==== obelix-quarry
+
+*Purpose / Responsibility*
+Product data and CRUD APIs.
+
+*Interfaces*
+Provided: REST API; /actuator/prometheus.
+Consumed: Zipkin ingestion API.
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
 
 (Optional) *Location*  
-TODO (optional):
-* Repository
-* Module
-* Directory
+backend/obelix-quarry-impl
 
-(Optional) *Open Issues / Risks*  
-TODO (optional):
-* Known risks
-* Open questions
-* Planned changes
+==== obelix-basket
 
----
+*Purpose / Responsibility*
+Basket management and CRUD APIs.
 
-==== <Name of Building Block>
+*Interfaces*
+Provided: REST API; /actuator/prometheus.
+Consumed: Zipkin ingestion API; obelix-quarry API.
+Internal contracts: Exposes and adheres to shared Java interfaces used by the gateway client.
+
+(Optional) *Location*
+backend/obelix-basket-impl
+
+==== Prometheus
+
+*Purpose / Responsibility*
+Collects metrics.
+
+*Interfaces*
+Consumed: /actuator/prometheus endpoints of backend services.
+
+==== Grafana
+
+*Purpose / Responsibility*
+Metrics visualization.
+
+*Interfaces*
+Consumed: Prometheus HTTP API.
+
+==== Zipkin
+
+*Purpose / Responsibility*
+Trace collection.
+
+*Interfaces*
+Provided: HTTP span ingestion (port 9411).
+Consumed: spans from backend services.
+
+'''
+
+==== Frontend (Angular + Nginx)
 
 (copy the template above)
 
----
+'''
+
+==== obelix-webshop (reverse proxy)
+
+(copy the template above)
+
+'''
+
+==== obelix-quarry
+
+(copy the template above)
+
+'''
+
+==== obelix-basket
+
+(copy the template above)
+
+'''
 
 === Level 2
 
 Level 2 describes the **internal structure** of selected Level-1 building blocks.
 
-Only document building blocks that are:
-* complex
-* risky
-* central to the system
-* frequently changed
-
-==== White Box <Building Block Name>
+==== White Box obelix-webshop (reverse proxy)
 
 ==== Overview Diagram
 
-[plantuml, <block-name>-whitebox, svg]
+[plantuml, webshop-whitebox, svg]
 ----
 @startuml
-rectangle "<Building Block Name>" {
-  rectangle "<Internal Component 1>"
-  rectangle "<Internal Component 2>"
-  rectangle "<Internal Component n>"
+rectangle "obelix-webshop" {
+  rectangle "Controller Layer"
+  rectangle "Service Layer"
+  rectangle "Client: Basket"
+  rectangle "Client: Quarry"
+  rectangle "Tracing (Zipkin)"
+  rectangle "Actuator (/prometheus)"
 }
 @enduml
 ----
 
 ==== Motivation
 
-TODO:
-Explain why this internal structure is relevant to document.
+Central entrypoint; integrates clients to downstream services and cross-cutting observability.
 
 ==== Contained Building Blocks
 
@@ -158,22 +229,25 @@ Explain why this internal structure is relevant to document.
 |===
 |Name |Responsibility
 
-|<Internal Component 1>
-|<Responsibility>
+|Controller Layer
+|Expose REST endpoints for frontend.
 
-|<Internal Component 2>
-|<Responsibility>
+|Service Layer
+|Orchestrate calls to basket/quarry.
+
+|Client: Basket
+|HTTP client to obelix-basket.
+
+|Client: Quarry
+|HTTP client to obelix-quarry.
+
+|Tracing (Zipkin)
+|Send spans to Zipkin.
+
+|Actuator (/prometheus)
+|Expose metrics for Prometheus scrapes.
 |===
-
----
 
 === Level 3
 
-Level 3 is **optional** and should only be used if Level 2 is still too coarse.
-
-If not needed, explicitly state this.
-
-Example:
-
-_Level 3 is currently not required.  
-Further decomposition will be added if complexity increases._
+_Level 3 is currently not required. Further decomposition will be added if complexity increases._

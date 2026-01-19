@@ -9,7 +9,7 @@ how software building blocks are mapped onto that infrastructure.
 Focus on **architecturally relevant deployment aspects** and keep the descriptions abstract
 so teams can fill in details later.
 
----
+'''
 
 === Infrastructure Level 1 – Overview
 
@@ -18,107 +18,180 @@ so teams can fill in details later.
 [plantuml, deployment-level1, svg]
 ----
 @startuml
-node "<Environment / Location 1>" {
-  node "<Server / VM / Container 1>"
-  node "<Server / VM / Container 2>"
+cloud "BBW-Maas Cluster" {
+  node "Ubuntu 24.04 VM (obelix.liuuner.ch)" as vm {
+    package "Application Services" {
+      [Frontend]
+      [Backend]
+    }
+    package "Monitoring & Tracing" {
+      [Prometheus]
+      [Zipkin]
+      [Grafana]
+    }
+  }
 }
-
-node "<Environment / Location 2>" {
-  node "<Server / VM / Container 3>"
-}
-
-"<Server / VM / Container 1>" --> "<Server / VM / Container 2>" : <Connection / Protocol>
-"<Server / VM / Container 1>" --> "<Server / VM / Container 3>" : <Connection / Protocol>
+[Frontend] --> [Backend] : call via HTTP
+[Prometheus] --> [Backend] : scrape metrics
+[Backend] --> [Zipkin] : send traces
+[Grafana] --> [Prometheus] : read metrics
 @enduml
 ----
 
 ==== Motivation
 
-TODO:  
-Explain **why this deployment structure is used**, e.g.:
-
-* Scalability
-* Fault tolerance
-* Geographical distribution
-* Separation of environments (dev/test/prod)
+The deployment uses a single VM on the BBW-Maas cluster for simplicity, as this is a test/dev environment for a school project. This approach is mandated by the project requirements, which specify docker-compose and a single VM for orchestration. The environment is ephemeral and may be shut down automatically. The separation of frontend and backend (with three backend services) supports parallel development by a large team and reflects the project’s evolution and requirements for microservices and observability.
 
 ==== Quality and/or Performance Features
 
-TODO:  
-Document any relevant **non-functional aspects**, e.g.:
-
-* Availability
-* Throughput / latency
-* Redundancy / failover
-* Resource requirements (CPU, memory, storage)
+* Environment Type: Development/Test only; not intended for production.
+* Availability: Single point of failure (one VM); no redundancy or failover.
+* Resource Constraints: VM size and resources are managed by the MAAS system and cannot be customized by the project team.
+* Simplicity: Docker Compose and a single VM minimize operational complexity and setup time, as required by the assignment.
+* Observability: Zipkin for distributed tracing/logging, Prometheus for metrics, Grafana for visualization, as mandated by the project.
+* CI/CD: Automated build, test, and deployment pipelines via GitHub Actions, with a protected main branch and mandatory PR reviews.
 
 ==== Mapping of Building Blocks to Infrastructure
 
+[cols="1,2,1",options="header"]
+|===
+|Service Group |Infrastructure Element / Node |Listening Port
+
+|Frontend
+|Docker container (Nginx) on Ubuntu VM |80
+
+|Backend
+|obelix-webshop (Docker container) on Ubuntu VM |8080
+
+|
+|obelix-quarry (Docker container) on Ubuntu VM |8081
+
+|
+|obelix-basket (Docker container) on Ubuntu VM |8082
+
+|Monitoring & Tracing
+|Prometheus (Docker container) on Ubuntu VM |9090
+
+|
+|Grafana (Docker container) on Ubuntu VM |3000
+
+|
+|Zipkin (Docker container) on Ubuntu VM |9411
+|===
+
+==== CI/CD and Deployment
+
+* All code and documentation are managed in a protected GitHub repository.
+* Every commit and PR triggers automated tests and builds.
+* The main branch is protected and requires three mandatory reviews per PR.
+* Deployment to the BBW-Maas VM is automated via GitHub Actions, using docker-compose as required by the assignment.
+* The pipeline can provision the VM via the MAAS API; version updates and redeploys connect via WireGuard + SSH to update images and run `docker compose up -d`.
+* The workflow registers the VM under the public domain `obelix.liuuner.ch`.
+
+==== CI/CD Workflow Stages
+
 [cols="1,2",options="header"]
 |===
-|Building Block |Infrastructure Element / Node
+|Stage |Description
 
-|<Building Block 1>
-|<Server / VM / Container / Node>
+|Test (see `.github/workflows/frontend-ci-build-publish.yaml`, job: `test`)
+|Run unit/integration tests on each PR.
 
-|<Building Block 2>
-|<Server / VM / Container / Node>
+|Build & Publish (see `.github/workflows/frontend-ci-build-publish.yaml`, job: `build-and-push`)
+|Build frontend; generate/validate OpenAPI; publish Docker image to GHCR with tags.
 
-|<Building Block n>
-|<Server / VM / Container / Node>
+|Provision (see `.github/workflows/deploy.yaml`, job: `deploy` – step: `Prepare VM`)
+|Create/register VM via BBW-Maas API.
+
+|Deploy (see `.github/workflows/deploy.yaml`, job: `deploy` – steps: `Setup WireGuard`, `Deploy to server`)
+|Connect via WireGuard + SSH; update compose image tags; `docker compose up -d`.
+
+|Verify (see `.github/workflows/deploy.yaml`, job: `deploy`)
+|Post-deploy checks (logs/health); Prometheus targets UP; Zipkin receiving spans.
 |===
 
----
+==== Rollback Strategy
+
+Manual rollback via SSH: select previous image tags in compose and re-run `docker compose up -d`. Suitable for dev/test scope.
+
+==== Network & Firewalling
+
+* obelix.liuuner.ch resolves directly to the VM’s IP.
+* BBW-Maas is only reachable inside the school’s private network; CI/CD and operators connect via WireGuard.
+* Firewalling: within the private network, required ports are open; monitoring tools are accessible from the same network.
+* Future consideration: In a hardened setup, restrict external exposure to the frontend and gateway (80/8080) and close direct access to microservices and monitoring.
+
+'''
 
 === Infrastructure Level 2 – Internal Structure
 
-Level 2 zooms into **selected infrastructure elements** from Level 1.  
-Document **complex or critical elements** only.
+Level 2 zooms into the Ubuntu 24.04 VM and shows all Docker containers and their detailed connections, including trace and metrics flows.
 
-==== <Infrastructure Element 1>
+==== Ubuntu 24.04 VM (Docker Host)
 
 ==== Diagram
 
 [plantuml, infra-element1, svg]
 ----
 @startuml
-node "<Infrastructure Element 1>" {
-  node "<Internal Component 1>"
-  node "<Internal Component 2>"
+node "Ubuntu 24.04 VM (obelix.liuuner.ch)" {
+  node "obelix-frontend (Nginx)" as frontend
+  node "obelix-webshop (reverse proxy)" as webshop
+  node "obelix-basket" as basket
+  node "obelix-quarry" as quarry
+  node "zipkin" as zipkin
+  node "prometheus" as prometheus
+  node "grafana" as grafana
 }
+' External access
+actor "Internet User" as user
+user --> frontend : HTTP (port 80) obelix.liuuner.ch
+user --> grafana : HTTP (port 3000) obelix.liuuner.ch
 
-"<Internal Component 1>" --> "<Internal Component 2>" : <Connection / Protocol>
+' App traffic
+frontend --> webshop : HTTP (port 8080)
+webshop --> basket : HTTP (port 8082)
+webshop --> quarry : HTTP (port 8081)
+
+' Monitoring and tracing
+prometheus --> webshop : scrape /actuator/prometheus (HTTP, port 8080)
+prometheus --> basket : scrape /actuator/prometheus (HTTP, port 8082)
+prometheus --> quarry : scrape /actuator/prometheus (HTTP, port 8081)
+grafana --> prometheus : read metrics (HTTP, port 9090)
+webshop --> zipkin : send traces (HTTP, port 9411)
+basket --> zipkin : send traces (HTTP, port 9411)
+quarry --> zipkin : send traces (HTTP, port 9411)
 @enduml
 ----
 
 ==== Motivation
 
-TODO:  
-Explain why this element is **relevant to document**, e.g.:
-
-* Complex topology
-* Multiple services deployed
-* Performance-critical paths
+This VM hosts all Docker containers for the project, providing a simple, reproducible environment for development and testing. It is the central point for all application and monitoring services, as required by the assignment and limited by the available infrastructure.
 
 ==== Mapping of Building Blocks to Internal Components
 
-[cols="1,2",options="header"]
+[cols="1,2,1",options="header"]
 |===
-|Building Block |Mapped Component
+|Building Block |Mapped Component |Listening Port
 
-|<Building Block A>
-|<Internal Component 1>
+|obelix-webshop-frontend (Angular)
+|obelix-webshop-frontend (Nginx Docker container) |80
 
-|<Building Block B>
-|<Internal Component 2>
+|obelix-webshop (reverse proxy)
+|obelix-webshop (Docker container) |8080
+
+|obelix-basket
+|obelix-basket (Docker container) |8082
+
+|obelix-quarry
+|obelix-quarry (Docker container) |8081
+
+|zipkin
+|zipkin (Docker container) |9411
+
+|prometheus
+|prometheus (Docker container) |9090
+
+|grafana
+|grafana (Docker container) |3000
 |===
-
-==== <Infrastructure Element 2>
-
-(copy template above)
-
-...
-
-==== <Infrastructure Element n>
-
-(copy template above)
